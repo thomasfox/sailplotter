@@ -23,6 +23,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.statistics.SimpleHistogramDataset;
@@ -44,7 +45,9 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 {
   private final ZoomPanel zoomPanel;
 
-  private final TimeSeriesCollection velocityBearingOverTimeDataset = new TimeSeriesCollection();
+  private final TimeSeriesCollection fullVelocityBearingOverTimeDataset = new TimeSeriesCollection();
+
+  private final TimeSeriesCollection zoomedVelocityBearingOverTimeDataset = new TimeSeriesCollection();
 
   SimpleHistogramDataset bearingHistogramDataset;
 
@@ -73,22 +76,31 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new GridLayout(0,3));
 
-    updateVelocityBearingOverTimeDataset();
-    JFreeChart velocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Title", "X", "Y", velocityBearingOverTimeDataset, false, false, false);
-    XYPlot velocityBearingOverTimePlot = (XYPlot) velocityBearingOverTimeChart.getPlot();
+    updateFullVelocityBearingOverTimeDataset();
+    JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Velocity and Bearing (Full)", "Time", "Velocity [kts] / Bearing [arcs]", fullVelocityBearingOverTimeDataset, false, false, false);
+    XYPlot fullVelocityBearingOverTimePlot = (XYPlot) fullVelocityBearingOverTimeChart.getPlot();
     Range dataRange = new DateRange(data.get(0).time, data.get(data.size() -1).time);
-    velocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
+    fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
     Range valueRange = new DateRange(0, getMaximum(data, DataPoint::getVelocity));
-    velocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
-    velocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
-    velocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
-    velocityBearingOverTimePlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
-    velocityBearingOverTimePlot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
-    velocityBearingOverTimePlot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
-    velocityBearingOverTimePlot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
+    ChartPanel fullVelocityBearingOverTimeChartPanel = new ChartPanel(fullVelocityBearingOverTimeChart);
+    frame.getContentPane().add(fullVelocityBearingOverTimeChartPanel);
 
-    ChartPanel velocityBearingOverTimeChartPanel = new ChartPanel(velocityBearingOverTimeChart);
-    frame.getContentPane().add(velocityBearingOverTimeChartPanel);
+    updateZoomedVelocityBearingOverTimeDataset();
+    JFreeChart zoomedVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Velocity and Bearing (Zoom)", "Time", "Velocity [kts] / Bearing [arcs]", zoomedVelocityBearingOverTimeDataset, false, false, false);
+    XYPlot zoomedVelocityBearingOverTimePlot = (XYPlot) zoomedVelocityBearingOverTimeChart.getPlot();
+    zoomedVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
+    zoomedVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0x00, 0xFF, 0x00));
+    ((XYLineAndShapeRenderer) zoomedVelocityBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(0, true);
+    ((XYLineAndShapeRenderer) zoomedVelocityBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(1, true);
+    ChartPanel zoomedvelocityBearingOverTimeChartPanel = new ChartPanel(zoomedVelocityBearingOverTimeChart);
+    frame.getContentPane().add(zoomedvelocityBearingOverTimeChartPanel);
 
     bearingHistogramDataset = new SimpleHistogramDataset("Relative Bearing");
     bearingHistogramDataset.setAdjustForBinSize(false);
@@ -103,7 +115,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
       bearingHistogramDataset.addBin(bin);
     }
     updateBearingHistogramDataset();
-    JFreeChart bearingHistogramChart = ChartFactory.createHistogram("Relative Bearing", "X", "Y",  bearingHistogramDataset, PlotOrientation.VERTICAL, false, false, false);
+    JFreeChart bearingHistogramChart = ChartFactory.createHistogram("Relative Bearing", "Relative Bearing [°]", "Occurances",  bearingHistogramDataset, PlotOrientation.VERTICAL, false, false, false);
     ChartPanel bearingChartPanel = new ChartPanel(bearingHistogramChart);
     frame.getContentPane().add(bearingChartPanel);
 
@@ -209,17 +221,22 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     return data;
   }
 
-  private void updateVelocityBearingOverTimeDataset()
+  private void updateFullVelocityBearingOverTimeDataset()
   {
-    velocityBearingOverTimeDataset.removeAllSeries();
-    velocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.BEFORE));
-    velocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.IN));
-    velocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.AFTER));
-    velocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(data, TimeWindowPosition.BEFORE));
-    velocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(data, TimeWindowPosition.IN));
-    velocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(data, TimeWindowPosition.AFTER));
-//    velocityBearingOverTimeDataset.addSeries(getZoomDisplaySeries(data));
+    fullVelocityBearingOverTimeDataset.removeAllSeries();
+    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.BEFORE));
+    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.IN));
+    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.AFTER));
+    fullVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(data, TimeWindowPosition.BEFORE));
+    fullVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(data, TimeWindowPosition.IN));
+    fullVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(data, TimeWindowPosition.AFTER));
+  }
 
+  private void updateZoomedVelocityBearingOverTimeDataset()
+  {
+    zoomedVelocityBearingOverTimeDataset.removeAllSeries();
+    zoomedVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.IN));
+    zoomedVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(data, TimeWindowPosition.IN));
   }
 
   public static TimeSeries getLatitudeTimeSeries(List<DataPoint> data)
@@ -434,7 +451,8 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   @Override
   public void stateChanged(ZoomPanelChangeEvent e)
   {
-    updateVelocityBearingOverTimeDataset();
+    updateFullVelocityBearingOverTimeDataset();
+    updateZoomedVelocityBearingOverTimeDataset();
     updateBearingHistogramDataset();
     updateVelocityBearingPolar();
     updateXyDataset();
