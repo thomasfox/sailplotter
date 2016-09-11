@@ -12,11 +12,8 @@ import java.util.function.Function;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -43,11 +40,9 @@ import com.github.thomasfox.sailplotter.importer.ViewRangerImporter;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
 
-public class SwingGui implements ChangeListener, ListSelectionListener
+public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 {
-  private final JSlider startSlider;
-
-  private final JSlider zoomSlider;
+  private final ZoomPanel zoomPanel;
 
   private final TimeSeriesCollection velocityBearingOverTimeDataset = new TimeSeriesCollection();
 
@@ -59,38 +54,31 @@ public class SwingGui implements ChangeListener, ListSelectionListener
 
   XYSeriesCollection xyDataset = new XYSeriesCollection();
 
-  List<DataPoint> velocityAndBearings;
+  List<DataPoint> data;
 
   List<Tack> tacks;
 
   JTable tacksTable;
 
-  String filePath;
-
   double windBearing;
 
   public SwingGui(String filePath, int windDirectionInDegrees)
   {
-    this.filePath = filePath;
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
+    data = getData(filePath);
+    new VelocityBearingAnalyzer().analyze(data, windBearing);
+    zoomPanel = new ZoomPanel(data.size());
 
     JFrame frame = new JFrame("SailPlotter");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new GridLayout(0,3));
 
-    startSlider = new JSlider(JSlider.HORIZONTAL, 0, getData().size() - 1, 0);
-    startSlider.addChangeListener(this);
-    zoomSlider = new JSlider(JSlider.HORIZONTAL, 0, Constants.NUMER_OF_ZOOM_TICKS, Constants.NUMER_OF_ZOOM_TICKS);
-    zoomSlider.addChangeListener(this);
-
-    List<DataPoint> data = getData();
-    velocityAndBearings = new VelocityBearingAnalyzer().analyze(data, windBearing);
     updateVelocityBearingOverTimeDataset();
     JFreeChart velocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Title", "X", "Y", velocityBearingOverTimeDataset, false, false, false);
     XYPlot velocityBearingOverTimePlot = (XYPlot) velocityBearingOverTimeChart.getPlot();
     Range dataRange = new DateRange(data.get(0).time, data.get(data.size() -1).time);
     velocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
-    Range valueRange = new DateRange(0, getMaximum(velocityAndBearings, DataPoint::getVelocity));
+    Range valueRange = new DateRange(0, getMaximum(data, DataPoint::getVelocity));
     velocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
     velocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     velocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
@@ -124,8 +112,9 @@ public class SwingGui implements ChangeListener, ListSelectionListener
     ChartPanel chartPanel = new ChartPanel(chart);
     frame.getContentPane().add(chartPanel);
 
-    frame.getContentPane().add(startSlider);
-    frame.getContentPane().add(zoomSlider);
+    zoomPanel.addListener(this);
+
+    frame.getContentPane().add(zoomPanel);
 
     updateXyDataset();
     JFreeChart xyChart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", xyDataset, PlotOrientation.VERTICAL, false, false, false);
@@ -144,7 +133,7 @@ public class SwingGui implements ChangeListener, ListSelectionListener
     ChartPanel xyChartPanel = new ChartPanel(xyChart);
     frame.getContentPane().add(xyChartPanel);
 
-    tacks = new TackListByCorrelationAnalyzer().analyze(velocityAndBearings);
+    tacks = new TackListByCorrelationAnalyzer().analyze(data);
     DefaultTableModel model = new DefaultTableModel(
         new String[] {"Point of Sail", "length (m)", "duration (sec)", "Average relative Bearing (degrees)", "Average Speed (knots)"},0);
     for (Tack tack : tacks)
@@ -213,7 +202,7 @@ public class SwingGui implements ChangeListener, ListSelectionListener
     System.out.println("Usage: ${startcommand} ${file} ${windDirectionInDegreees}");
   }
 
-  private List<DataPoint> getData()
+  private List<DataPoint> getData(String filePath)
   {
     File file = new File(filePath);
     List<DataPoint> data = new ViewRangerImporter().read(file);
@@ -222,7 +211,6 @@ public class SwingGui implements ChangeListener, ListSelectionListener
 
   private void updateVelocityBearingOverTimeDataset()
   {
-    List<DataPoint> data = getData();
     velocityBearingOverTimeDataset.removeAllSeries();
     velocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.BEFORE));
     velocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(data, TimeWindowPosition.IN));
@@ -275,10 +263,9 @@ public class SwingGui implements ChangeListener, ListSelectionListener
   public TimeSeries getVelocityTimeSeries(List<DataPoint> data, TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("velocity");
-    List<DataPoint> analyzed = new VelocityBearingAnalyzer().analyze(data, windBearing);
-    for (DataPoint point : analyzed)
+    for (DataPoint point : data)
     {
-      if (!isInSelectedPosition(point, position, data))
+      if (!isInSelectedPosition(point, position))
       {
         continue;
       }
@@ -290,10 +277,9 @@ public class SwingGui implements ChangeListener, ListSelectionListener
   public TimeSeries getBearingTimeSeries(List<DataPoint> data, TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("bearing");
-    List<DataPoint> analyzed = new VelocityBearingAnalyzer().analyze(data, windBearing);
-    for (DataPoint point : analyzed)
+    for (DataPoint point : data)
     {
-      if (!isInSelectedPosition(point, position, data))
+      if (!isInSelectedPosition(point, position))
       {
         continue;
       }
@@ -314,24 +300,24 @@ public class SwingGui implements ChangeListener, ListSelectionListener
 
   public int getDataStartIndex(List<DataPoint> data)
   {
-    return startSlider.getValue();
+    return zoomPanel.getStartIndex();
   }
 
   public int getDataEndIndex(List<DataPoint> data)
   {
-    int zoom = zoomSlider.getValue();
+    int zoom = zoomPanel.getZoomIndex();
     int startIndex = getDataStartIndex(data);
     int result = startIndex + zoom * (data.size() - 1) / Constants.NUMER_OF_ZOOM_TICKS;
     result = Math.min(result, (data.size() - 1));
     return result;
   }
 
-  public LocalDateTime getDataStartTime(List<DataPoint> data)
+  public LocalDateTime getDataStartTime()
   {
     return data.get(getDataStartIndex(data)).getLocalDateTime();
   }
 
-  public LocalDateTime getDataEndTime(List<DataPoint> data)
+  public LocalDateTime getDataEndTime()
   {
     return data.get(getDataEndIndex(data)).getLocalDateTime();
   }
@@ -342,12 +328,10 @@ public class SwingGui implements ChangeListener, ListSelectionListener
     {
       bin.setItemCount(0);
     }
-    List<DataPoint> data = getData();
-    List<DataPoint> analyzed = new VelocityBearingAnalyzer().analyze(data, windBearing);
-    for (DataPoint point : analyzed)
+    for (DataPoint point : data)
     {
-      if (point.getLocalDateTime().isAfter(getDataStartTime(data))
-          && point.getLocalDateTime().isBefore(getDataEndTime(data)))
+      if (point.getLocalDateTime().isAfter(getDataStartTime())
+          && point.getLocalDateTime().isBefore(getDataEndTime()))
       {
         if (point.bearing != null)
         {
@@ -359,17 +343,15 @@ public class SwingGui implements ChangeListener, ListSelectionListener
 
   public void updateVelocityBearingPolar()
   {
-    List<DataPoint> data = getData();
     List<List<Double>> velocityBuckets = new ArrayList<>(Constants.NUMBER_OF_BEARING_BINS);
     for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
     {
       velocityBuckets.add(new ArrayList<Double>());
     }
-    List<DataPoint> analyzed = new VelocityBearingAnalyzer().analyze(data, windBearing);
-    for (DataPoint point : analyzed)
+    for (DataPoint point : data)
     {
-      if (point.getLocalDateTime().isAfter(getDataStartTime(data))
-          && point.getLocalDateTime().isBefore(getDataEndTime(data)))
+      if (point.getLocalDateTime().isAfter(getDataStartTime())
+          && point.getLocalDateTime().isBefore(getDataEndTime()))
       {
         if (point.bearing != null && point.velocity != null)
         {
@@ -406,19 +388,19 @@ public class SwingGui implements ChangeListener, ListSelectionListener
     velocityBearingPolar.addSeries(medianVelocity);
   }
 
-  private boolean isInSelectedPosition(DataPoint point, TimeWindowPosition position, List<DataPoint> data)
+  private boolean isInSelectedPosition(DataPoint point, TimeWindowPosition position)
   {
-    if (position == TimeWindowPosition.BEFORE && point.getLocalDateTime().isAfter(getDataStartTime(data)))
+    if (position == TimeWindowPosition.BEFORE && point.getLocalDateTime().isAfter(getDataStartTime()))
     {
       return false;
     }
     if (position == TimeWindowPosition.IN
-        && (! point.getLocalDateTime().isAfter(getDataStartTime(data))
-            || !point.getLocalDateTime().isBefore(getDataEndTime(data))))
+        && (! point.getLocalDateTime().isAfter(getDataStartTime())
+            || !point.getLocalDateTime().isBefore(getDataEndTime())))
     {
       return false;
     }
-    if (position == TimeWindowPosition.AFTER && point.getLocalDateTime().isBefore(getDataEndTime(data)))
+    if (position == TimeWindowPosition.AFTER && point.getLocalDateTime().isBefore(getDataEndTime()))
     {
       return false;
     }
@@ -427,7 +409,6 @@ public class SwingGui implements ChangeListener, ListSelectionListener
 
   private void updateXyDataset()
   {
-    List<DataPoint> data = getData();
     xyDataset.removeAllSeries();
     xyDataset.addSeries(getXySeries(data, TimeWindowPosition.BEFORE, data.get(0).getX(), data.get(0).getY()));
     xyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
@@ -439,7 +420,7 @@ public class SwingGui implements ChangeListener, ListSelectionListener
     XYSeries series = new XYSeries("XY", false, true);
     for (DataPoint point : data)
     {
-      if (!isInSelectedPosition(point, position, data))
+      if (!isInSelectedPosition(point, position))
       {
         continue;
       }
@@ -451,7 +432,7 @@ public class SwingGui implements ChangeListener, ListSelectionListener
 
 
   @Override
-  public void stateChanged(ChangeEvent e)
+  public void stateChanged(ZoomPanelChangeEvent e)
   {
     updateVelocityBearingOverTimeDataset();
     updateBearingHistogramDataset();
@@ -469,7 +450,7 @@ public class SwingGui implements ChangeListener, ListSelectionListener
     ListSelectionModel model = tacksTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
     Tack tack = tacks.get(index);
-    startSlider.setValue(tack.startIndex);
-    zoomSlider.setValue(Math.max(Constants.NUMER_OF_ZOOM_TICKS * (tack.endIndex - tack.startIndex) / (getData().size()), 3));
+    zoomPanel.setStartIndex(tack.startIndex);
+    zoomPanel.setZoomIndex(Math.max(Constants.NUMER_OF_ZOOM_TICKS * (tack.endIndex - tack.startIndex) / (data.size()), 3));
   }
 }
