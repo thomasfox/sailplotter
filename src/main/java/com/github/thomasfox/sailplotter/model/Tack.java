@@ -71,8 +71,12 @@ public class Tack
     return result;
   }
 
-  public double getAverageVelocityInKnots()
+  public Double getAverageVelocityInKnots()
   {
+    if (end == null)
+    {
+      return null;
+    }
     return end.getVelocityInKnotsBetween(start);
   }
 

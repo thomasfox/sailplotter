@@ -22,6 +22,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PolarPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
@@ -54,6 +55,8 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   List<SimpleHistogramBin> bearingHistogramBins = new ArrayList<>();
 
   XYSeriesCollection velocityBearingPolar = new XYSeriesCollection();
+
+  XYSeriesCollection tackVelocityBearingPolar = new XYSeriesCollection();
 
   XYSeriesCollection xyDataset = new XYSeriesCollection();
 
@@ -162,6 +165,14 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     tacksTable.setFillsViewportHeight(true);
     tacksTable.getSelectionModel().addListSelectionListener(this);
     frame.getContentPane().add(scrollPane);
+
+    updateTackVelocityBearingPolar();
+    JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over Relative Bearing", tackVelocityBearingPolar, false, false, false);
+    PolarPlot tackVelocityBearingPlot = (PolarPlot) tackVelocityBearingChart.getPlot();
+    tackVelocityBearingPlot.setRenderer(new PolarScatterRenderer());
+    ChartPanel tackVelocityBearingChartPanel = new ChartPanel(tackVelocityBearingChart);
+    frame.getContentPane().add(tackVelocityBearingChartPanel);
+
 
     frame.pack();
     frame.setVisible(true);
@@ -405,6 +416,24 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     velocityBearingPolar.addSeries(medianVelocity);
   }
 
+  public void updateTackVelocityBearingPolar()
+  {
+    XYSeries tackVelocity = new XYSeries("tackVelocity", false, true);
+    for (Tack tack : tacks)
+    {
+      if (tack.end.getLocalDateTime().isAfter(getDataStartTime())
+          && tack.start.getLocalDateTime().isBefore(getDataEndTime()))
+      {
+        if (tack.getAverageRelativeBearingInDegrees() != null && tack.getAverageVelocityInKnots() != null)
+        {
+          tackVelocity.add(tack.getAverageRelativeBearingInDegrees(), tack.getAverageVelocityInKnots());
+        }
+      }
+    }
+    tackVelocityBearingPolar.removeAllSeries();
+    tackVelocityBearingPolar.addSeries(tackVelocity);
+  }
+
   private boolean isInSelectedPosition(DataPoint point, TimeWindowPosition position)
   {
     if (position == TimeWindowPosition.BEFORE && point.getLocalDateTime().isAfter(getDataStartTime()))
@@ -456,6 +485,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     updateBearingHistogramDataset();
     updateVelocityBearingPolar();
     updateXyDataset();
+    updateTackVelocityBearingPolar();
   }
 
   @Override
