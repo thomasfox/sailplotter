@@ -173,6 +173,27 @@ public class DataPoint
     return result;
   }
 
+  public Double getRelativeBearingTo(DataPoint other, Double windDirection)
+  {
+    if (windDirection == null)
+    {
+      return null;
+    }
+    Double bearingToOther = getBearingTo(other);
+    if (bearingToOther == null)
+    {
+      return null;
+    }
+    double result =  bearingToOther - windDirection;
+    if (result < 0)
+    {
+      result += 2 * Math.PI;
+    }
+    return result;
+  }
+
+
+
   public double getVelocityInKnotsBetween(DataPoint other)
   {
     return distance(other) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;

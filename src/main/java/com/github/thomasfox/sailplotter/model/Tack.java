@@ -16,6 +16,10 @@ public class Tack
 
   public Double windDirection;
 
+  public ManeuverType maneuverTypeAtStart;
+
+  public ManeuverType maneuverTypeAtEnd;
+
   /**
    * @return the length of the tack in meters
    */
@@ -92,6 +96,7 @@ public class Tack
   {
     end = point;
     endIndex = dataPointIndex;
+    pointOfSail = PointOfSail.ofRelativeBearing(start.getRelativeBearingTo(end, windDirection));
   }
 
 

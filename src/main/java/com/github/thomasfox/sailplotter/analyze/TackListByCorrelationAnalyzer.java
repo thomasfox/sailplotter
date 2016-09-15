@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.ManeuverType;
 import com.github.thomasfox.sailplotter.model.PointOfSail;
 import com.github.thomasfox.sailplotter.model.Tack;
 
@@ -68,6 +69,25 @@ public class TackListByCorrelationAnalyzer
       }
     }
     // TODO last tack
+
+    for (int i = 1; i < firstPass.size(); ++i)
+    {
+      Tack lastTack = firstPass.get(i - 1);
+      Tack nextTack = firstPass.get(i);
+      if ((lastTack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
+            && nextTack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD)
+          || (lastTack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD
+              && nextTack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT))
+      {
+        lastTack.maneuverTypeAtEnd = ManeuverType.TACK;
+        nextTack.maneuverTypeAtStart = ManeuverType.TACK;
+      }
+      else
+      {
+        lastTack.maneuverTypeAtEnd = ManeuverType.UNKNOWN;
+        nextTack.maneuverTypeAtStart = ManeuverType.UNKNOWN;
+      }
+    }
     return firstPass;
   }
 }

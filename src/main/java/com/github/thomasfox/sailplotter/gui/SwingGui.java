@@ -150,7 +150,14 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 
     tacks = new TackListByCorrelationAnalyzer().analyze(data);
     DefaultTableModel model = new DefaultTableModel(
-        new String[] {"Point of Sail", "length (m)", "duration (sec)", "Average relative Bearing (degrees)", "Average Speed (knots)"},0);
+        new String[] {
+            "Point of Sail",
+            "length (m)",
+            "duration (sec)",
+            "Average relative Bearing (degrees)",
+            "Average Speed (knots)",
+            "Maneuver at Start",
+            "Maneuver at End"},0);
     for (Tack tack : tacks)
     {
       model.addRow(new Object[] {
@@ -158,7 +165,9 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
           new DecimalFormat("0").format(tack.getLength()),
           new DecimalFormat("0.0").format(tack.getDuration() / 1000d),
           new DecimalFormat("0").format(tack.getAverageRelativeBearingInDegrees()),
-          new DecimalFormat("0.0").format(tack.getAverageVelocityInKnots())});
+          new DecimalFormat("0.0").format(tack.getAverageVelocityInKnots()),
+          tack.maneuverTypeAtStart == null ? "" : tack.maneuverTypeAtStart.toString(),
+          tack.maneuverTypeAtEnd == null ? "" : tack.maneuverTypeAtEnd.toString()});
     }
     tacksTable = new JTable(model);
     JScrollPane scrollPane = new JScrollPane(tacksTable);
