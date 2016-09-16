@@ -96,6 +96,12 @@ public class DataPoint
     return longitude * Math.cos(latitude) * Constants.EARTH_RADIUS;
   }
 
+  public void setXAndY(double x, double y)
+  {
+    this.latitude = y / Constants.EARTH_RADIUS;
+    this.longitude = x / Constants.EARTH_RADIUS / Math.cos(latitude);
+  }
+
   public double getBearingAs360Degrees()
   {
     return bearing / 2 / Math.PI * 360;
@@ -197,6 +203,29 @@ public class DataPoint
   public double getVelocityInKnotsBetween(DataPoint other)
   {
     return distance(other) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;
+  }
+
+  public static DataPoint intersection(DataPoint line1Point1, DataPoint line1Point2, DataPoint line2Point1, DataPoint line2Point2)
+  {
+    double deltaXLine1 = line1Point2.getX() - line1Point1.getX();
+    double deltaYLine1 = line1Point2.getY() - line1Point1.getY();
+    double deltaXLine2 = line2Point2.getX() - line2Point1.getX();
+    double deltaYLine2 = line2Point2.getY() - line2Point1.getY();
+
+    double newX = (deltaXLine2*deltaYLine1*line1Point1.getX()
+            + deltaXLine1*deltaXLine2*line2Point1.getY()
+            - deltaXLine1*deltaYLine2*line2Point1.getX()
+            - deltaXLine1*deltaXLine2*line1Point1.getY())
+        / (deltaXLine2*deltaYLine1 - deltaXLine1*deltaYLine2);
+
+    double newY = (deltaXLine2*deltaYLine1*line2Point1.getY()
+            + deltaYLine1*deltaYLine2*line1Point1.getX()
+            - deltaXLine1*deltaYLine2*line1Point1.getY()
+            - deltaYLine1*deltaYLine2*line2Point1.getX())
+        / (deltaXLine2*deltaYLine1 - deltaXLine1*deltaYLine2);
+    DataPoint result = new DataPoint();
+    result.setXAndY(newX, newY);
+    return result;
   }
 
   @Override
