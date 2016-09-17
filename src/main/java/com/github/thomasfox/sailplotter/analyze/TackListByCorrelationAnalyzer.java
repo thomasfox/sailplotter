@@ -35,7 +35,7 @@ public class TackListByCorrelationAnalyzer
         {
           continue;
         }
-        currentTack.end(point, dataPointIndex);
+        currentTack.end(point, dataPointIndex, points);
         firstPass.add(currentTack);
         currentTack = null;
         offTackCounter = 0;
@@ -48,7 +48,7 @@ public class TackListByCorrelationAnalyzer
           currentTack.start(point, dataPointIndex);
           continue;
         }
-        currentTack.end(point, dataPointIndex);
+        currentTack.end(point, dataPointIndex, points);
         if (point.bearing == null
             || Math.abs(point.bearing - currentTack.getAverageBearingInArcs()) > OFF_TACK_BEARING)
         {
@@ -58,7 +58,7 @@ public class TackListByCorrelationAnalyzer
         {
           offTackCounter = 0;
         }
-        currentTack.end(point, dataPointIndex);
+        currentTack.end(point, dataPointIndex, points);
         if (offTackCounter >= OFF_TACK_COUNTS_STARTS_NEW)
         {
           firstPass.add(currentTack);
@@ -86,6 +86,16 @@ public class TackListByCorrelationAnalyzer
       {
         lastTack.maneuverTypeAtEnd = ManeuverType.UNKNOWN;
         nextTack.maneuverTypeAtStart = ManeuverType.UNKNOWN;
+      }
+      if (lastTack.hasMainPoints() && nextTack.hasMainPoints())
+      {
+        DataPoint intersection = DataPoint.intersection(
+            lastTack.getAfterStartManeuver(),
+            lastTack.getBeforeEndManeuver(),
+            nextTack.getAfterStartManeuver(),
+            nextTack.getBeforeEndManeuver());
+        lastTack.tackStraightLineIntersectionEnd = intersection;
+        nextTack.tackStraightLineIntersectionStart = intersection;
       }
     }
     return firstPass;

@@ -480,6 +480,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   {
     zoomXyDataset.removeAllSeries();
     zoomXyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
+    zoomXyDataset.addSeries(getTackIntersectionSeries(tacks, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
   }
 
   private void updateZoomXyRange()
@@ -523,6 +524,28 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     for (DataPoint point : getSubset(data, position))
     {
       series.add(point.getX() - xOffset, point.getY() - yOffset);
+    }
+    return series;
+  }
+
+  public XYSeries getTackIntersectionSeries(List<Tack> tacks, TimeWindowPosition position, double xOffset, double yOffset)
+  {
+    XYSeries series = new XYSeries("XY", false, true);
+    for (Tack tack : tacks)
+    {
+      if (!isInSelectedPosition(tack.start, position) && !isInSelectedPosition(tack.end, position))
+      {
+        continue;
+      }
+      if (tack.tackStraightLineIntersectionStart != null && tack.tackStraightLineIntersectionEnd != null)
+      {
+        series.add(
+            tack.tackStraightLineIntersectionStart.getX() - xOffset,
+            tack.tackStraightLineIntersectionStart.getY() - yOffset);
+        series.add(
+            tack.tackStraightLineIntersectionEnd.getX() - xOffset,
+            tack.tackStraightLineIntersectionEnd.getY() - yOffset);
+      }
     }
     return series;
   }

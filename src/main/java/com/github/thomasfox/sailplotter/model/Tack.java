@@ -1,6 +1,7 @@
 package com.github.thomasfox.sailplotter.model;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 public class Tack
 {
@@ -14,11 +15,17 @@ public class Tack
 
   public int endIndex;
 
+  public List<DataPoint> pointsWithinTack;
+
   public Double windDirection;
 
   public ManeuverType maneuverTypeAtStart;
 
   public ManeuverType maneuverTypeAtEnd;
+
+  public DataPoint tackStraightLineIntersectionStart;
+
+  public DataPoint tackStraightLineIntersectionEnd;
 
   /**
    * @return the length of the tack in meters
@@ -44,7 +51,6 @@ public class Tack
     }
     return start.getBearingTo(end);
   }
-
 
   public Double getAverageRelativeBearingInArcs()
   {
@@ -92,13 +98,87 @@ public class Tack
     windDirection = startPoint.windDirection;
   }
 
-  public void end(DataPoint point, int dataPointIndex)
+  public void end(DataPoint point, int dataPointIndex, List<DataPoint> completeData)
   {
     end = point;
     endIndex = dataPointIndex;
     pointOfSail = PointOfSail.ofRelativeBearing(start.getRelativeBearingTo(end, windDirection));
+    pointsWithinTack = completeData.subList(startIndex, endIndex + 1);
   }
 
+  /**
+   * Returns a point in the tack after the maneuver starting the tack has finished.
+   * Ideally this point is close to the start of the tack.
+   *
+   * @return a point in the tack after the maneuver starting the tack has finished,
+   *         or null if no such point can be determined.
+   */
+  public DataPoint getAfterStartManeuver()
+  {
+    // simplistic approach: must have sailed n metres
+    DataPoint result = null;
+    for (DataPoint candidate : pointsWithinTack)
+    {
+      if (candidate.distance(start) > 20d)
+      {
+        result = candidate;
+        break;
+      }
+    }
+    // sanity check: most not be too close to end
+    if (result != null && result.distance(end) > 20d)
+    {
+      return result;
+    }
+    return null;
+  }
+
+  /**
+   * Returns a point in the tack before the maneuver ending the tack has begun.
+   * Ideally this point is close to the end of the tack.
+   *
+   * @return a point in the tack before the maneuver ending the tack has begun,
+   *         or null if no such point can be determined.
+   */
+  public DataPoint getBeforeEndManeuver()
+  {
+    // simplistic approach: must have sailed n metres
+    DataPoint result = null;
+    for (int i = pointsWithinTack.size() - 1; i >= 0; --i)
+    {
+      DataPoint candidate = pointsWithinTack.get(i);
+      if (candidate.distance(end) > 20d)
+      {
+        result = candidate;
+        break;
+      }
+    }
+    // sanity check: most not be too close to start
+    if (result != null && result.distance(start) > 20d)
+    {
+      return result;
+    }
+    return null;
+  }
+
+  /**
+   * Checks whether there is data between AfterStartManeuver and beforeEndManeuver
+   * @return
+   */
+  public boolean hasMainPoints()
+  {
+    DataPoint afterStartManeuver = getAfterStartManeuver();
+    if (afterStartManeuver == null)
+    {
+      return false;
+    }
+    DataPoint beforeEndManeuver = getBeforeEndManeuver();
+    if (beforeEndManeuver == null)
+    {
+      return false;
+    }
+    return (afterStartManeuver.distance(beforeEndManeuver) > 10d);
+  }
 
   @Override
   public String toString()
