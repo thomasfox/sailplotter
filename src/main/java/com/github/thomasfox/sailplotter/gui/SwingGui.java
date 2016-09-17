@@ -60,6 +60,10 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 
   XYSeriesCollection xyDataset = new XYSeriesCollection();
 
+  XYSeriesCollection zoomXyDataset = new XYSeriesCollection();
+
+  XYPlot zoomXyPlot;
+
   List<DataPoint> data;
 
   List<Tack> tacks;
@@ -142,6 +146,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
         getMinimum(data, DataPoint::getY) - data.get(0).getY(),
         getMaximum(data, DataPoint::getY) - data.get(0).getY());
     xyPlot.getRangeAxis().setRange(yRange);
+    expandRangesToAspectRatio(xyPlot, Constants.MAP_ASPECT_RATIO);
     xyPlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     xyPlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
     xyPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
@@ -182,6 +187,15 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     ChartPanel tackVelocityBearingChartPanel = new ChartPanel(tackVelocityBearingChart);
     frame.getContentPane().add(tackVelocityBearingChartPanel);
 
+
+    updateZoomXyDataset();
+    JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, false, false);
+    zoomXyPlot = (XYPlot) zoomXyChart.getPlot();
+    updateZoomXyRange();
+    zoomXyPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
+    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setSeriesShapesVisible(0, true);
+    ChartPanel zoomXyChartPanel = new ChartPanel(zoomXyChart);
+    frame.getContentPane().add(zoomXyChartPanel);
 
     frame.pack();
     frame.setVisible(true);
@@ -300,12 +314,8 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   public TimeSeries getVelocityTimeSeries(List<DataPoint> data, TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("velocity");
-    for (DataPoint point : data)
+    for (DataPoint point : getSubset(data, position))
     {
-      if (!isInSelectedPosition(point, position))
-      {
-        continue;
-      }
       series.addOrUpdate(point.getMillisecond(), point.velocity);
     }
     return series;
@@ -314,12 +324,8 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   public TimeSeries getBearingTimeSeries(List<DataPoint> data, TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("bearing");
-    for (DataPoint point : data)
+    for (DataPoint point : getSubset(data, position))
     {
-      if (!isInSelectedPosition(point, position))
-      {
-        continue;
-      }
       series.addOrUpdate(point.getMillisecond(), point.bearing);
     }
     return series;
@@ -470,9 +476,60 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     xyDataset.addSeries(getXySeries(data, TimeWindowPosition.AFTER, data.get(0).getX(), data.get(0).getY()));
   }
 
+  private void updateZoomXyDataset()
+  {
+    zoomXyDataset.removeAllSeries();
+    zoomXyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
+  }
+
+  private void updateZoomXyRange()
+  {
+    List<DataPoint> dataSubset = getSubset(data, TimeWindowPosition.IN);
+    Range zoomXRange = new Range(
+        getMinimum(dataSubset, DataPoint::getX) - data.get(0).getX(),
+        getMaximum(dataSubset, DataPoint::getX) - data.get(0).getX());
+    Range zoomYRange = new Range(
+        getMinimum(dataSubset, DataPoint::getY) - data.get(0).getY(),
+        getMaximum(dataSubset, DataPoint::getY) - data.get(0).getY());
+
+    zoomXyPlot.getDomainAxis().setRange(zoomXRange);
+    zoomXyPlot.getRangeAxis().setRange(zoomYRange);
+    expandRangesToAspectRatio(zoomXyPlot, Constants.MAP_ASPECT_RATIO);
+  }
+
+  public void expandRangesToAspectRatio(XYPlot plot, double aspectRatio)
+  {
+    Range xRange = plot.getDomainAxis().getRange();
+    Range yRange = plot.getRangeAxis().getRange();
+    if (xRange.getLength() > aspectRatio * yRange.getLength())
+    {
+      yRange = new Range(
+          yRange.getCentralValue() - 0.5d * xRange.getLength() / aspectRatio,
+          yRange.getCentralValue() + 0.5d * xRange.getLength() / aspectRatio);
+      plot.getRangeAxis().setRange(yRange);
+    }
+    else
+    {
+      xRange = new Range(
+          xRange.getCentralValue() - 0.5d * yRange.getLength() * aspectRatio,
+          xRange.getCentralValue() + 0.5d * yRange.getLength() * aspectRatio);
+      plot.getDomainAxis().setRange(xRange);
+    }
+  }
+
   public XYSeries getXySeries(List<DataPoint> data, TimeWindowPosition position, double xOffset, double yOffset)
   {
     XYSeries series = new XYSeries("XY", false, true);
+    for (DataPoint point : getSubset(data, position))
+    {
+      series.add(point.getX() - xOffset, point.getY() - yOffset);
+    }
+    return series;
+  }
+
+  List<DataPoint> getSubset(List<DataPoint> data, TimeWindowPosition position)
+  {
+    List<DataPoint> result = new ArrayList<>();
     for (DataPoint point : data)
     {
       if (!isInSelectedPosition(point, position))
@@ -480,9 +537,9 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
         continue;
       }
 
-      series.add(point.getX() - xOffset, point.getY() - yOffset);
+      result.add(point);
     }
-    return series;
+    return result;
   }
 
 
@@ -495,6 +552,8 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     updateVelocityBearingPolar();
     updateXyDataset();
     updateTackVelocityBearingPolar();
+    updateZoomXyDataset();
+    updateZoomXyRange();
   }
 
   @Override

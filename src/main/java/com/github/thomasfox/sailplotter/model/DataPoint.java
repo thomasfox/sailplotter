@@ -198,8 +198,6 @@ public class DataPoint
     return result;
   }
 
-
-
   public double getVelocityInKnotsBetween(DataPoint other)
   {
     return distance(other) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;

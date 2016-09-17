@@ -16,4 +16,7 @@ public class Constants
   public static final int NUMER_OF_ZOOM_TICKS = 10000;
 
   public static final double MINIMAL_TACK_LENGTH = 50d;
+
+  /** MAP_X_LENGTH / MAP_Y_LENGTH */
+  public static final double MAP_ASPECT_RATIO = 2d;
 }
