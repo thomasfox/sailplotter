@@ -19,4 +19,7 @@ public class Constants
 
   /** MAP_X_LENGTH / MAP_Y_LENGTH */
   public static final double MAP_ASPECT_RATIO = 2d;
+
+  /**  How many data points should be added in the zoom plots when a tack is clicked. */
+  public static final int NUM_DATAPOINTS_TACK_EXTENSION = 5;
 }

@@ -456,7 +456,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
       return false;
     }
     if (position == TimeWindowPosition.IN
-        && (! point.getLocalDateTime().isAfter(getDataStartTime())
+        && (!point.getLocalDateTime().isAfter(getDataStartTime())
             || !point.getLocalDateTime().isBefore(getDataEndTime())))
     {
       return false;
@@ -593,7 +593,11 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     ListSelectionModel model = tacksTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
     Tack tack = tacks.get(index);
-    zoomPanel.setStartIndex(tack.startIndex);
-    zoomPanel.setZoomIndex(Math.max(Constants.NUMER_OF_ZOOM_TICKS * (tack.endIndex - tack.startIndex) / (data.size()), 3));
+    zoomPanel.setStartIndex(Math.max(tack.startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+    zoomPanel.setZoomIndex(Math.min(
+        Math.max(
+            Constants.NUMER_OF_ZOOM_TICKS * (tack.endIndex - tack.startIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
+            3),
+        Constants.NUMER_OF_ZOOM_TICKS));
   }
 }
