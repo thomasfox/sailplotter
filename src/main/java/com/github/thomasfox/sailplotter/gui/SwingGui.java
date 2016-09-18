@@ -486,12 +486,16 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   private void updateZoomXyRange()
   {
     List<DataPoint> dataSubset = getSubset(data, TimeWindowPosition.IN);
+    double minimumX = getMinimum(dataSubset, DataPoint::getX);
+    double maximumX = getMaximum(dataSubset, DataPoint::getX);
     Range zoomXRange = new Range(
-        getMinimum(dataSubset, DataPoint::getX) - data.get(0).getX(),
-        getMaximum(dataSubset, DataPoint::getX) - data.get(0).getX());
+        minimumX - data.get(0).getX() - (maximumX - minimumX) * 0.1,
+        maximumX - data.get(0).getX() + (maximumX - minimumX) * 0.1);
+    double minimumY = getMinimum(dataSubset, DataPoint::getY);
+    double maximumY = getMaximum(dataSubset, DataPoint::getY);
     Range zoomYRange = new Range(
-        getMinimum(dataSubset, DataPoint::getY) - data.get(0).getY(),
-        getMaximum(dataSubset, DataPoint::getY) - data.get(0).getY());
+        minimumY - data.get(0).getY() - (maximumY - minimumY) * 0.1,
+        maximumY - data.get(0).getY() + (maximumY - minimumY) * 0.1);
 
     zoomXyPlot.getDomainAxis().setRange(zoomXRange);
     zoomXyPlot.getRangeAxis().setRange(zoomYRange);
