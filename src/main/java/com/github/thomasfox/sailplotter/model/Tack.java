@@ -125,7 +125,7 @@ public class Tack
         break;
       }
     }
-    // sanity check: most not be too close to end
+    // sanity check: must not be too close to end
     if (result != null && result.distance(end) > 20d)
     {
       return result;
@@ -153,7 +153,7 @@ public class Tack
         break;
       }
     }
-    // sanity check: most not be too close to start
+    // sanity check: must not be too close to start
     if (result != null && result.distance(start) > 20d)
     {
       return result;
