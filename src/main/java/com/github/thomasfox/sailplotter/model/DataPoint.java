@@ -3,6 +3,7 @@ package com.github.thomasfox.sailplotter.model;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.jfree.data.time.Millisecond;
 
@@ -23,7 +24,7 @@ public class DataPoint
   public Double bearing;
 
   /** millis since 01.01.1970 0:00:00.000 */
-  public long time;
+  public Long time;
 
   /** wind direction in arcs */
   public Double windDirection;
@@ -44,6 +45,23 @@ public class DataPoint
 //      * Constants.EARTH_RADIUS;
 //    return dist;
 //  }
+
+  public DataPoint()
+  {
+  }
+
+  public DataPoint(DataPoint toCopy)
+  {
+    this.latitude = toCopy.latitude;
+    this.longitude = toCopy.longitude;
+    this.velocity = toCopy.velocity;
+    this.bearing = toCopy.bearing;
+    this.time = toCopy.time;
+    this.windDirection = toCopy.windDirection;
+    this.windVelocity = toCopy.windVelocity;
+    this.velocityBearingAveragedOverDistance = toCopy.velocityBearingAveragedOverDistance;
+    this.manoeuverState = toCopy.manoeuverState;
+  }
 
   public Double distance(DataPoint other)
   {
@@ -255,4 +273,25 @@ public class DataPoint
     return result.toString();
   }
 
+  public String getXYLabel()
+  {
+    StringBuilder result = new StringBuilder()
+        .append(DateTimeFormatter.ISO_LOCAL_TIME.format(getLocalDateTime()));
+    if (velocity != null)
+    {
+      result.append(new DecimalFormat("0.0").format(velocity))
+          .append("kts ");
+    }
+    if (bearing != null)
+    {
+      result.append(new DecimalFormat("0.0").format(getBearingAs360Degrees()))
+          .append("°Abs ");
+    }
+    if (bearing != null && windDirection != null)
+    {
+      result.append(new DecimalFormat("0.0").format(getRelativeBearingAs360Degrees()))
+          .append("°Rel");
+    }
+    return result.toString();
+  }
 }

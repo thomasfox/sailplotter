@@ -162,7 +162,11 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
             "Average relative Bearing (degrees)",
             "Average Speed (knots)",
             "Maneuver at Start",
-            "Maneuver at End"},0);
+            "Maneuver loss at Start (sec)",
+            "Maneuver at End"},
+        0);
+
+    Tack lastTack = null;
     for (Tack tack : tacks)
     {
       model.addRow(new Object[] {
@@ -172,7 +176,17 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
           new DecimalFormat("0").format(tack.getAverageRelativeBearingInDegrees()),
           new DecimalFormat("0.0").format(tack.getAverageVelocityInKnots()),
           tack.maneuverTypeAtStart == null ? "" : tack.maneuverTypeAtStart.toString(),
+          (lastTack == null
+           || lastTack.tackStraightLineIntersectionEnd == null
+           || tack.tackStraightLineIntersectionStart == null
+           || lastTack.tackStraightLineIntersectionEnd.time == null
+           || tack.tackStraightLineIntersectionStart.time == null)
+            ? ""
+            : new DecimalFormat("0.0").format(
+                (tack.tackStraightLineIntersectionStart.time - lastTack.tackStraightLineIntersectionEnd.time)
+                / 1000d),
           tack.maneuverTypeAtEnd == null ? "" : tack.maneuverTypeAtEnd.toString()});
+      lastTack = tack;
     }
     tacksTable = new JTable(model);
     JScrollPane scrollPane = new JScrollPane(tacksTable);
@@ -189,11 +203,12 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 
 
     updateZoomXyDataset();
-    JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, false, false);
+    JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, true, false);
     zoomXyPlot = (XYPlot) zoomXyChart.getPlot();
     updateZoomXyRange();
     zoomXyPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
     ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setSeriesShapesVisible(0, true);
+    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
     ChartPanel zoomXyChartPanel = new ChartPanel(zoomXyChart);
     frame.getContentPane().add(zoomXyChartPanel);
 
@@ -527,7 +542,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     XYSeries series = new XYSeries("XY", false, true);
     for (DataPoint point : getSubset(data, position))
     {
-      series.add(point.getX() - xOffset, point.getY() - yOffset);
+      series.add(new XYLabeledDataItem(point.getX() - xOffset, point.getY() - yOffset, point.getXYLabel()));
     }
     return series;
   }
