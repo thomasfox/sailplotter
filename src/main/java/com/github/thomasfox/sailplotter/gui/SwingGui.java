@@ -38,6 +38,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.analyze.TackListByCorrelationAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
+import com.github.thomasfox.sailplotter.importer.SailRacerImporter;
 import com.github.thomasfox.sailplotter.importer.ViewRangerImporter;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
@@ -163,6 +164,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
             "Average Speed (knots)",
             "Maneuver at Start",
             "Maneuver loss at Start (sec)",
+            "Tacking angle at Start",
             "Maneuver at End"},
         0);
 
@@ -173,7 +175,9 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
           tack.pointOfSail,
           new DecimalFormat("0").format(tack.getLength()),
           new DecimalFormat("0.0").format(tack.getDuration() / 1000d),
-          new DecimalFormat("0").format(tack.getAverageRelativeBearingInDegrees()),
+          tack.getAverageRelativeBearingInDegrees() == null
+            ? ""
+            : new DecimalFormat("0").format(tack.getAverageRelativeBearingInDegrees()),
           new DecimalFormat("0.0").format(tack.getAverageVelocityInKnots()),
           tack.maneuverTypeAtStart == null ? "" : tack.maneuverTypeAtStart.toString(),
           (lastTack == null
@@ -185,6 +189,9 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
             : new DecimalFormat("0.0").format(
                 (tack.tackStraightLineIntersectionStart.time - lastTack.tackStraightLineIntersectionEnd.time)
                 / 1000d),
+            (tack.getIntersectionAnglesInDegrees(lastTack) == null)
+             ? ""
+             : new DecimalFormat("0").format(Math.abs(tack.getIntersectionAnglesInDegrees(lastTack))),
           tack.maneuverTypeAtEnd == null ? "" : tack.maneuverTypeAtEnd.toString()});
       lastTack = tack;
     }
@@ -266,7 +273,15 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   private List<DataPoint> getData(String filePath)
   {
     File file = new File(filePath);
-    List<DataPoint> data = new ViewRangerImporter().read(file);
+    List<DataPoint> data;
+    if (filePath.endsWith(".log"))
+    {
+      data = new SailRacerImporter().read(file);
+    }
+    else
+    {
+      data = new ViewRangerImporter().read(file);
+    }
     return data;
   }
 

@@ -24,8 +24,12 @@ public enum PointOfSail
     this.endRelativeBearing = 2 * Math.PI * endDegrees / 360d;
   }
 
-  public static PointOfSail ofRelativeBearing(double relativeBearing)
+  public static PointOfSail ofRelativeBearing(Double relativeBearing)
   {
+    if (relativeBearing == null)
+    {
+      return null;
+    }
     for (PointOfSail candidate: values())
     {
       if (candidate.startRelativeBearing <= relativeBearing && candidate.endRelativeBearing > relativeBearing)

@@ -58,7 +58,12 @@ public class Tack
     {
       return null;
     }
-    double result = start.getBearingTo(end) - windDirection;
+    Double absoluteBearing = start.getBearingTo(end);
+    if (absoluteBearing == null)
+    {
+      return null;
+    }
+    double result = absoluteBearing - windDirection;
     if (result < 0)
     {
       result += 2 * Math.PI;
@@ -178,6 +183,58 @@ public class Tack
       return false;
     }
     return (afterStartManeuver.distance(beforeEndManeuver) > 10d);
+  }
+
+  /**
+   * Calculates the angle between this tack and the other tack.
+   * For the tack direction, the intersection points with the other tacks are used.
+   *
+   * @param other the other tack, or null.
+   *
+   * @return the angle in arcs between the tacks, or null.
+   */
+  public Double getIntersectionAngles(Tack other)
+  {
+    if (other == null
+        || tackStraightLineIntersectionStart == null
+        || tackStraightLineIntersectionEnd == null
+        || other.tackStraightLineIntersectionStart == null
+        || other.tackStraightLineIntersectionEnd == null)
+    {
+      return null;
+    }
+    double thisTackBearing
+        = tackStraightLineIntersectionStart.getBearingTo(tackStraightLineIntersectionEnd);
+    double otherTackBearing
+        = other.tackStraightLineIntersectionStart.getBearingTo(other.tackStraightLineIntersectionEnd);
+    double tackAngle = otherTackBearing - thisTackBearing;
+    if (tackAngle < - Math.PI)
+    {
+      tackAngle += 2 * Math.PI;
+    }
+    else if (tackAngle > Math.PI)
+    {
+      tackAngle -= 2 * Math.PI;
+    }
+    return tackAngle;
+  }
+
+  /**
+   * Calculates the angle between this tack and the other tack.
+   * For the tack direction, the intersection points with the other tacks are used.
+   *
+   * @param other the other tack, or null.
+   *
+   * @return the angle in degrees(360) between the tacks, or null.
+   */
+  public Double getIntersectionAnglesInDegrees(Tack other)
+  {
+    Double intersectionAnglesInArcs = getIntersectionAngles(other);
+    if (intersectionAnglesInArcs == null)
+    {
+      return null;
+    }
+    return intersectionAnglesInArcs / Math.PI * 180;
   }
 
   @Override
