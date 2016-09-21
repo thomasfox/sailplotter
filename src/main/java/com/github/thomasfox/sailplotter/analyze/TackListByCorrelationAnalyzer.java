@@ -49,10 +49,26 @@ public class TackListByCorrelationAnalyzer
           continue;
         }
         currentTack.end(point, dataPointIndex, points);
-        if (currentTack.getAverageBearingInArcs() != null) // may happen if the first points have the same coordinates
+        if (point.bearing == null)
         {
-          if (point.bearing == null
-              || Math.abs(point.bearing - currentTack.getAverageBearingInArcs()) > OFF_TACK_BEARING)
+          offTackCounter++;
+        }
+        else if (currentTack.getAverageBearingInArcs() == null)
+        {
+          // null may happen if the first points have the same coordinates. ignore.
+        }
+        else
+        {
+          double bearingDifference = point.bearing - currentTack.getAverageBearingInArcs();
+          if (bearingDifference > Math.PI)
+          {
+            bearingDifference -= 2 * Math.PI;
+          }
+          if (bearingDifference < -Math.PI)
+          {
+            bearingDifference += 2 * Math.PI;
+          }
+          if (Math.abs(bearingDifference) > OFF_TACK_BEARING)
           {
             offTackCounter++;
           }
