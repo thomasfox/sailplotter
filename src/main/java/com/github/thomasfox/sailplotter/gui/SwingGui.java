@@ -539,7 +539,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 
   public XYSeries getXySeries(List<DataPoint> data, TimeWindowPosition position, double xOffset, double yOffset)
   {
-    XYSeries series = new XYSeries("XY", false, true);
+    XYSeries series = new XYSeries("XY" + position, false, true);
     for (DataPoint point : getSubset(data, position))
     {
       series.add(new XYLabeledDataItem(point.getX() - xOffset, point.getY() - yOffset, point.getXYLabel()));
