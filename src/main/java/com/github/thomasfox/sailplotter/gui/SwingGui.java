@@ -1,7 +1,8 @@
 package com.github.thomasfox.sailplotter.gui;
 
 import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -10,7 +11,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -37,11 +40,13 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.analyze.TackListByCorrelationAnalyzer;
+import com.github.thomasfox.sailplotter.analyze.TackSeriesAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
 import com.github.thomasfox.sailplotter.importer.SailRacerImporter;
 import com.github.thomasfox.sailplotter.importer.ViewRangerImporter;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
+import com.github.thomasfox.sailplotter.model.TackSeries;
 
 public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 {
@@ -67,9 +72,13 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
 
   List<DataPoint> data;
 
-  List<Tack> tacks;
+  List<Tack> tackList;
+
+  List<TackSeries> tackSeriesList;
 
   JTable tacksTable;
+
+  JTable tackSeriesTable;
 
   double windBearing;
 
@@ -78,11 +87,13 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
     data = getData(filePath);
     new VelocityBearingAnalyzer().analyze(data, windBearing);
+    tackList = new TackListByCorrelationAnalyzer().analyze(data);
+    tackSeriesList = new TackSeriesAnalyzer().analyze(tackList);
     zoomPanel = new ZoomPanel(data.size());
 
     JFrame frame = new JFrame("SailPlotter");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.getContentPane().setLayout(new GridLayout(0,3));
+    frame.getContentPane().setLayout(new GridBagLayout());
 
     updateFullVelocityBearingOverTimeDataset();
     JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Velocity and Bearing (Full)", "Time", "Velocity [kts] / Bearing [arcs]", fullVelocityBearingOverTimeDataset, false, false, false);
@@ -98,7 +109,13 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
     ChartPanel fullVelocityBearingOverTimeChartPanel = new ChartPanel(fullVelocityBearingOverTimeChart);
-    frame.getContentPane().add(fullVelocityBearingOverTimeChartPanel);
+    GridBagConstraints gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.333;
+    gridBagConstraints.weighty = 0.25;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    frame.getContentPane().add(fullVelocityBearingOverTimeChartPanel, gridBagConstraints);
 
     updateZoomedVelocityBearingOverTimeDataset();
     JFreeChart zoomedVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Velocity and Bearing (Zoom)", "Time", "Velocity [kts] / Bearing [arcs]", zoomedVelocityBearingOverTimeDataset, false, false, false);
@@ -108,8 +125,15 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     ((XYLineAndShapeRenderer) zoomedVelocityBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(0, true);
     ((XYLineAndShapeRenderer) zoomedVelocityBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(1, true);
     ChartPanel zoomedvelocityBearingOverTimeChartPanel = new ChartPanel(zoomedVelocityBearingOverTimeChart);
-    frame.getContentPane().add(zoomedvelocityBearingOverTimeChartPanel);
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.333;
+    gridBagConstraints.weighty = 0.25;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 0;
+    frame.getContentPane().add(zoomedvelocityBearingOverTimeChartPanel, gridBagConstraints);
 
+    JPanel topRightPanel = new JPanel();
     bearingHistogramDataset = new SimpleHistogramDataset("Relative Bearing");
     bearingHistogramDataset.setAdjustForBinSize(false);
     for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
@@ -125,16 +149,18 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     updateBearingHistogramDataset();
     JFreeChart bearingHistogramChart = ChartFactory.createHistogram("Relative Bearing", "Relative Bearing [°]", "Occurances",  bearingHistogramDataset, PlotOrientation.VERTICAL, false, false, false);
     ChartPanel bearingChartPanel = new ChartPanel(bearingHistogramChart);
-    frame.getContentPane().add(bearingChartPanel);
-
-    updateVelocityBearingPolar();
-    JFreeChart chart = ChartFactory.createPolarChart("Velocity over Relative Bearing", velocityBearingPolar, false, false, false);
-    ChartPanel chartPanel = new ChartPanel(chart);
-    frame.getContentPane().add(chartPanel);
-
+    topRightPanel.add(bearingChartPanel);
     zoomPanel.addListener(this);
-
-    frame.getContentPane().add(zoomPanel);
+    topRightPanel.add(zoomPanel);
+    topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.333;
+    gridBagConstraints.weighty = 0.25;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.gridwidth = 2;
+    frame.getContentPane().add(topRightPanel, gridBagConstraints);
 
     updateXyDataset();
     JFreeChart xyChart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", xyDataset, PlotOrientation.VERTICAL, false, false, false);
@@ -152,11 +178,84 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     xyPlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
     xyPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
     ChartPanel xyChartPanel = new ChartPanel(xyChart);
-    frame.getContentPane().add(xyChartPanel);
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.333;
+    gridBagConstraints.weighty = 0.5;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    frame.getContentPane().add(xyChartPanel, gridBagConstraints);
 
-    tacks = new TackListByCorrelationAnalyzer().analyze(data);
+    updateZoomXyDataset();
+    JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, true, false);
+    zoomXyPlot = (XYPlot) zoomXyChart.getPlot();
+    updateZoomXyRange();
+    zoomXyPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
+    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setSeriesShapesVisible(0, true);
+    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
+    ChartPanel zoomXyChartPanel = new ChartPanel(zoomXyChart);
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.333;
+    gridBagConstraints.weighty = 0.5;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 1;
+    frame.getContentPane().add(zoomXyChartPanel, gridBagConstraints);
+
+    updateTackVelocityBearingPolar();
+    JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over Relative Bearing", tackVelocityBearingPolar, false, false, false);
+    PolarPlot tackVelocityBearingPlot = (PolarPlot) tackVelocityBearingChart.getPlot();
+    tackVelocityBearingPlot.setRenderer(new PolarScatterRenderer());
+    ChartPanel tackVelocityBearingChartPanel = new ChartPanel(tackVelocityBearingChart);
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.2;
+    gridBagConstraints.weighty = 0.5;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 1;
+    frame.getContentPane().add(tackVelocityBearingChartPanel, gridBagConstraints);
+
+    updateVelocityBearingPolar();
+    JFreeChart chart = ChartFactory.createPolarChart("Velocity over Relative Bearing", velocityBearingPolar, false, false, false);
+    ChartPanel chartPanel = new ChartPanel(chart);
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.2;
+    gridBagConstraints.weighty = 0.5;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 1;
+    frame.getContentPane().add(chartPanel, gridBagConstraints);
+
+    JScrollPane tacksTablePane = createTacksTablePane();
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.333;
+    gridBagConstraints.weighty = 0.25;
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    frame.getContentPane().add(tacksTablePane, gridBagConstraints);
+
+    JScrollPane tackSeriesTablePane = createTackSeriesTablePane();
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.25;
+    gridBagConstraints.weighty = 0.25;
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 2;
+    frame.getContentPane().add(tackSeriesTablePane, gridBagConstraints);
+
+    frame.pack();
+    frame.setVisible(true);
+
+  }
+
+  private JScrollPane createTacksTablePane()
+  {
     DefaultTableModel model = new DefaultTableModel(
         new String[] {
+            "#",
             "Point of Sail",
             "length (m)",
             "duration (sec)",
@@ -169,9 +268,11 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
         0);
 
     Tack lastTack = null;
-    for (Tack tack : tacks)
+    int i = 0;
+    for (Tack tack : tackList)
     {
       model.addRow(new Object[] {
+          i,
           tack.pointOfSail,
           new DecimalFormat("0").format(tack.getLength()),
           new DecimalFormat("0.0").format(tack.getDuration() / 1000d),
@@ -194,33 +295,40 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
              : new DecimalFormat("0").format(Math.abs(tack.getIntersectionAnglesInDegrees(lastTack))),
           tack.maneuverTypeAtEnd == null ? "" : tack.maneuverTypeAtEnd.toString()});
       lastTack = tack;
+      ++i;
     }
     tacksTable = new JTable(model);
     JScrollPane scrollPane = new JScrollPane(tacksTable);
     tacksTable.setFillsViewportHeight(true);
     tacksTable.getSelectionModel().addListSelectionListener(this);
-    frame.getContentPane().add(scrollPane);
+    return scrollPane;
+  }
 
-    updateTackVelocityBearingPolar();
-    JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over Relative Bearing", tackVelocityBearingPolar, false, false, false);
-    PolarPlot tackVelocityBearingPlot = (PolarPlot) tackVelocityBearingChart.getPlot();
-    tackVelocityBearingPlot.setRenderer(new PolarScatterRenderer());
-    ChartPanel tackVelocityBearingChartPanel = new ChartPanel(tackVelocityBearingChart);
-    frame.getContentPane().add(tackVelocityBearingChartPanel);
+  private JScrollPane createTackSeriesTablePane()
+  {
+    DefaultTableModel model = new DefaultTableModel(
+        new String[] {
+            "Tacks",
+            "Wind direction [°]",
+            "Angle to Wind [°]",
+            "Velocity Main Parts Starboard [knots]",
+            "Velocity Main Parts Port [knots]"},
+        0);
 
-
-    updateZoomXyDataset();
-    JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, true, false);
-    zoomXyPlot = (XYPlot) zoomXyChart.getPlot();
-    updateZoomXyRange();
-    zoomXyPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
-    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setSeriesShapesVisible(0, true);
-    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
-    ChartPanel zoomXyChartPanel = new ChartPanel(zoomXyChart);
-    frame.getContentPane().add(zoomXyChartPanel);
-
-    frame.pack();
-    frame.setVisible(true);
+    for (TackSeries tackSeries : tackSeriesList)
+    {
+      model.addRow(new Object[] {
+          tackSeries.startTackIndex + " - " + tackSeries.endTackIndex,
+          tackSeries.getAverageWindDirectionInDegrees(),
+          tackSeries.getAverageAngleToWindInDegrees(),
+          new DecimalFormat("0.0").format(tackSeries.getAverageMainPartVelocityStarboard()),
+          new DecimalFormat("0.0").format(tackSeries.getAverageMainPartVelocityPort())});
+    }
+    tackSeriesTable = new JTable(model);
+    JScrollPane scrollPane = new JScrollPane(tackSeriesTable);
+    tackSeriesTable.setFillsViewportHeight(true);
+//    tackSeriesTable.getSelectionModel().addListSelectionListener(this);
+    return scrollPane;
   }
 
   public static void main(String[] args)
@@ -464,7 +572,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   public void updateTackVelocityBearingPolar()
   {
     XYSeries tackVelocity = new XYSeries("tackVelocity", false, true);
-    for (Tack tack : tacks)
+    for (Tack tack : tackList)
     {
       if (tack.end.getLocalDateTime().isAfter(getDataStartTime())
           && tack.start.getLocalDateTime().isBefore(getDataEndTime()))
@@ -510,7 +618,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   {
     zoomXyDataset.removeAllSeries();
     zoomXyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
-    zoomXyDataset.addSeries(getTackIntersectionSeries(tacks, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
+    zoomXyDataset.addSeries(getTackIntersectionSeries(tackList, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
   }
 
   private void updateZoomXyRange()
@@ -622,7 +730,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     }
     ListSelectionModel model = tacksTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
-    Tack tack = tacks.get(index);
+    Tack tack = tackList.get(index);
     zoomPanel.setStartIndex(Math.max(tack.startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
     zoomPanel.setZoomIndex(Math.min(
         Math.max(
