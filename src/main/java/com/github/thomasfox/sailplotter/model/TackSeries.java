@@ -44,7 +44,9 @@ public class TackSeries
       DataPoint endPoint = tack.getBeforeEndManeuver();
       Double distance = startPoint.distance(endPoint);
       Double bearing = startPoint.getBearingTo(endPoint);
-      if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT)
+      if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
+          || tack.pointOfSail == PointOfSail.BEAM_REACH_PORT
+          || tack.pointOfSail == PointOfSail.BROAD_REACH_PORT)
       {
         if (portBearingCloseTo360Degrees == null)
         {
@@ -67,7 +69,9 @@ public class TackSeries
         weighedSumMainPartVelocityPort += endPoint.getVelocityInKnotsBetween(startPoint) * distance;
         weighSumPort += distance;
       }
-      else
+      else if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD
+          || tack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD
+          || tack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD)
       {
         if (starboardBearingCloseTo360Degrees == null)
         {

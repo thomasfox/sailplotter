@@ -18,13 +18,15 @@ public class TackSeriesAnalyzer
     {
       Tack tack = tacks.get(tackIndex);
       if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
-          || tack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD)
+          || tack.pointOfSail == PointOfSail.BEAM_REACH_PORT
+          || tack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD
+          || tack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD)
       {
         if (currentTackSeries == null)
         {
           currentTackSeries = new TackSeries(tackIndex);
         }
-        else if (tack.maneuverTypeAtStart != ManeuverType.TACK)
+        else if (tack.maneuverTypeAtStart != ManeuverType.TACK || !tack.hasMainPoints())
         {
           if (currentTackSeries.getNumberOfTacks() >= 4)
           {

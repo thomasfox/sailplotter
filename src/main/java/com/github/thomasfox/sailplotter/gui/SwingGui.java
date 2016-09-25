@@ -3,6 +3,7 @@ package com.github.thomasfox.sailplotter.gui;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Rectangle;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -18,7 +19,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartFactory;
@@ -48,7 +48,7 @@ import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
 import com.github.thomasfox.sailplotter.model.TackSeries;
 
-public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
+public class SwingGui
 {
   private final ZoomPanel zoomPanel;
 
@@ -150,7 +150,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     JFreeChart bearingHistogramChart = ChartFactory.createHistogram("Relative Bearing", "Relative Bearing [°]", "Occurances",  bearingHistogramDataset, PlotOrientation.VERTICAL, false, false, false);
     ChartPanel bearingChartPanel = new ChartPanel(bearingHistogramChart);
     topRightPanel.add(bearingChartPanel);
-    zoomPanel.addListener(this);
+    zoomPanel.addListener(this::zoomPanelStateChanged);
     topRightPanel.add(zoomPanel);
     topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
     gridBagConstraints = new GridBagConstraints();
@@ -300,7 +300,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     tacksTable = new JTable(model);
     JScrollPane scrollPane = new JScrollPane(tacksTable);
     tacksTable.setFillsViewportHeight(true);
-    tacksTable.getSelectionModel().addListSelectionListener(this);
+    tacksTable.getSelectionModel().addListSelectionListener(this::tackSelected);
     return scrollPane;
   }
 
@@ -327,7 +327,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     tackSeriesTable = new JTable(model);
     JScrollPane scrollPane = new JScrollPane(tackSeriesTable);
     tackSeriesTable.setFillsViewportHeight(true);
-//    tackSeriesTable.getSelectionModel().addListSelectionListener(this);
+    tackSeriesTable.getSelectionModel().addListSelectionListener(this::tackSeriesSelected);
     return scrollPane;
   }
 
@@ -708,8 +708,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
   }
 
 
-  @Override
-  public void stateChanged(ZoomPanelChangeEvent e)
+  public void zoomPanelStateChanged(ZoomPanelChangeEvent e)
   {
     updateFullVelocityBearingOverTimeDataset();
     updateZoomedVelocityBearingOverTimeDataset();
@@ -721,8 +720,7 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
     updateZoomXyRange();
   }
 
-  @Override
-  public void valueChanged(ListSelectionEvent e)
+  public void tackSelected(ListSelectionEvent e)
   {
     if (e.getValueIsAdjusting())
     {
@@ -738,4 +736,27 @@ public class SwingGui implements ZoomPanelChangeListener, ListSelectionListener
             3),
         Constants.NUMER_OF_ZOOM_TICKS));
   }
+
+  public void tackSeriesSelected(ListSelectionEvent e)
+  {
+    if (e.getValueIsAdjusting())
+    {
+      return;
+    }
+    ListSelectionModel model = tackSeriesTable.getSelectionModel();
+    int index = model.getAnchorSelectionIndex();
+    TackSeries tackSeries = tackSeriesList.get(index);
+    tacksTable.getSelectionModel().setSelectionInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
+    Rectangle firstRectangleToSelect = tacksTable.getCellRect(tackSeries.startTackIndex, 0, true);
+    Rectangle lastRectangleToSelect = tacksTable.getCellRect(tackSeries.endTackIndex, 0, true);
+    tacksTable.scrollRectToVisible(lastRectangleToSelect);
+    tacksTable.scrollRectToVisible(firstRectangleToSelect);
+    zoomPanel.setStartIndex(Math.max(tackList.get(tackSeries.startTackIndex).startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+    zoomPanel.setZoomIndex(Math.min(
+        Math.max(
+            Constants.NUMER_OF_ZOOM_TICKS * (tackList.get(tackSeries.endTackIndex).endIndex - tackList.get(tackSeries.startTackIndex).startIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
+            3),
+        Constants.NUMER_OF_ZOOM_TICKS));
+  }
+
 }
