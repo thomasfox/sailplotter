@@ -11,6 +11,12 @@ import com.github.thomasfox.sailplotter.Constants;
 
 public class DataPoint
 {
+  /**
+   * The index of the point in the global list of data points,
+   * or -1 to indicate that the data point is not a member of the global list of data points.
+   */
+  public int index;
+
   /** Geographical Latitude (Distance from the Aquator in direction North) in arcs */
   public Double latitude;
 
@@ -46,12 +52,14 @@ public class DataPoint
 //    return dist;
 //  }
 
-  public DataPoint()
+  public DataPoint(int index)
   {
+    this.index = index;
   }
 
   public DataPoint(DataPoint toCopy)
   {
+    this.index = toCopy.index;
     this.latitude = toCopy.latitude;
     this.longitude = toCopy.longitude;
     this.velocity = toCopy.velocity;
@@ -239,7 +247,7 @@ public class DataPoint
             - deltaXLine1*deltaYLine2*line1Point1.getY()
             - deltaYLine1*deltaYLine2*line2Point1.getX())
         / (deltaXLine2*deltaYLine1 - deltaXLine1*deltaYLine2);
-    DataPoint result = new DataPoint();
+    DataPoint result = new DataPoint(-1);
     result.setXAndY(newX, newY);
     return result;
   }

@@ -20,10 +20,10 @@ public class XYTooltipFromLabelGenerator extends StandardXYToolTipGenerator
     }
     XYSeries xySeries = ((XYSeriesCollection) dataset).getSeries(series);
     XYDataItem dataItem = xySeries.getDataItem(item);
-    if (!(dataItem instanceof XYLabeledDataItem))
+    if (!(dataItem instanceof XYSailDataItem))
     {
       return super.generateToolTip(dataset, series, item);
     }
-    return ((XYLabeledDataItem) dataItem).getLabel();
+    return dataItem.toString();
   }
 }

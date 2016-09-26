@@ -12,10 +12,10 @@ public class DataPointTest
   public void testBearingTo_North()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0.00001d;
     point2.longitude = 0d;
 
@@ -30,10 +30,10 @@ public class DataPointTest
   public void testBearingTo_NorthNorthEast()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0.00001d * Math.cos(22.5d / 360 * 2 * Math.PI);
     point2.longitude = 0.00001d * Math.sin(22.5d / 360 * 2 * Math.PI);
 
@@ -48,10 +48,10 @@ public class DataPointTest
   public void testBearingTo_NorthEast()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0.00001d;
     point2.longitude = 0.00001d;
 
@@ -66,10 +66,10 @@ public class DataPointTest
   public void testBearingTo_EastNorthEast()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0.00001d * Math.cos(67.5d / 360 * 2 * Math.PI);
     point2.longitude = 0.00001d * Math.sin(67.5d / 360 * 2 * Math.PI);
 
@@ -84,10 +84,10 @@ public class DataPointTest
   public void testBearingTo_East()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0d;
     point2.longitude = 0.00001d;
 
@@ -102,10 +102,10 @@ public class DataPointTest
   public void testBearingTo_EastSouthEast()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0.00001d * Math.cos(112.5d / 360 * 2 * Math.PI);
     point2.longitude = 0.00001d * Math.sin(112.5d / 360 * 2 * Math.PI);
 
@@ -120,10 +120,10 @@ public class DataPointTest
   public void testBearingTo_SouthEast()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = -0.00001d;
     point2.longitude = 0.00001d;
 
@@ -138,10 +138,10 @@ public class DataPointTest
   public void testBearingTo_South()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = -0.00001d;
     point2.longitude = 0d;
 
@@ -156,10 +156,10 @@ public class DataPointTest
   public void testBearingTo_SouthWest()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = -0.00001d;
     point2.longitude = -0.00001d;
 
@@ -174,10 +174,10 @@ public class DataPointTest
   public void testBearingTo_West()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0d;
     point2.longitude = -0.00001d;
 
@@ -192,10 +192,10 @@ public class DataPointTest
   public void testBearingTo_NorthWest()
   {
     // prepare
-    DataPoint point1 = new DataPoint();
+    DataPoint point1 = new DataPoint(0);
     point1.latitude = 0d;
     point1.longitude = 0d;
-    DataPoint point2 = new DataPoint();
+    DataPoint point2 = new DataPoint(1);
     point2.latitude = 0.00001d;
     point2.longitude = -0.00001d;
 
@@ -210,7 +210,7 @@ public class DataPointTest
   public void testSetXAndY()
   {
     // prepare
-    DataPoint point = new DataPoint();
+    DataPoint point = new DataPoint(0);
 
     // execute
     point.setXAndY(137345, 2500000);
@@ -225,13 +225,13 @@ public class DataPointTest
   public void testIntersection1()
   {
     // prepare
-    DataPoint line1Point1 = new DataPoint();
+    DataPoint line1Point1 = new DataPoint(0);
     line1Point1.setXAndY(-2, 0);
-    DataPoint line1Point2 = new DataPoint();
+    DataPoint line1Point2 = new DataPoint(1);
     line1Point2.setXAndY(-1, 0.5);
-    DataPoint line2Point1 = new DataPoint();
+    DataPoint line2Point1 = new DataPoint(2);
     line2Point1.setXAndY(2, 0);
-    DataPoint line2Point2 = new DataPoint();
+    DataPoint line2Point2 = new DataPoint(3);
     line2Point2.setXAndY(3, -0.5);
 
     // execute
@@ -246,13 +246,13 @@ public class DataPointTest
   public void testIntersection2()
   {
     // prepare
-    DataPoint line1Point1 = new DataPoint();
+    DataPoint line1Point1 = new DataPoint(0);
     line1Point1.setXAndY(-1, -1);
-    DataPoint line1Point2 = new DataPoint();
+    DataPoint line1Point2 = new DataPoint(1);
     line1Point2.setXAndY(0, -0.5);
-    DataPoint line2Point1 = new DataPoint();
+    DataPoint line2Point1 = new DataPoint(2);
     line2Point1.setXAndY(0, 3);
-    DataPoint line2Point2 = new DataPoint();
+    DataPoint line2Point2 = new DataPoint(3);
     line2Point2.setXAndY(0.5, 1.5);
 
     // execute

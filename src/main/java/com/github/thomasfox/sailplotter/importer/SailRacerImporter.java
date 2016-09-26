@@ -48,13 +48,15 @@ public class SailRacerImporter
   {
     List<DataPoint> result = new ArrayList<>();
     List<SailRacerPoint> rawData = readFileInternal(file);
+    int index = 0;
     for (SailRacerPoint rawPoint : rawData)
     {
-      DataPoint dataPoint = new DataPoint();
+      DataPoint dataPoint = new DataPoint(index);
       dataPoint.latitude = rawPoint.lat / 180d * Math.PI;
       dataPoint.longitude = rawPoint.lon / 180d * Math.PI;
       dataPoint.time = rawPoint.datetime.toInstant(ZoneOffset.UTC).toEpochMilli();
       result.add(dataPoint);
+      index++;
     }
     return result;
   }

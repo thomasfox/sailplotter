@@ -190,6 +190,7 @@ public class SwingGui
     JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, true, false);
     zoomXyPlot = (XYPlot) zoomXyChart.getPlot();
     updateZoomXyRange();
+    zoomXyPlot.setRenderer(new XYZoomRenderer());
     zoomXyPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
     ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setSeriesShapesVisible(0, true);
     ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
@@ -663,9 +664,34 @@ public class SwingGui
   public XYSeries getXySeries(List<DataPoint> data, TimeWindowPosition position, double xOffset, double yOffset)
   {
     XYSeries series = new XYSeries("XY" + position, false, true);
+    int tackIndex = 0;
+    Tack containingTack = tackList.get(tackIndex);
     for (DataPoint point : getSubset(data, position))
     {
-      series.add(new XYLabeledDataItem(point.getX() - xOffset, point.getY() - yOffset, point.getXYLabel()));
+      while (containingTack.endIndex < point.index && tackIndex < tackList.size() - 1)
+      {
+        ++tackIndex;
+        containingTack = tackList.get(tackIndex);
+      }
+      XYSailDataItem item = new XYSailDataItem(point.getX() - xOffset, point.getY() - yOffset, point.getXYLabel());
+      if (containingTack.startIndex == point.index)
+      {
+        item.setStartOfTack(tackIndex);
+      }
+      else if (containingTack.endIndex == point.index)
+      {
+        item.setEndOfTack(tackIndex);
+      }
+      DataPoint afterStartManeuver = containingTack.getAfterStartManeuver();
+      DataPoint bevoreEndManeuver = containingTack.getBeforeEndManeuver();
+
+      if ((afterStartManeuver != null && afterStartManeuver.index == point.index)
+          || (bevoreEndManeuver != null && bevoreEndManeuver.index == point.index))
+      {
+        item.setTackMainPartLimit(true);
+      }
+
+      series.add(item);
     }
     return series;
   }
