@@ -314,6 +314,7 @@ public class SwingGui
     DefaultTableModel model = new DefaultTableModel(
         new String[] {
             "Tacks",
+            "Type",
             "Wind direction [°]",
             "Angle to Wind [°]",
             "Velocity Main Parts Starboard [knots]",
@@ -324,6 +325,7 @@ public class SwingGui
     {
       model.addRow(new Object[] {
           tackSeries.startTackIndex + " - " + tackSeries.endTackIndex,
+          tackSeries.type,
           tackSeries.getAverageWindDirectionInDegrees(),
           tackSeries.getAverageAngleToWindInDegrees(),
           new DecimalFormat("0.0").format(tackSeries.getAverageMainPartVelocityStarboard()),

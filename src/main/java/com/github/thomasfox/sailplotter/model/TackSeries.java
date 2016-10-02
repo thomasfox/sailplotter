@@ -26,12 +26,15 @@ public class TackSeries
 
   public Integer endTackIndex;
 
+  public TackSeriesType type;
+
   public final List<Tack> tacks = new ArrayList<>();
 
-  public TackSeries(int startAndEndTackIndex)
+  public TackSeries(int startAndEndTackIndex, TackSeriesType type)
   {
     this.startTackIndex = startAndEndTackIndex;
     this.endTackIndex = startAndEndTackIndex;
+    this.type = type;
   }
 
   public void addTack(Tack tack, int tackIndex)
@@ -144,12 +147,22 @@ public class TackSeries
       return null;
     }
     double result = (averageBearingPort + averageBearingStarboard) / 2;
+
+    // Correct for tacks where the two average bearings have the nort direction between them
     if ((averageBearingPort < Math.PI && averageBearingStarboard > 3 * Math.PI / 2)
         || averageBearingStarboard < Math.PI/2 && averageBearingPort > 3 * Math.PI / 2)
     {
       result += Math.PI;
     }
-    if (result > 2 * Math.PI)
+
+    // when downwind, wind direction is opposite to VMG
+    if (type == TackSeriesType.DOWNWIND)
+    {
+      result += Math.PI;
+    }
+
+    // normalize to [0, 2*PI[ range
+    while (result >= 2 * Math.PI)
     {
       result -= 2 * Math.PI;
     }

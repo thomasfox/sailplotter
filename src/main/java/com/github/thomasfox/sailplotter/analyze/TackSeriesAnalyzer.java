@@ -3,48 +3,77 @@ package com.github.thomasfox.sailplotter.analyze;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.thomasfox.sailplotter.model.ManeuverType;
-import com.github.thomasfox.sailplotter.model.PointOfSail;
+import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.model.Tack;
 import com.github.thomasfox.sailplotter.model.TackSeries;
+import com.github.thomasfox.sailplotter.model.TackSeriesType;
 
+/**
+ * Analyzes a list of tacks and extracts the contained tack series (legs).
+ * This class is not thread safe.
+ */
 public class TackSeriesAnalyzer
 {
+  public List<TackSeries> result;
+
+  TackSeries currentTackSeries;
+
+  List<Tack> tacks;
+
   public List<TackSeries> analyze(List<Tack> tacks)
   {
-    List<TackSeries> result = new ArrayList<>();
-    TackSeries currentTackSeries = null;
+    this.tacks = tacks;
+    result = new ArrayList<>();
+    currentTackSeries = null;
     for (int tackIndex = 0; tackIndex < tacks.size(); ++tackIndex)
     {
-      Tack tack = tacks.get(tackIndex);
-      if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
-          || tack.pointOfSail == PointOfSail.BEAM_REACH_PORT
-          || tack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD
-          || tack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD)
+      boolean handled = false;
+      handled = handleTack(tackIndex, TackSeriesType.WINDWARD);
+      if (!handled)
       {
-        if (currentTackSeries == null)
+        handled = handleTack(tackIndex, TackSeriesType.DOWNWIND);
+      }
+      if (!handled)
+      {
+        if (currentTackSeries != null)
         {
-          currentTackSeries = new TackSeries(tackIndex);
-        }
-        else if (tack.maneuverTypeAtStart != ManeuverType.TACK || !tack.hasMainPoints())
-        {
-          if (currentTackSeries.getNumberOfTacks() >= 4)
+          if (currentTackSeries.getNumberOfTacks() >= Constants.MIN_TACK_SERIES_SIZE)
           {
             result.add(currentTackSeries);
           }
-          currentTackSeries = new TackSeries(tackIndex);
+          currentTackSeries = null;
         }
-        currentTackSeries.addTack(tack, tackIndex);
-      }
-      else if (currentTackSeries != null)
-      {
-        if (currentTackSeries.getNumberOfTacks() >= 4)
-        {
-          result.add(currentTackSeries);
-        }
-        currentTackSeries = null;
       }
     }
     return result;
+  }
+
+  private boolean handleTack(int tackIndex, TackSeriesType tackSeriesType)
+  {
+    if (currentTackSeries != null && currentTackSeries.type != tackSeriesType)
+    {
+      return false;
+    }
+
+    Tack tack = tacks.get(tackIndex);
+    if (!tackSeriesType.getPointsOfSail().contains(tack.pointOfSail))
+    {
+      return false;
+    }
+
+    if (currentTackSeries == null)
+    {
+      currentTackSeries = new TackSeries(tackIndex, tackSeriesType);
+    }
+    else if (!tackSeriesType.getManeuverTypes().contains(tack.maneuverTypeAtStart) || !tack.hasMainPoints())
+    {
+      if (currentTackSeries.getNumberOfTacks() >= Constants.MIN_TACK_SERIES_SIZE)
+      {
+        result.add(currentTackSeries);
+      }
+      currentTackSeries = new TackSeries(tackIndex, TackSeriesType.WINDWARD);
+    }
+    currentTackSeries.addTack(tack, tackIndex);
+    return true;
   }
 }

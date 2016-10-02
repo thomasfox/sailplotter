@@ -22,4 +22,7 @@ public class Constants
 
   /**  How many data points should be added in the zoom plots when a tack is clicked. */
   public static final int NUM_DATAPOINTS_TACK_EXTENSION = 5;
+
+  /** How many Tacks should be the minimum to constitute a tack series. */
+  public static final int MIN_TACK_SERIES_SIZE = 4;
 }
