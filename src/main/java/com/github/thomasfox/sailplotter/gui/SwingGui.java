@@ -329,6 +329,9 @@ public class SwingGui
           tack.getIntersectionTimeDistance(lastTack) == null
             ? ""
             : new DecimalFormat("0.0").format(tack.getIntersectionTimeDistance(lastTack)),
+          tack.getIntersectionAnglesInDegrees(lastTack) == null
+            ? ""
+            : new DecimalFormat("0").format(Math.abs(tack.getIntersectionAnglesInDegrees(lastTack))),
           tack.maneuverTypeAtEnd == null ? "" : tack.maneuverTypeAtEnd.toString()});
       lastTack = tack;
       ++i;
