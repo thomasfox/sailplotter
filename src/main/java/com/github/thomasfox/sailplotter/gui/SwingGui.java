@@ -14,9 +14,11 @@ import java.util.function.Function;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
@@ -153,6 +155,13 @@ public class SwingGui
     zoomPanel.addListener(this::zoomPanelStateChanged);
     topRightPanel.add(zoomPanel);
     topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
+    JPanel windDirectionPanel = new JPanel();
+    JLabel windDirectionLabel = new JLabel("Wind direction");
+    windDirectionPanel.add(windDirectionLabel);
+    JTextField windDirectionTextField = new JTextField();
+    windDirectionTextField.setText(Integer.toString(windDirectionInDegrees));
+    windDirectionPanel.add(windDirectionTextField);
+    topRightPanel.add(windDirectionPanel);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.333;
     gridBagConstraints.weighty = 0.25;
