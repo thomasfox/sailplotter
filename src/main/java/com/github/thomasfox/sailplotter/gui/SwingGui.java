@@ -83,22 +83,7 @@ public class SwingGui
 
   boolean inUpdate = false;
 
-  DefaultTableModel tackTableModel = new DefaultTableModel(
-      new String[] {
-          "#",
-          "Point of Sail",
-          "length [m]",
-          "duration [s]",
-          "absolute Bearing [deg]",
-          "relative Bearing [deg]",
-          "Speed [kts]",
-          "VMG [kts]",
-          "Maneuver at Start",
-          "Maneuver loss at Start (s)",
-          "Tacking angle at Start",
-          "Maneuver at End"},
-      0);
-;
+  DefaultTableModel tackTableModel;
 
   JTable tackSeriesTable;
 
@@ -292,6 +277,21 @@ public class SwingGui
 
   private JScrollPane createTacksTablePane()
   {
+    tackTableModel = new DefaultTableModel(
+        new String[] {
+            "#",
+            "Point of Sail",
+            "length [m]",
+            "duration [s]",
+            "absolute Bearing [deg]",
+            "relative Bearing [deg]",
+            "Speed [kts]",
+            "VMG [kts]",
+            "Maneuver at Start",
+            "Maneuver loss at Start (s)",
+            "Tacking angle at Start",
+            "Maneuver at End"},
+        0);
     updateTackTableContent();
     tacksTable = new JTable(tackTableModel);
     JScrollPane scrollPane = new JScrollPane(tacksTable);
