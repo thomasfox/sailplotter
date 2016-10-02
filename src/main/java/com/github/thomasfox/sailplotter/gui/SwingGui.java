@@ -817,7 +817,6 @@ public class SwingGui
     {
       return;
     }
-    System.out.println("tackSelected");
     ListSelectionModel model = tacksTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
     Tack tack = tackList.get(index);
@@ -852,7 +851,6 @@ public class SwingGui
     {
       return;
     }
-    System.out.println("tackSeriesSelected");
     ListSelectionModel model = tackSeriesTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
     TackSeries tackSeries = tackSeriesList.get(index);
