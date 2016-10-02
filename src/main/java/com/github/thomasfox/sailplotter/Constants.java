@@ -25,4 +25,7 @@ public class Constants
 
   /** How many Tacks should be the minimum to constitute a tack series. */
   public static final int MIN_TACK_SERIES_SIZE = 4;
+
+  /** If histogram counts are smaller than one divided by this value, the histogram is ignored. */
+  public static final int HISTOGRAM_IGNORE_THRESHOLD_FRACTION = 5;
 }

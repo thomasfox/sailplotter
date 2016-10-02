@@ -574,6 +574,22 @@ public class SwingGui
         }
       }
     }
+    int max = 0;
+    for (List<Double> bucket : velocityBuckets)
+    {
+      if (bucket.size() > max)
+      {
+        max = bucket.size();
+      }
+    }
+    for (List<Double> bucket : velocityBuckets)
+    {
+      if (bucket.size() < max / Constants.HISTOGRAM_IGNORE_THRESHOLD_FRACTION)
+      {
+        bucket.clear();
+      }
+    }
+
     XYSeries maxVelocity = new XYSeries("maxVelocity");
     XYSeries medianVelocity = new XYSeries("medianVelocity");
     for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
