@@ -627,7 +627,8 @@ public class SwingGui
     for (Tack tack : tackList)
     {
       if (tack.end.getLocalDateTime().isAfter(getDataStartTime())
-          && tack.start.getLocalDateTime().isBefore(getDataEndTime()))
+          && tack.start.getLocalDateTime().isBefore(getDataEndTime())
+          && tack.hasMainPoints())
       {
         if (tack.getRelativeBearingInDegrees() != null && tack.getVelocityInKnots() != null)
         {
