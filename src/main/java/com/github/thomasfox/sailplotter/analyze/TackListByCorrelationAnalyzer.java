@@ -102,11 +102,11 @@ public class TackListByCorrelationAnalyzer
         nextTack.maneuverTypeAtStart = ManeuverType.TACK;
       }
       else if ((lastTack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
-          && nextTack.pointOfSail == PointOfSail.BEAM_REACH_PORT || nextTack.pointOfSail == PointOfSail.BROAD_REACH_PORT)
+          && (nextTack.pointOfSail == PointOfSail.BEAM_REACH_PORT || nextTack.pointOfSail == PointOfSail.BROAD_REACH_PORT))
         || (lastTack.pointOfSail == PointOfSail.BEAM_REACH_PORT
           && nextTack.pointOfSail == PointOfSail.BROAD_REACH_PORT)
         || (lastTack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD
-            && nextTack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD || nextTack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD)
+            && (nextTack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD || nextTack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD))
         || (lastTack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD
             && nextTack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD))
       {
@@ -124,6 +124,14 @@ public class TackListByCorrelationAnalyzer
       {
         lastTack.maneuverTypeAtEnd = ManeuverType.HEAD_UP;
         nextTack.maneuverTypeAtStart = ManeuverType.HEAD_UP;
+      }
+      else if ((lastTack.pointOfSail == PointOfSail.BROAD_REACH_PORT
+            && nextTack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD)
+          || (lastTack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD
+              && nextTack.pointOfSail == PointOfSail.BROAD_REACH_PORT))
+      {
+        lastTack.maneuverTypeAtEnd = ManeuverType.JIBE;
+        nextTack.maneuverTypeAtStart = ManeuverType.JIBE;
       }
       else
       {
