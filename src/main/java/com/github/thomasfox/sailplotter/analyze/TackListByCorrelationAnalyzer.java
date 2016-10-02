@@ -22,25 +22,17 @@ public class TackListByCorrelationAnalyzer
     for (int dataPointIndex = 0; dataPointIndex < points.size(); ++dataPointIndex)
     {
       DataPoint point = points.get(dataPointIndex);
-      PointOfSail pointOfSail = point.getPointOfSail();
-      if (pointOfSail == null)
+      if (point.bearing == null)
       {
         if (currentTack == null)
         {
           continue;
         }
-        offTackCounter++;
-        currentTack.end = point;
-        if (offTackCounter < OFF_TACK_COUNTS_STARTS_NEW)
-        {
-          continue;
-        }
+        // bearing == null means that current velocity is zero. Does not end current tack.
+        // Does not increase offTackCounter but does not reset it either.
         currentTack.end(point, dataPointIndex, points);
-        firstPass.add(currentTack);
-        currentTack = null;
-        offTackCounter = 0;
       }
-      else // if (pointOfSail != null)
+      else // if (point.bearing != null)
       {
         if (currentTack == null)
         {
@@ -49,11 +41,7 @@ public class TackListByCorrelationAnalyzer
           continue;
         }
         currentTack.end(point, dataPointIndex, points);
-        if (point.bearing == null)
-        {
-          offTackCounter++;
-        }
-        else if (currentTack.getAbsoluteBearingInArcs() == null)
+        if (currentTack.getAbsoluteBearingInArcs() == null)
         {
           // null may happen if the first points have the same coordinates. ignore.
         }
