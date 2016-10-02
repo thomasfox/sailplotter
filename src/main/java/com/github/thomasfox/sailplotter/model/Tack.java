@@ -95,6 +95,17 @@ public class Tack
     return end.getVelocityInKnotsBetween(start);
   }
 
+  public Double getAverageVMGInKnots()
+  {
+    Double averageVelocity = getAverageVelocityInKnots();
+    Double averageRelativeBearing = getAverageRelativeBearingInArcs();
+    if (averageVelocity == null || averageRelativeBearing == null)
+    {
+      return null;
+    }
+    return averageVelocity * Math.cos(averageRelativeBearing);
+  }
+
   public void start(DataPoint startPoint, int dataPointIndex)
   {
     start = startPoint;
