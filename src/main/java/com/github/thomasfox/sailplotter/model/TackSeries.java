@@ -156,8 +156,8 @@ public class TackSeries
     }
     double result = (averageBearingPort + averageBearingStarboard) / 2;
 
-    // Correct for tacks where the two average bearings have the nort direction between them
-    if ((averageBearingPort < Math.PI && averageBearingStarboard > 3 * Math.PI / 2)
+    // Correct for tacks where the two average bearings have the north direction between them
+    if ((averageBearingPort < Math.PI/2 && averageBearingStarboard > 3 * Math.PI / 2)
         || averageBearingStarboard < Math.PI/2 && averageBearingPort > 3 * Math.PI / 2)
     {
       result += Math.PI;
