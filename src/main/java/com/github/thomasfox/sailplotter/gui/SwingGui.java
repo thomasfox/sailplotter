@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -80,6 +81,25 @@ public class SwingGui
 
   JTable tacksTable;
 
+  boolean inUpdate = false;
+
+  DefaultTableModel tackTableModel = new DefaultTableModel(
+      new String[] {
+          "#",
+          "Point of Sail",
+          "length [m]",
+          "duration [s]",
+          "absolute Bearing [deg]",
+          "relative Bearing [deg]",
+          "Speed [kts]",
+          "VMG [kts]",
+          "Maneuver at Start",
+          "Maneuver loss at Start (s)",
+          "Tacking angle at Start",
+          "Maneuver at End"},
+      0);
+;
+
   JTable tackSeriesTable;
 
   double windBearing;
@@ -88,9 +108,7 @@ public class SwingGui
   {
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
     data = getData(filePath);
-    new VelocityBearingAnalyzer().analyze(data, windBearing);
-    tackList = new TackListByCorrelationAnalyzer().analyze(data);
-    tackSeriesList = new TackSeriesAnalyzer().analyze(tackList);
+    analyze();
     zoomPanel = new ZoomPanel(data.size());
 
     JFrame frame = new JFrame("SailPlotter");
@@ -98,7 +116,14 @@ public class SwingGui
     frame.getContentPane().setLayout(new GridBagLayout());
 
     updateFullVelocityBearingOverTimeDataset();
-    JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Velocity and Bearing (Full)", "Time", "Velocity [kts] / Bearing [arcs]", fullVelocityBearingOverTimeDataset, false, false, false);
+    JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart(
+        "Velocity and Bearing (Full)",
+        "Time",
+        "Velocity [kts] / Bearing [arcs]",
+        fullVelocityBearingOverTimeDataset,
+        false,
+        false,
+        false);
     XYPlot fullVelocityBearingOverTimePlot = (XYPlot) fullVelocityBearingOverTimeChart.getPlot();
     Range dataRange = new DateRange(data.get(0).time, data.get(data.size() -1).time);
     fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
@@ -152,16 +177,20 @@ public class SwingGui
     JFreeChart bearingHistogramChart = ChartFactory.createHistogram("Relative Bearing", "Relative Bearing [°]", "Occurances",  bearingHistogramDataset, PlotOrientation.VERTICAL, false, false, false);
     ChartPanel bearingChartPanel = new ChartPanel(bearingHistogramChart);
     topRightPanel.add(bearingChartPanel);
+
     zoomPanel.addListener(this::zoomPanelStateChanged);
     topRightPanel.add(zoomPanel);
-    topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
+
     JPanel windDirectionPanel = new JPanel();
     JLabel windDirectionLabel = new JLabel("Wind direction");
     windDirectionPanel.add(windDirectionLabel);
     JTextField windDirectionTextField = new JTextField();
     windDirectionTextField.setText(Integer.toString(windDirectionInDegrees));
+    windDirectionTextField.addActionListener(this::windDirectionChanged);
     windDirectionPanel.add(windDirectionTextField);
     topRightPanel.add(windDirectionPanel);
+
+    topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.333;
     gridBagConstraints.weighty = 0.25;
@@ -263,27 +292,25 @@ public class SwingGui
 
   private JScrollPane createTacksTablePane()
   {
-    DefaultTableModel model = new DefaultTableModel(
-        new String[] {
-            "#",
-            "Point of Sail",
-            "length [m]",
-            "duration [s]",
-            "absolute Bearing [deg]",
-            "relative Bearing [deg]",
-            "Speed [kts]",
-            "VMG [kts]",
-            "Maneuver at Start",
-            "Maneuver loss at Start (s)",
-            "Tacking angle at Start",
-            "Maneuver at End"},
-        0);
+    updateTackTableContent();
+    tacksTable = new JTable(tackTableModel);
+    JScrollPane scrollPane = new JScrollPane(tacksTable);
+    tacksTable.setFillsViewportHeight(true);
+    tacksTable.getSelectionModel().addListSelectionListener(this::tackSelected);
+    return scrollPane;
+  }
 
+  private void updateTackTableContent()
+  {
+    while (tackTableModel.getRowCount() > 0)
+    {
+      tackTableModel.removeRow(0);
+    }
     Tack lastTack = null;
     int i = 0;
     for (Tack tack : tackList)
     {
-      model.addRow(new Object[] {
+      tackTableModel.addRow(new Object[] {
           i,
           tack.pointOfSail,
           new DecimalFormat("0").format(tack.getLength()),
@@ -315,11 +342,6 @@ public class SwingGui
       lastTack = tack;
       ++i;
     }
-    tacksTable = new JTable(model);
-    JScrollPane scrollPane = new JScrollPane(tacksTable);
-    tacksTable.setFillsViewportHeight(true);
-    tacksTable.getSelectionModel().addListSelectionListener(this::tackSelected);
-    return scrollPane;
   }
 
   private JScrollPane createTackSeriesTablePane()
@@ -753,24 +775,49 @@ public class SwingGui
   }
 
 
+  public void analyze()
+  {
+    new VelocityBearingAnalyzer().analyze(data, windBearing);
+    tackList = new TackListByCorrelationAnalyzer().analyze(data);
+    tackSeriesList = new TackSeriesAnalyzer().analyze(tackList);
+  }
+
+  public void redisplay(boolean updateTableContent)
+  {
+    try
+    {
+      inUpdate = true;
+      updateFullVelocityBearingOverTimeDataset();
+      updateZoomedVelocityBearingOverTimeDataset();
+      updateBearingHistogramDataset();
+      updateVelocityBearingPolar();
+      updateXyDataset();
+      updateTackVelocityBearingPolar();
+      updateZoomXyDataset();
+      updateZoomXyRange();
+      if (updateTableContent)
+      {
+        updateTackTableContent();
+      }
+    }
+    finally
+    {
+      inUpdate = false;
+    }
+  }
+
   public void zoomPanelStateChanged(ZoomPanelChangeEvent e)
   {
-    updateFullVelocityBearingOverTimeDataset();
-    updateZoomedVelocityBearingOverTimeDataset();
-    updateBearingHistogramDataset();
-    updateVelocityBearingPolar();
-    updateXyDataset();
-    updateTackVelocityBearingPolar();
-    updateZoomXyDataset();
-    updateZoomXyRange();
+    redisplay(false);
   }
 
   public void tackSelected(ListSelectionEvent e)
   {
-    if (e.getValueIsAdjusting())
+    if (e.getValueIsAdjusting() || inUpdate)
     {
       return;
     }
+    System.out.println("tackSelected");
     ListSelectionModel model = tacksTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
     Tack tack = tackList.get(index);
@@ -782,26 +829,53 @@ public class SwingGui
         Constants.NUMER_OF_ZOOM_TICKS));
   }
 
+  public void windDirectionChanged(ActionEvent event)
+  {
+    String inputValue = event.getActionCommand();
+    try
+    {
+      int newWindDirection = Integer.parseInt(inputValue);
+      this.windBearing = newWindDirection * Math.PI / 180d;
+      analyze();
+      redisplay(true);
+    }
+    catch (Exception e)
+    {
+      System.err.println("Could not update wind direction");
+      e.printStackTrace(System.err);
+    }
+  }
+
   public void tackSeriesSelected(ListSelectionEvent e)
   {
-    if (e.getValueIsAdjusting())
+    if (e.getValueIsAdjusting() || inUpdate)
     {
       return;
     }
+    System.out.println("tackSeriesSelected");
     ListSelectionModel model = tackSeriesTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
     TackSeries tackSeries = tackSeriesList.get(index);
-    tacksTable.getSelectionModel().setSelectionInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
-    Rectangle firstRectangleToSelect = tacksTable.getCellRect(tackSeries.startTackIndex, 0, true);
-    Rectangle lastRectangleToSelect = tacksTable.getCellRect(tackSeries.endTackIndex, 0, true);
-    tacksTable.scrollRectToVisible(lastRectangleToSelect);
-    tacksTable.scrollRectToVisible(firstRectangleToSelect);
-    zoomPanel.setStartIndex(Math.max(tackList.get(tackSeries.startTackIndex).startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
-    zoomPanel.setZoomIndex(Math.min(
-        Math.max(
-            Constants.NUMER_OF_ZOOM_TICKS * (tackList.get(tackSeries.endTackIndex).endIndex - tackList.get(tackSeries.startTackIndex).startIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
-            3),
-        Constants.NUMER_OF_ZOOM_TICKS));
+    try
+    {
+      inUpdate = true;
+      tacksTable.getSelectionModel().setSelectionInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
+      Rectangle firstRectangleToSelect = tacksTable.getCellRect(tackSeries.startTackIndex, 0, true);
+      Rectangle lastRectangleToSelect = tacksTable.getCellRect(tackSeries.endTackIndex, 0, true);
+      tacksTable.scrollRectToVisible(lastRectangleToSelect);
+      tacksTable.scrollRectToVisible(firstRectangleToSelect);
+      zoomPanel.setStartIndex(Math.max(tackList.get(tackSeries.startTackIndex).startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+      zoomPanel.setZoomIndex(Math.min(
+          Math.max(
+              Constants.NUMER_OF_ZOOM_TICKS * (tackList.get(tackSeries.endTackIndex).endIndex - tackList.get(tackSeries.startTackIndex).startIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
+              3),
+          Constants.NUMER_OF_ZOOM_TICKS));
+    }
+    finally
+    {
+      inUpdate = false;
+    }
+    redisplay(false);
   }
 
 }
