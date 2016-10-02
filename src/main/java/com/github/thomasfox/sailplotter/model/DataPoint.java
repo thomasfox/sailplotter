@@ -177,6 +177,14 @@ public class DataPoint
     return PointOfSail.ofRelativeBearing(relativeBearingInArcs);
   }
 
+  /**
+   * Gets the bearing of this point to another point.
+   *
+   * @param other the other point, not null.
+   *
+   * @return the bearing to the other point, in arcs, in the range [0, 2*PI[,
+   *         or null if the distance between the two points is null.
+   */
   public Double getBearingTo(DataPoint other)
   {
     double xDistance = other.getX() - getX();
@@ -198,7 +206,7 @@ public class DataPoint
     {
       result =  3 * Math.PI / 2;
     }
-    if (result != null && result < 0)
+    while (result != null && result < 0)
     {
       result += 2 * Math.PI;
     }

@@ -43,7 +43,13 @@ public class Tack
     return end.time - start.time;
   }
 
-  public Double getAverageBearingInArcs()
+  /**
+   * Returns the absolute bearing of the tack, i.e. the bearing from tack start to tack end.
+   *
+   * @return the absolute bearing in arcs, in the range [0, 2*PI[,
+   *         or null if the tack direction cannot be determined.
+   */
+  public Double getAbsoluteBearingInArcs()
   {
     if (end == null)
     {
@@ -52,7 +58,23 @@ public class Tack
     return start.getBearingTo(end);
   }
 
-  public Double getAverageRelativeBearingInArcs()
+  /**
+   * Returns the absolute bearing of the tack, i.e. the bearing from tack start to tack end.
+   *
+   * @return the absolute bearing in degrees, in the range [0°, 360°[,
+   *         or null if the tack direction cannot be determined.
+   */
+  public Double getAbsoluteBearingInDegrees()
+  {
+    Double absoluteBearingInArcs = getAbsoluteBearingInArcs();
+    if (absoluteBearingInArcs == null)
+    {
+      return null;
+    }
+    return absoluteBearingInArcs / Math.PI * 180;
+  }
+
+  public Double getRelativeBearingInArcs()
   {
     if (windDirection == null || end == null)
     {
@@ -71,9 +93,9 @@ public class Tack
     return result;
   }
 
-  public Double getAverageRelativeBearingInDegrees()
+  public Double getRelativeBearingInDegrees()
   {
-    Double averageRelativeBearingInArcs = getAverageRelativeBearingInArcs();
+    Double averageRelativeBearingInArcs = getRelativeBearingInArcs();
     if (averageRelativeBearingInArcs == null)
     {
       return null;
@@ -86,7 +108,7 @@ public class Tack
     return result;
   }
 
-  public Double getAverageVelocityInKnots()
+  public Double getVelocityInKnots()
   {
     if (end == null)
     {
@@ -97,8 +119,8 @@ public class Tack
 
   public Double getAverageVMGInKnots()
   {
-    Double averageVelocity = getAverageVelocityInKnots();
-    Double averageRelativeBearing = getAverageRelativeBearingInArcs();
+    Double averageVelocity = getVelocityInKnots();
+    Double averageRelativeBearing = getRelativeBearingInArcs();
     if (averageVelocity == null || averageRelativeBearing == null)
     {
       return null;

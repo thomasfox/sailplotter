@@ -258,13 +258,14 @@ public class SwingGui
         new String[] {
             "#",
             "Point of Sail",
-            "length (m)",
-            "duration (sec)",
-            "Average relative Bearing (degrees)",
-            "Average Speed (knots)",
-            "Average VMG (knots)",
+            "length [m]",
+            "duration [s]",
+            "absolute Bearing [deg]",
+            "relative Bearing [deg]",
+            "Speed [kts]",
+            "VMG [kts]",
             "Maneuver at Start",
-            "Maneuver loss at Start (sec)",
+            "Maneuver loss at Start (s)",
             "Tacking angle at Start",
             "Maneuver at End"},
         0);
@@ -278,10 +279,13 @@ public class SwingGui
           tack.pointOfSail,
           new DecimalFormat("0").format(tack.getLength()),
           new DecimalFormat("0.0").format(tack.getDuration() / 1000d),
-          tack.getAverageRelativeBearingInDegrees() == null
+          tack.getAbsoluteBearingInDegrees() == null
+          ? ""
+          : new DecimalFormat("0").format(tack.getAbsoluteBearingInDegrees()),
+          tack.getRelativeBearingInDegrees() == null
             ? ""
-            : new DecimalFormat("0").format(tack.getAverageRelativeBearingInDegrees()),
-          new DecimalFormat("0.0").format(tack.getAverageVelocityInKnots()),
+            : new DecimalFormat("0").format(tack.getRelativeBearingInDegrees()),
+          new DecimalFormat("0.0").format(tack.getVelocityInKnots()),
           tack.getAverageVMGInKnots() == null
             ? ""
             : new DecimalFormat("0.0").format(tack.getAverageVMGInKnots()),
@@ -584,9 +588,9 @@ public class SwingGui
       if (tack.end.getLocalDateTime().isAfter(getDataStartTime())
           && tack.start.getLocalDateTime().isBefore(getDataEndTime()))
       {
-        if (tack.getAverageRelativeBearingInDegrees() != null && tack.getAverageVelocityInKnots() != null)
+        if (tack.getRelativeBearingInDegrees() != null && tack.getVelocityInKnots() != null)
         {
-          tackVelocity.add(tack.getAverageRelativeBearingInDegrees(), tack.getAverageVelocityInKnots());
+          tackVelocity.add(tack.getRelativeBearingInDegrees(), tack.getVelocityInKnots());
         }
       }
     }

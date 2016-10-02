@@ -53,13 +53,13 @@ public class TackListByCorrelationAnalyzer
         {
           offTackCounter++;
         }
-        else if (currentTack.getAverageBearingInArcs() == null)
+        else if (currentTack.getAbsoluteBearingInArcs() == null)
         {
           // null may happen if the first points have the same coordinates. ignore.
         }
         else
         {
-          double bearingDifference = point.bearing - currentTack.getAverageBearingInArcs();
+          double bearingDifference = point.bearing - currentTack.getAbsoluteBearingInArcs();
           if (bearingDifference > Math.PI)
           {
             bearingDifference -= 2 * Math.PI;
