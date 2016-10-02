@@ -262,6 +262,7 @@ public class SwingGui
             "duration (sec)",
             "Average relative Bearing (degrees)",
             "Average Speed (knots)",
+            "Average VMG (knots)",
             "Maneuver at Start",
             "Maneuver loss at Start (sec)",
             "Tacking angle at Start",
@@ -281,6 +282,9 @@ public class SwingGui
             ? ""
             : new DecimalFormat("0").format(tack.getAverageRelativeBearingInDegrees()),
           new DecimalFormat("0.0").format(tack.getAverageVelocityInKnots()),
+          tack.getAverageVMGInKnots() == null
+            ? ""
+            : new DecimalFormat("0.0").format(tack.getAverageVMGInKnots()),
           tack.maneuverTypeAtStart == null ? "" : tack.maneuverTypeAtStart.toString(),
           (lastTack == null
            || lastTack.tackStraightLineIntersectionEnd == null
