@@ -189,15 +189,19 @@ public class TackSeries
 
   public Double getAverageAngleToWind()
   {
-    Double averagWindDirection = getAverageWindDirection();
-    if (averagWindDirection == null)
+    Double averageWindDirection = getAverageWindDirection();
+    if (averageWindDirection == null)
     {
       return null;
     }
-    double result = averagWindDirection - getAverageBearingStarboard();
+    double result = averageWindDirection - getAverageBearingStarboard();
     if (result < 0)
     {
       result += 2 * Math.PI;
+    }
+    if (result > Math.PI)
+    {
+      result = (2 * Math.PI) - result;
     }
     return result;
   }
