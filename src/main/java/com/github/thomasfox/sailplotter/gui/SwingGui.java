@@ -3,7 +3,6 @@ package com.github.thomasfox.sailplotter.gui;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -79,15 +78,13 @@ public class SwingGui
 
   List<TackSeries> tackSeriesList;
 
-  JTable tacksTable;
-
-  boolean inUpdate = false;
-
-  DefaultTableModel tackTableModel;
+  TackTablePanel tackTablePanel;
 
   JTable tackSeriesTable;
 
   double windBearing;
+
+  boolean inUpdate = false;
 
   public SwingGui(String filePath, int windDirectionInDegrees)
   {
@@ -250,7 +247,7 @@ public class SwingGui
     gridBagConstraints.gridy = 1;
     frame.getContentPane().add(chartPanel, gridBagConstraints);
 
-    JScrollPane tacksTablePane = createTacksTablePane();
+    tackTablePanel = new TackTablePanel(tackList, this::tackSelected);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.333;
     gridBagConstraints.weighty = 0.25;
@@ -258,7 +255,7 @@ public class SwingGui
     gridBagConstraints.fill = GridBagConstraints.BOTH;
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 2;
-    frame.getContentPane().add(tacksTablePane, gridBagConstraints);
+    frame.getContentPane().add(tackTablePanel, gridBagConstraints);
 
     JScrollPane tackSeriesTablePane = createTackSeriesTablePane();
     gridBagConstraints = new GridBagConstraints();
@@ -275,68 +272,6 @@ public class SwingGui
 
   }
 
-  private JScrollPane createTacksTablePane()
-  {
-    tackTableModel = new DefaultTableModel(
-        new String[] {
-            "#",
-            "Point of Sail",
-            "length [m]",
-            "duration [s]",
-            "absolute Bearing [deg]",
-            "relative Bearing [deg]",
-            "Speed [kts]",
-            "VMG [kts]",
-            "Maneuver at Start",
-            "Maneuver loss at Start (s)",
-            "Tacking angle at Start",
-            "Maneuver at End"},
-        0);
-    updateTackTableContent();
-    tacksTable = new JTable(tackTableModel);
-    JScrollPane scrollPane = new JScrollPane(tacksTable);
-    tacksTable.setFillsViewportHeight(true);
-    tacksTable.getSelectionModel().addListSelectionListener(this::tackSelected);
-    return scrollPane;
-  }
-
-  private void updateTackTableContent()
-  {
-    while (tackTableModel.getRowCount() > 0)
-    {
-      tackTableModel.removeRow(0);
-    }
-    Tack lastTack = null;
-    int i = 0;
-    for (Tack tack : tackList)
-    {
-      tackTableModel.addRow(new Object[] {
-          i,
-          tack.pointOfSail,
-          new DecimalFormat("0").format(tack.getLength()),
-          new DecimalFormat("0.0").format(tack.getDuration() / 1000d),
-          tack.getAbsoluteBearingInDegrees() == null
-          ? ""
-          : new DecimalFormat("0").format(tack.getAbsoluteBearingInDegrees()),
-          tack.getRelativeBearingInDegrees() == null
-            ? ""
-            : new DecimalFormat("0").format(tack.getRelativeBearingInDegrees()),
-          new DecimalFormat("0.0").format(tack.getVelocityInKnots()),
-          tack.getAverageVMGInKnots() == null
-            ? ""
-            : new DecimalFormat("0.0").format(tack.getAverageVMGInKnots()),
-          tack.maneuverTypeAtStart == null ? "" : tack.maneuverTypeAtStart.toString(),
-          tack.getIntersectionTimeDistance(lastTack) == null
-            ? ""
-            : new DecimalFormat("0.0").format(tack.getIntersectionTimeDistance(lastTack)),
-          tack.getIntersectionAnglesInDegrees(lastTack) == null
-            ? ""
-            : new DecimalFormat("0").format(Math.abs(tack.getIntersectionAnglesInDegrees(lastTack))),
-          tack.maneuverTypeAtEnd == null ? "" : tack.maneuverTypeAtEnd.toString()});
-      lastTack = tack;
-      ++i;
-    }
-  }
 
   private JScrollPane createTackSeriesTablePane()
   {
@@ -808,7 +743,7 @@ public class SwingGui
       updateZoomXyRange();
       if (updateTableContent)
       {
-        updateTackTableContent();
+        tackTablePanel.updateContent(tackList);
       }
     }
     finally
@@ -828,8 +763,7 @@ public class SwingGui
     {
       return;
     }
-    ListSelectionModel model = tacksTable.getSelectionModel();
-    int index = model.getAnchorSelectionIndex();
+    int index = tackTablePanel.getSelectedTackIndex();
     Tack tack = tackList.get(index);
     zoomPanel.setStartIndex(Math.max(tack.startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
     zoomPanel.setZoomIndex(Math.min(
@@ -868,11 +802,7 @@ public class SwingGui
     try
     {
       inUpdate = true;
-      tacksTable.getSelectionModel().setSelectionInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
-      Rectangle firstRectangleToSelect = tacksTable.getCellRect(tackSeries.startTackIndex, 0, true);
-      Rectangle lastRectangleToSelect = tacksTable.getCellRect(tackSeries.endTackIndex, 0, true);
-      tacksTable.scrollRectToVisible(lastRectangleToSelect);
-      tacksTable.scrollRectToVisible(firstRectangleToSelect);
+      tackTablePanel.selectInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
       zoomPanel.setStartIndex(Math.max(tackList.get(tackSeries.startTackIndex).startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
       zoomPanel.setZoomIndex(Math.min(
           Math.max(
