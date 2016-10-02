@@ -264,13 +264,19 @@ public class DataPoint
   public String toString()
   {
     StringBuilder result = new StringBuilder()
-        .append("DataPoint: ")
-        .append(getLocalDateTime())
-        .append(" (")
-        .append(new DecimalFormat("0").format(getX()))
+        .append("DataPoint: ");
+    if (time != null)
+    {
+      result.append(getLocalDateTime())
+        .append(" (");
+    }
+    if (latitude != null && longitude != null)
+    {
+      result.append(new DecimalFormat("0").format(getX()))
         .append("m,")
         .append(new DecimalFormat("0").format(getY()))
         .append("m) ");
+    }
     if (velocity != null)
     {
       result.append(new DecimalFormat("0.0").format(velocity))

@@ -326,18 +326,9 @@ public class SwingGui
             ? ""
             : new DecimalFormat("0.0").format(tack.getAverageVMGInKnots()),
           tack.maneuverTypeAtStart == null ? "" : tack.maneuverTypeAtStart.toString(),
-          (lastTack == null
-           || lastTack.tackStraightLineIntersectionEnd == null
-           || tack.tackStraightLineIntersectionStart == null
-           || lastTack.tackStraightLineIntersectionEnd.time == null
-           || tack.tackStraightLineIntersectionStart.time == null)
+          tack.getIntersectionTimeDistance(lastTack) == null
             ? ""
-            : new DecimalFormat("0.0").format(
-                (tack.tackStraightLineIntersectionStart.time - lastTack.tackStraightLineIntersectionEnd.time)
-                / 1000d),
-            (tack.getIntersectionAnglesInDegrees(lastTack) == null)
-             ? ""
-             : new DecimalFormat("0").format(Math.abs(tack.getIntersectionAnglesInDegrees(lastTack))),
+            : new DecimalFormat("0.0").format(tack.getIntersectionTimeDistance(lastTack)),
           tack.maneuverTypeAtEnd == null ? "" : tack.maneuverTypeAtEnd.toString()});
       lastTack = tack;
       ++i;

@@ -253,6 +253,47 @@ public class Tack
   }
 
   /**
+   * Returns the time difference between the intersection points between the two tacks
+   * as a measure for maneuver loss.
+   * This only gives a non-null result if the end point of this tack is the start point of the other tack
+   * or vice versa.
+   *
+   * @param other the other tack to calculate the difference to.
+   *
+   * @return the time difference between the interpolated intersection times,
+   *         or null if it cannot be calculated.
+   */
+  public Double getIntersectionTimeDistance(Tack other)
+  {
+    if (other == null)
+    {
+      return null;
+    }
+    long intersectionTimeDifferenceMillis;
+    if (other.startIndex == this.endIndex)
+    {
+      if (other.tackStraightLineIntersectionStart == null || this.tackStraightLineIntersectionEnd == null)
+      {
+        return null;
+      }
+      intersectionTimeDifferenceMillis = other.tackStraightLineIntersectionStart.time - this.tackStraightLineIntersectionEnd.time;
+    }
+    else if (other.endIndex == this.startIndex)
+    {
+      if (this.tackStraightLineIntersectionStart == null || other.tackStraightLineIntersectionEnd == null)
+      {
+        return null;
+      }
+      intersectionTimeDifferenceMillis = this.tackStraightLineIntersectionStart.time - other.tackStraightLineIntersectionEnd.time;
+    }
+    else
+    {
+      return null;
+    }
+    return intersectionTimeDifferenceMillis / 1000d;
+  }
+
+  /**
    * Calculates the angle between this tack and the other tack.
    * For the tack direction, the intersection points with the other tacks are used.
    *
