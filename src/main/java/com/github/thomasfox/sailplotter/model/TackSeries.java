@@ -20,7 +20,11 @@ public class TackSeries
 
   private Boolean starboardBearingCloseTo360Degrees;
 
+  private Boolean starboardBearingCloseTo0Degrees;
+
   private Boolean portBearingCloseTo360Degrees;
+
+  private Boolean portBearingCloseTo0Degrees;
 
   public Integer startTackIndex;
 
@@ -41,61 +45,65 @@ public class TackSeries
   {
     this.tacks.add(tack);
     this.endTackIndex = tackIndex;
-    if (tack.hasMainPoints())
+    if (!tack.hasMainPoints())
     {
-      DataPoint startPoint = tack.getAfterStartManeuver();
-      DataPoint endPoint = tack.getBeforeEndManeuver();
-      Double distance = startPoint.distance(endPoint);
-      Double bearing = startPoint.getBearingTo(endPoint);
-      if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
-          || tack.pointOfSail == PointOfSail.BEAM_REACH_PORT
-          || tack.pointOfSail == PointOfSail.BROAD_REACH_PORT)
+      return;
+    }
+
+    DataPoint startPoint = tack.getAfterStartManeuver();
+    DataPoint endPoint = tack.getBeforeEndManeuver();
+    Double distance = startPoint.distance(endPoint);
+    Double bearing = startPoint.getBearingTo(endPoint);
+    if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
+        || tack.pointOfSail == PointOfSail.BEAM_REACH_PORT
+        || tack.pointOfSail == PointOfSail.BROAD_REACH_PORT)
+    {
+      if (portBearingCloseTo360Degrees == null || portBearingCloseTo0Degrees == null)
       {
-        if (portBearingCloseTo360Degrees == null)
-        {
-          portBearingCloseTo360Degrees = (bearing > 3 * Math.PI / 2);
-        }
-
-        if (portBearingCloseTo360Degrees && bearing < Math.PI)
-        {
-          weighedSumMainPartBearingPort += (bearing + 2 * Math.PI) * distance;
-        }
-        else if (!portBearingCloseTo360Degrees && bearing > Math.PI)
-        {
-          weighedSumMainPartBearingPort += (bearing - 2 * Math.PI) * distance;
-        }
-        else
-        {
-          weighedSumMainPartBearingPort += bearing * distance;
-        }
-
-        weighedSumMainPartVelocityPort += endPoint.getVelocityInKnotsBetween(startPoint) * distance;
-        weighSumPort += distance;
+        portBearingCloseTo360Degrees = (bearing > 3 * Math.PI / 2);
+        portBearingCloseTo0Degrees = (bearing < Math.PI / 2);
       }
-      else if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD
-          || tack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD
-          || tack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD)
+
+      if (portBearingCloseTo360Degrees && bearing < Math.PI)
       {
-        if (starboardBearingCloseTo360Degrees == null)
-        {
-          starboardBearingCloseTo360Degrees = (bearing > 3 * Math.PI / 2);
-        }
-
-        if (starboardBearingCloseTo360Degrees && bearing < Math.PI)
-        {
-          weighedSumMainPartBearingStarboard += (bearing + 2 * Math.PI) * distance;
-        }
-        else if (!starboardBearingCloseTo360Degrees && bearing > Math.PI)
-        {
-          weighedSumMainPartBearingStarboard += (bearing - 2 * Math.PI) * distance;
-        }
-        else
-        {
-          weighedSumMainPartBearingStarboard += bearing * distance;
-        }
-        weighedSumMainPartVelocityStarboard += endPoint.getVelocityInKnotsBetween(startPoint) * distance;
-        weighSumStarboard += distance;
+        weighedSumMainPartBearingPort += (bearing + 2 * Math.PI) * distance;
       }
+      else if (portBearingCloseTo0Degrees && bearing > Math.PI)
+      {
+        weighedSumMainPartBearingPort += (bearing - 2 * Math.PI) * distance;
+      }
+      else
+      {
+        weighedSumMainPartBearingPort += bearing * distance;
+      }
+
+      weighedSumMainPartVelocityPort += endPoint.getVelocityInKnotsBetween(startPoint) * distance;
+      weighSumPort += distance;
+    }
+    else if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_STARBOARD
+        || tack.pointOfSail == PointOfSail.BEAM_REACH_STARBOARD
+        || tack.pointOfSail == PointOfSail.BROAD_REACH_STARBOARD)
+    {
+      if (starboardBearingCloseTo360Degrees == null || starboardBearingCloseTo0Degrees == null)
+      {
+        starboardBearingCloseTo360Degrees = (bearing > 3 * Math.PI / 2);
+        starboardBearingCloseTo0Degrees = (bearing < Math.PI / 2);
+      }
+
+      if (starboardBearingCloseTo360Degrees && bearing < Math.PI)
+      {
+        weighedSumMainPartBearingStarboard += (bearing + 2 * Math.PI) * distance;
+      }
+      else if (starboardBearingCloseTo0Degrees && bearing > Math.PI)
+      {
+        weighedSumMainPartBearingStarboard += (bearing - 2 * Math.PI) * distance;
+      }
+      else
+      {
+        weighedSumMainPartBearingStarboard += bearing * distance;
+      }
+      weighedSumMainPartVelocityStarboard += endPoint.getVelocityInKnotsBetween(startPoint) * distance;
+      weighSumStarboard += distance;
     }
   }
 
