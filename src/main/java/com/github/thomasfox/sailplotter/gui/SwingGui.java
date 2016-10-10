@@ -5,7 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +15,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -70,6 +65,10 @@ public class SwingGui
 
   XYSeriesCollection zoomXyDataset = new XYSeriesCollection();
 
+  XYPlot fullVelocityBearingOverTimePlot;
+
+  XYPlot xyPlot;
+
   XYPlot zoomXyPlot;
 
   List<DataPoint> data;
@@ -80,7 +79,7 @@ public class SwingGui
 
   TackTablePanel tackTablePanel;
 
-  JTable tackSeriesTable;
+  TackSeriesTablePanel tackSeriesTablePanel;
 
   double windBearing;
 
@@ -89,13 +88,15 @@ public class SwingGui
   public SwingGui(String filePath, int windDirectionInDegrees)
   {
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
-    data = getData(filePath);
+    data = getData(new File(filePath));
     analyze();
     zoomPanel = new ZoomPanel(data.size());
 
     JFrame frame = new JFrame("SailPlotter");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new GridBagLayout());
+
+    frame.setJMenuBar(new Menubar(frame, new File(filePath), this::loadFile));
 
     updateFullVelocityBearingOverTimeDataset();
     JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart(
@@ -106,17 +107,8 @@ public class SwingGui
         false,
         false,
         false);
-    XYPlot fullVelocityBearingOverTimePlot = (XYPlot) fullVelocityBearingOverTimeChart.getPlot();
-    Range dataRange = new DateRange(data.get(0).time, data.get(data.size() -1).time);
-    fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
-    Range valueRange = new DateRange(0, getMaximum(data, DataPoint::getVelocity));
-    fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot = (XYPlot) fullVelocityBearingOverTimeChart.getPlot();
+    resetFullVelocityBearingOverTimePlot();
     ChartPanel fullVelocityBearingOverTimeChartPanel = new ChartPanel(fullVelocityBearingOverTimeChart);
     GridBagConstraints gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.333;
@@ -184,19 +176,8 @@ public class SwingGui
 
     updateXyDataset();
     JFreeChart xyChart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", xyDataset, PlotOrientation.VERTICAL, false, false, false);
-    XYPlot xyPlot = (XYPlot) xyChart.getPlot();
-    Range xRange = new Range(
-        getMinimum(data, DataPoint::getX) - data.get(0).getX(),
-        getMaximum(data, DataPoint::getX) - data.get(0).getX());
-    xyPlot.getDomainAxis().setRange(xRange);
-    Range yRange = new Range(
-        getMinimum(data, DataPoint::getY) - data.get(0).getY(),
-        getMaximum(data, DataPoint::getY) - data.get(0).getY());
-    xyPlot.getRangeAxis().setRange(yRange);
-    expandRangesToAspectRatio(xyPlot, Constants.MAP_ASPECT_RATIO);
-    xyPlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
-    xyPlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
-    xyPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
+    xyPlot = (XYPlot) xyChart.getPlot();
+    resetXyPlot();
     ChartPanel xyChartPanel = new ChartPanel(xyChart);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.333;
@@ -257,7 +238,7 @@ public class SwingGui
     gridBagConstraints.gridy = 2;
     frame.getContentPane().add(tackTablePanel, gridBagConstraints);
 
-    JScrollPane tackSeriesTablePane = createTackSeriesTablePane();
+    tackSeriesTablePanel = new TackSeriesTablePanel(tackSeriesList, this::tackSeriesSelected);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.25;
     gridBagConstraints.weighty = 0.25;
@@ -265,7 +246,7 @@ public class SwingGui
     gridBagConstraints.fill = GridBagConstraints.BOTH;
     gridBagConstraints.gridx = 2;
     gridBagConstraints.gridy = 2;
-    frame.getContentPane().add(tackSeriesTablePane, gridBagConstraints);
+    frame.getContentPane().add(tackSeriesTablePanel, gridBagConstraints);
 
     frame.pack();
     frame.setVisible(true);
@@ -273,33 +254,35 @@ public class SwingGui
   }
 
 
-  private JScrollPane createTackSeriesTablePane()
+  private void resetXyPlot()
   {
-    DefaultTableModel model = new DefaultTableModel(
-        new String[] {
-            "Tacks",
-            "Type",
-            "Wind direction [°]",
-            "Angle to Wind [°]",
-            "Velocity Main Parts Starboard [knots]",
-            "Velocity Main Parts Port [knots]"},
-        0);
+    Range xRange = new Range(
+        getMinimum(data, DataPoint::getX) - data.get(0).getX(),
+        getMaximum(data, DataPoint::getX) - data.get(0).getX());
+    xyPlot.getDomainAxis().setRange(xRange);
+    Range yRange = new Range(
+        getMinimum(data, DataPoint::getY) - data.get(0).getY(),
+        getMaximum(data, DataPoint::getY) - data.get(0).getY());
+    xyPlot.getRangeAxis().setRange(yRange);
+    expandRangesToAspectRatio(xyPlot, Constants.MAP_ASPECT_RATIO);
+    xyPlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
+    xyPlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
+    xyPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
+  }
 
-    for (TackSeries tackSeries : tackSeriesList)
-    {
-      model.addRow(new Object[] {
-          tackSeries.startTackIndex + " - " + tackSeries.endTackIndex,
-          tackSeries.type,
-          tackSeries.getAverageWindDirectionInDegrees(),
-          tackSeries.getAverageAngleToWindInDegrees(),
-          new DecimalFormat("0.0").format(tackSeries.getAverageMainPartVelocityStarboard()),
-          new DecimalFormat("0.0").format(tackSeries.getAverageMainPartVelocityPort())});
-    }
-    tackSeriesTable = new JTable(model);
-    JScrollPane scrollPane = new JScrollPane(tackSeriesTable);
-    tackSeriesTable.setFillsViewportHeight(true);
-    tackSeriesTable.getSelectionModel().addListSelectionListener(this::tackSeriesSelected);
-    return scrollPane;
+
+  private void resetFullVelocityBearingOverTimePlot()
+  {
+    Range dataRange = new DateRange(data.get(0).time, data.get(data.size() -1).time);
+    fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
+    Range valueRange = new DateRange(0, getMaximum(data, DataPoint::getVelocity));
+    fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
+    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
   }
 
   public static void main(String[] args)
@@ -349,11 +332,10 @@ public class SwingGui
     System.out.println("Usage: ${startcommand} ${file} ${windDirectionInDegreees}");
   }
 
-  private List<DataPoint> getData(String filePath)
+  private List<DataPoint> getData(File file)
   {
-    File file = new File(filePath);
     List<DataPoint> data;
-    if (filePath.endsWith(".log"))
+    if (file.getPath().endsWith(".log"))
     {
       data = new SailRacerImporter().read(file);
     }
@@ -744,6 +726,7 @@ public class SwingGui
       if (updateTableContent)
       {
         tackTablePanel.updateContent(tackList);
+        tackSeriesTablePanel.updateContent(tackSeriesList);
       }
     }
     finally
@@ -796,8 +779,7 @@ public class SwingGui
     {
       return;
     }
-    ListSelectionModel model = tackSeriesTable.getSelectionModel();
-    int index = model.getAnchorSelectionIndex();
+    int index = tackSeriesTablePanel.getSelectedTackSeriesIndex();
     TackSeries tackSeries = tackSeriesList.get(index);
     try
     {
@@ -815,6 +797,15 @@ public class SwingGui
       inUpdate = false;
     }
     redisplay(false);
+  }
+
+  public void loadFile(File file)
+  {
+    data = getData(file);
+    analyze();
+    resetFullVelocityBearingOverTimePlot();
+    resetXyPlot();
+    redisplay(true);
   }
 
 }
