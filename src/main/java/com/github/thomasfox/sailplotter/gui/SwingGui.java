@@ -802,6 +802,7 @@ public class SwingGui
   public void loadFile(File file)
   {
     data = getData(file);
+    zoomPanel.setDataSize(data.size());
     analyze();
     resetFullVelocityBearingOverTimePlot();
     resetXyPlot();

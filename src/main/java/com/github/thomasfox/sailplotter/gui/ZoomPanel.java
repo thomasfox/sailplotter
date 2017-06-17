@@ -46,6 +46,15 @@ public class ZoomPanel extends JPanel implements ChangeListener
     this.add(zoomSlider);
   }
 
+  public void setDataSize(int dataSize)
+  {
+    if (startSlider.getMaximum() != dataSize - 1)
+    {
+      startSlider.setValue(0);
+      startSlider.setMaximum(dataSize- 1);
+    }
+  }
+
   @Override
   public void stateChanged(ChangeEvent e)
   {
