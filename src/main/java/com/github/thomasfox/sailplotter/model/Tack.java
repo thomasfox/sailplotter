@@ -233,17 +233,15 @@ public class Tack
   public Double getIntersectionAngles(Tack other)
   {
     if (other == null
-        || tackStraightLineIntersectionStart == null
-        || tackStraightLineIntersectionEnd == null
-        || other.tackStraightLineIntersectionStart == null
-        || other.tackStraightLineIntersectionEnd == null)
+        || !hasMainPoints()
+        || !other.hasMainPoints())
     {
       return null;
     }
     double thisTackBearing
-        = tackStraightLineIntersectionStart.getBearingTo(tackStraightLineIntersectionEnd);
+        = getAfterStartManeuver().getBearingTo(getBeforeEndManeuver());
     double otherTackBearing
-        = other.tackStraightLineIntersectionStart.getBearingTo(other.tackStraightLineIntersectionEnd);
+        = other.getAfterStartManeuver().getBearingTo(other.getBeforeEndManeuver());
     double tackAngle = otherTackBearing - thisTackBearing;
     if (tackAngle < - Math.PI)
     {
