@@ -1,6 +1,7 @@
 package com.github.thomasfox.sailplotter.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -159,6 +160,9 @@ public class SwingGui
     JLabel windDirectionLabel = new JLabel("Wind direction");
     windDirectionPanel.add(windDirectionLabel);
     JTextField windDirectionTextField = new JTextField();
+    Dimension windDirectionTextFieldSize = windDirectionTextField.getPreferredSize();
+    windDirectionTextFieldSize.width=30;
+    windDirectionTextField.setPreferredSize(windDirectionTextFieldSize);
     windDirectionTextField.setText(Integer.toString(windDirectionInDegrees));
     windDirectionTextField.addActionListener(this::windDirectionChanged);
     windDirectionPanel.add(windDirectionTextField);
