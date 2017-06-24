@@ -232,6 +232,34 @@ public class DataPoint
     return result;
   }
 
+  /**
+   * Calculates the bearing difference between the bearing of this point
+   * and the passed bearing. The bearing difference is normalized between
+   * -PI exclusive and PI inclusive.
+   *
+   * @param absoluteBearingInArcs the bearing to calculate the difference to.
+   *
+   * @return the bearing difference, or null if bearing is null or
+   *         absoluteBearingInArcs is null.
+   */
+  public Double getBearingDifference(Double absoluteBearingInArcs)
+  {
+    if (bearing == null || absoluteBearingInArcs == null)
+    {
+      return null;
+    }
+    double bearingDifference = bearing - absoluteBearingInArcs;
+    if (bearingDifference > Math.PI)
+    {
+      bearingDifference -= 2 * Math.PI;
+    }
+    if (bearingDifference <= -Math.PI)
+    {
+      bearingDifference += 2 * Math.PI;
+    }
+    return bearingDifference;
+  }
+
   public double getVelocityInKnotsBetween(DataPoint other)
   {
     return distance(other) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;

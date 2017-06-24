@@ -14,23 +14,26 @@ public class TackListByCorrelationAnalyzer
 
   private static final int OFF_TACK_COUNTS_STARTS_NEW = 2;
 
+  private static final int ADJUSTMENT_RADIUS = 10;
+
   public List<Tack> analyze(List<DataPoint> points)
   {
-    List<Tack> firstPass = calculateTacksByMaxOffBearing(points);
+    List<Tack> tackList = calculateTacksByMaxOffBearing(points);
+    tackList = adjustTackStartAndEndPoint(tackList, points);
 
-    for (int i = 1; i < firstPass.size(); ++i)
+    for (int i = 1; i < tackList.size(); ++i)
     {
-      Tack lastTack = firstPass.get(i - 1);
-      Tack nextTack = firstPass.get(i);
+      Tack lastTack = tackList.get(i - 1);
+      Tack nextTack = tackList.get(i);
       ManeuverType maneuverTypeBetweenTacks = determineManeuverTypeBetweenTacks(lastTack, nextTack);
       lastTack.maneuverTypeAtEnd = maneuverTypeBetweenTacks;
       nextTack.maneuverTypeAtStart = maneuverTypeBetweenTacks;
     }
 
-    for (int i = 1; i < firstPass.size(); ++i)
+    for (int i = 1; i < tackList.size(); ++i)
     {
-      Tack lastTack = firstPass.get(i - 1);
-      Tack nextTack = firstPass.get(i);
+      Tack lastTack = tackList.get(i - 1);
+      Tack nextTack = tackList.get(i);
       if (lastTack.hasMainPoints() && nextTack.hasMainPoints())
       {
         DataPoint intersection = DataPoint.intersection(
@@ -44,7 +47,42 @@ public class TackListByCorrelationAnalyzer
         calculateTackIntersectionTimes(lastTack, nextTack);
       }
     }
-    return firstPass;
+    return tackList;
+  }
+
+  private List<Tack> adjustTackStartAndEndPoint(List<Tack> tacks, List<DataPoint> points)
+  {
+    for (int tackIndex = 1; tackIndex < tacks.size(); ++tackIndex)
+    {
+      Tack lastTack = tacks.get(tackIndex - 1);
+      Tack nextTack = tacks.get(tackIndex);
+      double lastTackBearing = lastTack.getAbsoluteBearingInArcs();
+      double nextTackBearing = nextTack.getAbsoluteBearingInArcs();
+      int startIndex = Math.max(lastTack.endIndex - ADJUSTMENT_RADIUS, lastTack.startIndex);
+      int endIndex = Math.min(lastTack.endIndex + ADJUSTMENT_RADIUS, nextTack.endIndex);
+      int countNearerToLast = 0;
+      int countNearerToNext = 0;
+      for (int pointIndex = startIndex; pointIndex <= endIndex; ++pointIndex)
+      {
+        Double bearingDifferenceToLastTack = points.get(pointIndex).getBearingDifference(lastTackBearing);
+        Double bearingDifferenceToNextTack = points.get(pointIndex).getBearingDifference(nextTackBearing);
+        if (bearingDifferenceToLastTack != null && bearingDifferenceToNextTack != null)
+        {
+          if (Math.abs(bearingDifferenceToLastTack) > Math.abs(bearingDifferenceToNextTack))
+          {
+            countNearerToNext++;
+          }
+          else if (Math.abs(bearingDifferenceToLastTack) < Math.abs(bearingDifferenceToNextTack))
+          {
+            countNearerToLast++;
+          }
+        }
+      }
+      int change = (countNearerToLast - countNearerToNext) / 2;
+      lastTack.end(points.get(lastTack.endIndex + change), lastTack.endIndex + change, points);
+      nextTack.start(points.get(nextTack.startIndex + change), nextTack.startIndex + change);
+    }
+    return tacks;
   }
 
   private ManeuverType determineManeuverTypeBetweenTacks(Tack lastTack, Tack nextTack)
@@ -126,21 +164,13 @@ public class TackListByCorrelationAnalyzer
           continue;
         }
         currentTack.end(point, dataPointIndex, points);
-        if (currentTack.getAbsoluteBearingInArcs() == null)
+        Double bearingDifference = point.getBearingDifference(currentTack.getAbsoluteBearingInArcs());
+        if (bearingDifference == null)
         {
-          // null may happen if the first points have the same coordinates. ignore.
+          // null may happen if points have the same coordinates. ignore.
         }
         else
         {
-          double bearingDifference = point.bearing - currentTack.getAbsoluteBearingInArcs();
-          if (bearingDifference > Math.PI)
-          {
-            bearingDifference -= 2 * Math.PI;
-          }
-          if (bearingDifference < -Math.PI)
-          {
-            bearingDifference += 2 * Math.PI;
-          }
           if (Math.abs(bearingDifference) > OFF_TACK_BEARING_THRESHOLD)
           {
             offTackCounter++;
