@@ -5,6 +5,10 @@ import java.util.List;
 
 public class Tack
 {
+  private static final double MAIN_SECTION_START_AFTER_TACK_START_METRES = 10d;
+
+  private static final double MAIN_SECTION_END_BEFORE_TACK_END_METRES = 10d;
+
   public PointOfSail pointOfSail;
 
   public DataPoint start;
@@ -157,14 +161,14 @@ public class Tack
     DataPoint result = null;
     for (DataPoint candidate : pointsWithinTack)
     {
-      if (candidate.distance(start) > 20d)
+      if (candidate.distance(start) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
       {
         result = candidate;
         break;
       }
     }
     // sanity check: must not be too close to end
-    if (result != null && result.distance(end) > 20d)
+    if (result != null && result.distance(end) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
     {
       return result;
     }
@@ -185,14 +189,14 @@ public class Tack
     for (int i = pointsWithinTack.size() - 1; i >= 0; --i)
     {
       DataPoint candidate = pointsWithinTack.get(i);
-      if (candidate.distance(end) > 20d)
+      if (candidate.distance(end) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
       {
         result = candidate;
         break;
       }
     }
     // sanity check: must not be too close to start
-    if (result != null && result.distance(start) > 20d)
+    if (result != null && result.distance(start) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
     {
       return result;
     }
