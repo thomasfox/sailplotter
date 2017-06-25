@@ -6,6 +6,9 @@ import java.awt.Point;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
+import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PolarPlot;
 import org.jfree.chart.renderer.DefaultPolarItemRenderer;
@@ -25,6 +28,12 @@ public class PolarScatterRenderer extends DefaultPolarItemRenderer
       int seriesIndex)
   {
       int numPoints = dataset.getItemCount(seriesIndex);
+      EntityCollection entities = null;
+      if (info != null) 
+      {
+        entities = info.getOwner().getEntityCollection();
+      }
+
       for (int i = 0; i < numPoints; i++)
       {
           double theta = dataset.getXValue(seriesIndex, i);
@@ -35,6 +44,18 @@ public class PolarScatterRenderer extends DefaultPolarItemRenderer
           graphics.setColor(Color.RED);
           graphics.fill(el);
           graphics.draw(el);
+          if (entities != null)
+          {
+            String tip = null;
+            XYToolTipGenerator generator = getToolTipGenerator(seriesIndex, i);
+            if (generator != null)
+            {
+              tip = generator.generateToolTip(dataset, seriesIndex, i);
+            }
+            String url = null;
+            XYItemEntity entity = new XYItemEntity(el, dataset, seriesIndex, i, tip, url);
+            entities.add(entity);
+          }
       }
   }
 

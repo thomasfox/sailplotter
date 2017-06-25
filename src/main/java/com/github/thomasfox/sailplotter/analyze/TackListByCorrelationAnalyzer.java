@@ -58,8 +58,8 @@ public class TackListByCorrelationAnalyzer
       Tack nextTack = tacks.get(tackIndex);
       double lastTackBearing = lastTack.getAbsoluteBearingInArcs();
       double nextTackBearing = nextTack.getAbsoluteBearingInArcs();
-      int startIndex = Math.max(lastTack.endIndex - ADJUSTMENT_RADIUS, lastTack.startIndex);
-      int endIndex = Math.min(lastTack.endIndex + ADJUSTMENT_RADIUS, nextTack.endIndex);
+      int startIndex = Math.max(lastTack.endOfTackDataPointIndex - ADJUSTMENT_RADIUS, lastTack.startOfTackDataPointIndex);
+      int endIndex = Math.min(lastTack.endOfTackDataPointIndex + ADJUSTMENT_RADIUS, nextTack.endOfTackDataPointIndex);
       int countNearerToLast = 0;
       int countNearerToNext = 0;
       for (int pointIndex = startIndex; pointIndex <= endIndex; ++pointIndex)
@@ -79,8 +79,8 @@ public class TackListByCorrelationAnalyzer
         }
       }
       int change = (countNearerToLast - countNearerToNext) / 2;
-      lastTack.end(points.get(lastTack.endIndex + change), lastTack.endIndex + change, points);
-      nextTack.start(points.get(nextTack.startIndex + change), nextTack.startIndex + change);
+      lastTack.end(points.get(lastTack.endOfTackDataPointIndex + change), lastTack.endOfTackDataPointIndex + change, points);
+      nextTack.start(points.get(nextTack.startOfTackDataPointIndex + change), nextTack.startOfTackDataPointIndex + change);
     }
     return tacks;
   }
@@ -139,6 +139,7 @@ public class TackListByCorrelationAnalyzer
    */
   private List<Tack> calculateTacksByMaxOffBearing(List<DataPoint> points)
   {
+    int tackIndex = 0;
     List<Tack> firstPass = new ArrayList<>();
     Tack currentTack = null;
     int offTackCounter = 0;
@@ -160,6 +161,7 @@ public class TackListByCorrelationAnalyzer
         if (currentTack == null)
         {
           currentTack = new Tack();
+          currentTack.index = tackIndex;
           currentTack.start(point, dataPointIndex);
           continue;
         }
@@ -184,7 +186,9 @@ public class TackListByCorrelationAnalyzer
         if (offTackCounter >= OFF_TACK_COUNTS_STARTS_NEW)
         {
           firstPass.add(currentTack);
+          tackIndex++;
           currentTack = new Tack();
+          currentTack.index = tackIndex;
           currentTack.start(point, dataPointIndex);
           offTackCounter = 0;
         }

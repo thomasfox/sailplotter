@@ -9,15 +9,18 @@ public class Tack
 
   private static final double MAIN_SECTION_END_BEFORE_TACK_END_METRES = 10d;
 
+  /** The index of the tack in the list of all tacks in a track. */
+  public int index;
+
   public PointOfSail pointOfSail;
 
   public DataPoint start;
 
-  public int startIndex;
+  public int startOfTackDataPointIndex;
 
   public DataPoint end;
 
-  public int endIndex;
+  public int endOfTackDataPointIndex;
 
   public List<DataPoint> pointsWithinTack;
 
@@ -135,7 +138,7 @@ public class Tack
   public void start(DataPoint startPoint, int dataPointIndex)
   {
     start = startPoint;
-    startIndex = dataPointIndex;
+    startOfTackDataPointIndex = dataPointIndex;
     pointOfSail = startPoint.getPointOfSail();
     windDirection = startPoint.windDirection;
   }
@@ -143,9 +146,9 @@ public class Tack
   public void end(DataPoint point, int dataPointIndex, List<DataPoint> completeData)
   {
     end = point;
-    endIndex = dataPointIndex;
+    endOfTackDataPointIndex = dataPointIndex;
     pointOfSail = PointOfSail.ofRelativeBearing(start.getRelativeBearingTo(end, windDirection));
-    pointsWithinTack = completeData.subList(startIndex, endIndex + 1);
+    pointsWithinTack = completeData.subList(startOfTackDataPointIndex, endOfTackDataPointIndex + 1);
   }
 
   /**
@@ -272,7 +275,7 @@ public class Tack
       return null;
     }
     long intersectionTimeDifferenceMillis;
-    if (other.startIndex == this.endIndex)
+    if (other.startOfTackDataPointIndex == this.endOfTackDataPointIndex)
     {
       if (other.tackStraightLineIntersectionStart == null || this.tackStraightLineIntersectionEnd == null)
       {
@@ -280,7 +283,7 @@ public class Tack
       }
       intersectionTimeDifferenceMillis = other.tackStraightLineIntersectionStart.time - this.tackStraightLineIntersectionEnd.time;
     }
-    else if (other.endIndex == this.startIndex)
+    else if (other.endOfTackDataPointIndex == this.startOfTackDataPointIndex)
     {
       if (this.tackStraightLineIntersectionStart == null || other.tackStraightLineIntersectionEnd == null)
       {
@@ -311,6 +314,25 @@ public class Tack
       return null;
     }
     return intersectionAnglesInArcs / Math.PI * 180;
+  }
+
+  public String getLabel()
+  {
+    StringBuilder result = new StringBuilder();
+    Double relativeBearingInDegrees = getRelativeBearingInDegrees();
+    result.append(index).append(": ");
+    if (relativeBearingInDegrees != null)
+    {
+      result.append(new DecimalFormat("0").format(relativeBearingInDegrees))
+          .append("° ");
+    }
+    Double velocityInKnots = getVelocityInKnots();
+    if (velocityInKnots != null)
+    {
+      result.append(new DecimalFormat("0.0").format(velocityInKnots))
+          .append("°kts");
+    }
+    return result.toString().trim();
   }
 
   @Override

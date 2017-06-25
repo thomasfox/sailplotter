@@ -36,8 +36,8 @@ public class TackListByCorrelationAnalyzerTest
     end.time = 11500l;
     end.setXAndY(0, 115);
     lastTack.pointsWithinTack.add(end);
-    lastTack.startIndex = 0;
-    lastTack.endIndex = 3;
+    lastTack.startOfTackDataPointIndex = 0;
+    lastTack.endOfTackDataPointIndex = 3;
     lastTack.start = start;
     lastTack.end = end;
 
@@ -59,8 +59,8 @@ public class TackListByCorrelationAnalyzerTest
     end.time = 23000l;
     end.setXAndY(0, 230);
     nextTack.pointsWithinTack.add(end);
-    nextTack.startIndex = 3;
-    nextTack.endIndex = 6;
+    nextTack.startOfTackDataPointIndex = 3;
+    nextTack.endOfTackDataPointIndex = 6;
     nextTack.start = start;
     nextTack.end = end;
 
@@ -95,8 +95,8 @@ public class TackListByCorrelationAnalyzerTest
     end.time = 11500l;
     end.setXAndY(115, 0);
     lastTack.pointsWithinTack.add(end);
-    lastTack.startIndex = 0;
-    lastTack.endIndex = 3;
+    lastTack.startOfTackDataPointIndex = 0;
+    lastTack.endOfTackDataPointIndex = 3;
     lastTack.start = start;
     lastTack.end = end;
 
@@ -118,8 +118,8 @@ public class TackListByCorrelationAnalyzerTest
     end.time = 23000l;
     end.setXAndY(230, 0);
     nextTack.pointsWithinTack.add(end);
-    nextTack.startIndex = 4;
-    nextTack.endIndex = 7;
+    nextTack.startOfTackDataPointIndex = 4;
+    nextTack.endOfTackDataPointIndex = 7;
     nextTack.start = start;
     nextTack.end = end;
 

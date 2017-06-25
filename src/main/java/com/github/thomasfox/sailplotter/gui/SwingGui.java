@@ -209,9 +209,12 @@ public class SwingGui
     frame.getContentPane().add(zoomXyChartPanel, gridBagConstraints);
 
     updateTackVelocityBearingPolar();
-    JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over Relative Bearing", tackVelocityBearingPolar, false, false, false);
+    JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over Relative Bearing", tackVelocityBearingPolar, false, true, false);
     PolarPlot tackVelocityBearingPlot = (PolarPlot) tackVelocityBearingChart.getPlot();
-    tackVelocityBearingPlot.setRenderer(new PolarScatterRenderer());
+    PolarScatterRenderer tackVelocityRenderer = new PolarScatterRenderer();
+    tackVelocityRenderer.setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
+    tackVelocityBearingPlot.setRenderer(tackVelocityRenderer);
+
     ChartPanel tackVelocityBearingChartPanel = new ChartPanel(tackVelocityBearingChart);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.2;
@@ -553,7 +556,10 @@ public class SwingGui
       {
         if (tack.getRelativeBearingInDegrees() != null && tack.getVelocityInKnots() != null)
         {
-          tackVelocity.add(tack.getRelativeBearingInDegrees(), tack.getVelocityInKnots());
+          tackVelocity.add(new XYSailDataItem(
+              tack.getRelativeBearingInDegrees(),
+              tack.getVelocityInKnots(),
+              tack.getLabel()));
         }
       }
     }
@@ -641,17 +647,17 @@ public class SwingGui
     Tack containingTack = tackList.get(tackIndex);
     for (DataPoint point : getSubset(data, position))
     {
-      while (containingTack.endIndex < point.index && tackIndex < tackList.size() - 1)
+      while (containingTack.endOfTackDataPointIndex < point.index && tackIndex < tackList.size() - 1)
       {
         ++tackIndex;
         containingTack = tackList.get(tackIndex);
       }
       XYSailDataItem item = new XYSailDataItem(point.getX() - xOffset, point.getY() - yOffset, point.getXYLabel());
-      if (containingTack.startIndex == point.index)
+      if (containingTack.startOfTackDataPointIndex == point.index)
       {
         item.setStartOfTack(tackIndex);
       }
-      else if (containingTack.endIndex == point.index)
+      else if (containingTack.endOfTackDataPointIndex == point.index)
       {
         item.setEndOfTack(tackIndex);
       }
@@ -752,10 +758,10 @@ public class SwingGui
     }
     int index = tackTablePanel.getSelectedTackIndex();
     Tack tack = tackList.get(index);
-    zoomPanel.setStartIndex(Math.max(tack.startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+    zoomPanel.setStartIndex(Math.max(tack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
     zoomPanel.setZoomIndex(Math.min(
         Math.max(
-            Constants.NUMER_OF_ZOOM_TICKS * (tack.endIndex - tack.startIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
+            Constants.NUMER_OF_ZOOM_TICKS * (tack.endOfTackDataPointIndex - tack.startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
             3),
         Constants.NUMER_OF_ZOOM_TICKS));
   }
@@ -789,10 +795,10 @@ public class SwingGui
     {
       inUpdate = true;
       tackTablePanel.selectInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
-      zoomPanel.setStartIndex(Math.max(tackList.get(tackSeries.startTackIndex).startIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+      zoomPanel.setStartIndex(Math.max(tackList.get(tackSeries.startTackIndex).startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
       zoomPanel.setZoomIndex(Math.min(
           Math.max(
-              Constants.NUMER_OF_ZOOM_TICKS * (tackList.get(tackSeries.endTackIndex).endIndex - tackList.get(tackSeries.startTackIndex).startIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
+              Constants.NUMER_OF_ZOOM_TICKS * (tackList.get(tackSeries.endTackIndex).endOfTackDataPointIndex - tackList.get(tackSeries.startTackIndex).startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.size()),
               3),
           Constants.NUMER_OF_ZOOM_TICKS));
     }
