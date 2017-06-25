@@ -68,9 +68,9 @@ public class SwingGui
 
   XYPlot fullVelocityBearingOverTimePlot;
 
-  XYPlot xyPlot;
+  XYPlot mapPlot;
 
-  XYPlot zoomXyPlot;
+  XYPlot zoomMapPlot;
 
   List<DataPoint> data;
 
@@ -180,8 +180,8 @@ public class SwingGui
 
     updateXyDataset();
     JFreeChart xyChart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", xyDataset, PlotOrientation.VERTICAL, false, false, false);
-    xyPlot = (XYPlot) xyChart.getPlot();
-    resetXyPlot();
+    mapPlot = (XYPlot) xyChart.getPlot();
+    resetMapPlot();
     ChartPanel xyChartPanel = new ChartPanel(xyChart);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.333;
@@ -193,12 +193,12 @@ public class SwingGui
 
     updateZoomXyDataset();
     JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, true, false);
-    zoomXyPlot = (XYPlot) zoomXyChart.getPlot();
-    updateZoomXyRange();
-    zoomXyPlot.setRenderer(new XYZoomRenderer());
-    zoomXyPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
-    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setSeriesShapesVisible(0, true);
-    ((XYLineAndShapeRenderer) zoomXyPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
+    zoomMapPlot = (XYPlot) zoomXyChart.getPlot();
+    updateMapZoomRange();
+    zoomMapPlot.setRenderer(new XYZoomRenderer());
+    zoomMapPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
+    ((XYLineAndShapeRenderer) zoomMapPlot.getRenderer()).setSeriesShapesVisible(0, true);
+    ((XYLineAndShapeRenderer) zoomMapPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
     ChartPanel zoomXyChartPanel = new ChartPanel(zoomXyChart);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 0.333;
@@ -261,20 +261,20 @@ public class SwingGui
   }
 
 
-  private void resetXyPlot()
+  private void resetMapPlot()
   {
     Range xRange = new Range(
         getMinimum(data, DataPoint::getX) - data.get(0).getX(),
         getMaximum(data, DataPoint::getX) - data.get(0).getX());
-    xyPlot.getDomainAxis().setRange(xRange);
+    mapPlot.getDomainAxis().setRange(xRange);
     Range yRange = new Range(
         getMinimum(data, DataPoint::getY) - data.get(0).getY(),
         getMaximum(data, DataPoint::getY) - data.get(0).getY());
-    xyPlot.getRangeAxis().setRange(yRange);
-    expandRangesToAspectRatio(xyPlot, Constants.MAP_ASPECT_RATIO);
-    xyPlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
-    xyPlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
-    xyPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
+    mapPlot.getRangeAxis().setRange(yRange);
+    expandRangesToAspectRatio(mapPlot, Constants.MAP_ASPECT_RATIO);
+    mapPlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
+    mapPlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
+    mapPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
   }
 
 
@@ -601,7 +601,7 @@ public class SwingGui
     zoomXyDataset.addSeries(getTackIntersectionSeries(tackList, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
   }
 
-  private void updateZoomXyRange()
+  private void updateMapZoomRange()
   {
     List<DataPoint> dataSubset = getSubset(data, TimeWindowPosition.IN);
     double minimumX = getMinimum(dataSubset, DataPoint::getX);
@@ -615,9 +615,9 @@ public class SwingGui
         minimumY - data.get(0).getY() - (maximumY - minimumY) * 0.1,
         maximumY - data.get(0).getY() + (maximumY - minimumY) * 0.1);
 
-    zoomXyPlot.getDomainAxis().setRange(zoomXRange);
-    zoomXyPlot.getRangeAxis().setRange(zoomYRange);
-    expandRangesToAspectRatio(zoomXyPlot, Constants.MAP_ASPECT_RATIO);
+    zoomMapPlot.getDomainAxis().setRange(zoomXRange);
+    zoomMapPlot.getRangeAxis().setRange(zoomYRange);
+    expandRangesToAspectRatio(zoomMapPlot, Constants.MAP_ASPECT_RATIO);
   }
 
   public void expandRangesToAspectRatio(XYPlot plot, double aspectRatio)
@@ -732,7 +732,7 @@ public class SwingGui
       updateXyDataset();
       updateTackVelocityBearingPolar();
       updateZoomXyDataset();
-      updateZoomXyRange();
+      updateMapZoomRange();
       if (updateTableContent)
       {
         tackTablePanel.updateContent(tackList);
@@ -815,7 +815,7 @@ public class SwingGui
     zoomPanel.setDataSize(data.size());
     analyze();
     resetFullVelocityBearingOverTimePlot();
-    resetXyPlot();
+    resetMapPlot();
     redisplay(true);
   }
 
