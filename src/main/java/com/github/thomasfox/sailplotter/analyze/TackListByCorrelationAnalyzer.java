@@ -56,8 +56,8 @@ public class TackListByCorrelationAnalyzer
     {
       Tack lastTack = tacks.get(tackIndex - 1);
       Tack nextTack = tacks.get(tackIndex);
-      double lastTackBearing = lastTack.getAbsoluteBearingInArcs();
-      double nextTackBearing = nextTack.getAbsoluteBearingInArcs();
+      Double lastTackBearing = lastTack.getAbsoluteBearingInArcs();
+      Double nextTackBearing = nextTack.getAbsoluteBearingInArcs();
       int startIndex = Math.max(lastTack.endOfTackDataPointIndex - ADJUSTMENT_RADIUS, lastTack.startOfTackDataPointIndex);
       int endIndex = Math.min(lastTack.endOfTackDataPointIndex + ADJUSTMENT_RADIUS, nextTack.endOfTackDataPointIndex);
       int countNearerToLast = 0;
