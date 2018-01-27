@@ -26,7 +26,7 @@ public class Menubar extends JMenuBar
   Consumer<File> loadFileConsumer;
 
   /**
-   * Constructor for the meinbar of the application
+   * Constructor for the menubar of the application.
    *
    * @param applicationFrame The application's main window, not null.
    * @param startFile the file which is selected by the fileChooser  at the start.
