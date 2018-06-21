@@ -79,5 +79,7 @@ public class ViewRangerImporter
     public Boolean is_marker;
 
     public Boolean segment_start;
+
+    public Boolean has_position;
   }
 }
