@@ -40,6 +40,7 @@ import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.analyze.TackListByCorrelationAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.TackSeriesAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
+import com.github.thomasfox.sailplotter.importer.SailLoggerImporter;
 import com.github.thomasfox.sailplotter.importer.SailRacerImporter;
 import com.github.thomasfox.sailplotter.importer.ViewRangerImporter;
 import com.github.thomasfox.sailplotter.model.DataPoint;
@@ -345,6 +346,10 @@ public class SwingGui
     if (file.getPath().endsWith(".log"))
     {
       data = new SailRacerImporter().read(file);
+    }
+    if (file.getPath().endsWith(".saillog"))
+    {
+      data = new SailLoggerImporter().read(file);
     }
     else
     {
