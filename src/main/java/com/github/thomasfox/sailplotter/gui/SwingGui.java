@@ -354,9 +354,14 @@ public class SwingGui
     {
       data = new SailLoggerImporter().read(file);
     }
-    else
+    else if (file.getPath().endsWith(".vrtp"))
     {
       data = new ViewRangerImporter().read(file);
+    }
+    else
+    {
+      throw new RuntimeException("unknown extenson of file " + file.getName()
+          + ", known extensions are .log, .saillog and .vrtp");
     }
     return data;
   }
@@ -832,7 +837,7 @@ public class SwingGui
     {
       JOptionPane.showMessageDialog(
           frame,
-          "Could not load File" + e.getMessage(),
+          "Could not load File: " + e.getMessage(),
           "Error loading File",
           JOptionPane.ERROR_MESSAGE);
     }

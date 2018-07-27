@@ -18,7 +18,7 @@ public class SailLoggerImporter implements Importer
     List<DataPoint> result = new ArrayList<>();
     SailLoggerData rawData = readFileInternal(file);
     int index = 0;
-    for (SailLoggerPoint rawPoint : rawData)
+    for (SailLoggerTrackPoint rawPoint : rawData.track)
     {
       DataPoint dataPoint = new DataPoint(index);
       dataPoint.location.latitude = rawPoint.locLat;
@@ -43,12 +43,14 @@ public class SailLoggerImporter implements Importer
     }
   }
 
-  public static final class SailLoggerData extends ArrayList<SailLoggerPoint>
+  public static final class SailLoggerData
   {
-    private static final long serialVersionUID = 1L;
+    public SailLoggerStart start;
+    public ArrayList<SailLoggerTrackPoint> track;
+    public SailLoggerEnd end;
   }
 
-  public static final class SailLoggerPoint
+  public static final class SailLoggerTrackPoint
   {
     public long locT;
     public float locAcc;
@@ -60,30 +62,20 @@ public class SailLoggerImporter implements Importer
     public double magX;
     public double magY;
     public double magZ;
-    public long tAcc;
+    public long accT;
     public double accX;
     public double accY;
     public double accZ;
   }
 
-  public static final class ViewRangerPoint
+  public static final class SailLoggerStart
   {
-    public double lat;
+    public String format;
+    public long startT;
+  }
 
-    public double lon;
-
-    public double map_x;
-
-    public double map_y;
-
-    public double alt;
-
-    public long time;
-
-    public Boolean from_gps;
-
-    public Boolean is_marker;
-
-    public Boolean segment_start;
+  public static final class SailLoggerEnd
+  {
+    public long endT;
   }
 }
