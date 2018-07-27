@@ -24,7 +24,7 @@ import java.util.List;
 
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
-public class SailRacerImporter
+public class SailRacerImporter implements Importer
 {
   private static final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
       .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
@@ -44,6 +44,7 @@ public class SailRacerImporter
       .toFormatter();
 
 
+  @Override
   public List<DataPoint> read(File file)
   {
     List<DataPoint> result = new ArrayList<>();

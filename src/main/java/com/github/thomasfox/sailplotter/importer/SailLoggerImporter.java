@@ -8,10 +8,11 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
-public class SailLoggerImporter
+public class SailLoggerImporter implements Importer
 {
   final ObjectMapper mapper = new ObjectMapper();
 
+  @Override
   public List<DataPoint> read(File file)
   {
     List<DataPoint> result = new ArrayList<>();
