@@ -44,6 +44,7 @@ public class SailLoggerImporter
 
   public static final class SailLoggerData extends ArrayList<SailLoggerPoint>
   {
+    private static final long serialVersionUID = 1L;
   }
 
   public static final class SailLoggerPoint
