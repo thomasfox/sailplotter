@@ -20,8 +20,8 @@ public class SailLoggerImporter
     for (SailLoggerPoint rawPoint : rawData)
     {
       DataPoint dataPoint = new DataPoint(index);
-      dataPoint.latitude = rawPoint.locLat;
-      dataPoint.longitude = rawPoint.locLong;
+      dataPoint.location.latitude = rawPoint.locLat;
+      dataPoint.location.longitude = rawPoint.locLong;
       dataPoint.time = rawPoint.locT;
       result.add(dataPoint);
       index++;

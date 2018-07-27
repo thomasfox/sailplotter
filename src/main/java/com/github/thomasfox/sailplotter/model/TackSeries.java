@@ -52,7 +52,7 @@ public class TackSeries
 
     DataPoint startPoint = tack.getAfterStartManeuver();
     DataPoint endPoint = tack.getBeforeEndManeuver();
-    Double distance = startPoint.distance(endPoint);
+    Double distance = startPoint.location.distance(endPoint.location);
     Double bearing = startPoint.getBearingTo(endPoint);
     if (tack.pointOfSail == PointOfSail.CLOSE_HAULED_PORT
         || tack.pointOfSail == PointOfSail.BEAM_REACH_PORT

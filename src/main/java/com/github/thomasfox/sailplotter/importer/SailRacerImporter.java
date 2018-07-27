@@ -52,8 +52,8 @@ public class SailRacerImporter
     for (SailRacerPoint rawPoint : rawData)
     {
       DataPoint dataPoint = new DataPoint(index);
-      dataPoint.latitude = rawPoint.lat / 180d * Math.PI;
-      dataPoint.longitude = rawPoint.lon / 180d * Math.PI;
+      dataPoint.location.latitude = rawPoint.lat / 180d * Math.PI;
+      dataPoint.location.longitude = rawPoint.lon / 180d * Math.PI;
       dataPoint.time = rawPoint.datetime.toInstant(ZoneOffset.UTC).toEpochMilli();
       result.add(dataPoint);
       index++;

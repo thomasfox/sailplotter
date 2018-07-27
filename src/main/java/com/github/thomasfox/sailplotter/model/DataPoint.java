@@ -15,42 +15,21 @@ public class DataPoint
    * The index of the point in the global list of data points,
    * or -1 to indicate that the data point is not a member of the global list of data points.
    */
-  public int index;
-
-  /** Geographical Latitude (Distance from the Aquator in direction North) in arcs */
-  public Double latitude;
-
-  /** Geographical Longitude (Distance from the Greenwich Meridian in direction East) in arcs */
-  public Double longitude;
-
-  /** velocity in knots */
-  public Double velocity;
-
-  /** bearing in arcs */
-  public Double bearing;
+  public int index = -1;
 
   /** millis since 01.01.1970 0:00:00.000 */
   public Long time;
 
-  /** wind direction in arcs */
-  public Double windDirection;
+  /** location of boat, typically obtained from GPS. */
+  public Location location = new Location();
 
-  /** wind velocity in m/s */
-  public Double windVelocity;
+  /** bearing of boat, typically obtained from a compass reading. */
+  public CompassBearing compassBearing;
 
-  /** velocity averaging distance in meters. */
-  public Double velocityBearingAveragedOverDistance;
+  /** Wind data at place of boat, can be interpolated. */
+  public Wind wind;
 
   public ManoeuverState manoeuverState;
-
-//  public Double distance(DataPoint other)
-//  {
-//    Double dist = Math.acos(
-//        Math.sin(latitude) * Math.sin(other.latitude)
-//        + Math.cos(latitude) * Math.cos(other.latitude) * Math.cos(longitude - other.longitude))
-//      * Constants.EARTH_RADIUS;
-//    return dist;
-//  }
 
   public DataPoint(int index)
   {
@@ -60,22 +39,11 @@ public class DataPoint
   public DataPoint(DataPoint toCopy)
   {
     this.index = toCopy.index;
-    this.latitude = toCopy.latitude;
-    this.longitude = toCopy.longitude;
-    this.velocity = toCopy.velocity;
-    this.bearing = toCopy.bearing;
     this.time = toCopy.time;
-    this.windDirection = toCopy.windDirection;
-    this.windVelocity = toCopy.windVelocity;
-    this.velocityBearingAveragedOverDistance = toCopy.velocityBearingAveragedOverDistance;
+    this.location = Location.copy(toCopy.location);
+    this.wind = Wind.copy(toCopy.wind);
+    this.compassBearing = CompassBearing.copy(toCopy.compassBearing);
     this.manoeuverState = toCopy.manoeuverState;
-  }
-
-  public Double distance(DataPoint other)
-  {
-    double xDist = getX() - other.getX();
-    double yDist = getY() - other.getY();
-    return Math.sqrt(xDist * xDist + yDist * yDist);
   }
 
   public LocalDateTime getLocalDateTime()
@@ -112,39 +80,14 @@ public class DataPoint
     return result;
   }
 
-  public double getY()
-  {
-    return latitude * Constants.EARTH_RADIUS;
-  }
-
-  public double getX()
-  {
-    return longitude * Math.cos(latitude) * Constants.EARTH_RADIUS;
-  }
-
-  public void setXAndY(double x, double y)
-  {
-    this.latitude = y / Constants.EARTH_RADIUS;
-    this.longitude = x / Constants.EARTH_RADIUS / Math.cos(latitude);
-  }
-
-  public double getBearingAs360Degrees()
-  {
-    return bearing / 2 / Math.PI * 360;
-  }
-
-  public Double getVelocity()
-  {
-    return velocity;
-  }
 
   public Double getRelativeBearingInArcs()
   {
-    if (windDirection == null || bearing == null)
+    if (wind.direction == null || location.bearing == null)
     {
       return null;
     }
-    double result =  bearing - windDirection;
+    double result =  location.bearing - wind.direction;
     if (result < 0)
     {
       result += 2 * Math.PI;
@@ -187,8 +130,8 @@ public class DataPoint
    */
   public Double getBearingTo(DataPoint other)
   {
-    double xDistance = other.getX() - getX();
-    double yDistance = other.getY() - getY();
+    double xDistance = other.location.getX() - location.getX();
+    double yDistance = other.location.getY() - location.getY();
     Double result = null;
     if (yDistance != 0)
     {
@@ -244,11 +187,11 @@ public class DataPoint
    */
   public Double getBearingDifference(Double absoluteBearingInArcs)
   {
-    if (bearing == null || absoluteBearingInArcs == null)
+    if (location == null || location.bearing == null || absoluteBearingInArcs == null)
     {
       return null;
     }
-    double bearingDifference = bearing - absoluteBearingInArcs;
+    double bearingDifference = location.bearing - absoluteBearingInArcs;
     if (bearingDifference > Math.PI)
     {
       bearingDifference -= 2 * Math.PI;
@@ -262,30 +205,7 @@ public class DataPoint
 
   public double getVelocityInKnotsBetween(DataPoint other)
   {
-    return distance(other) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;
-  }
-
-  public static DataPoint intersection(DataPoint line1Point1, DataPoint line1Point2, DataPoint line2Point1, DataPoint line2Point2)
-  {
-    double deltaXLine1 = line1Point2.getX() - line1Point1.getX();
-    double deltaYLine1 = line1Point2.getY() - line1Point1.getY();
-    double deltaXLine2 = line2Point2.getX() - line2Point1.getX();
-    double deltaYLine2 = line2Point2.getY() - line2Point1.getY();
-
-    double newX = (deltaXLine2*deltaYLine1*line1Point1.getX()
-            + deltaXLine1*deltaXLine2*line2Point1.getY()
-            - deltaXLine1*deltaYLine2*line2Point1.getX()
-            - deltaXLine1*deltaXLine2*line1Point1.getY())
-        / (deltaXLine2*deltaYLine1 - deltaXLine1*deltaYLine2);
-
-    double newY = (deltaXLine2*deltaYLine1*line2Point1.getY()
-            + deltaYLine1*deltaYLine2*line1Point1.getX()
-            - deltaXLine1*deltaYLine2*line1Point1.getY()
-            - deltaYLine1*deltaYLine2*line2Point1.getX())
-        / (deltaXLine2*deltaYLine1 - deltaXLine1*deltaYLine2);
-    DataPoint result = new DataPoint(-1);
-    result.setXAndY(newX, newY);
-    return result;
+    return location.distance(other.location) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;
   }
 
   @Override
@@ -295,27 +215,28 @@ public class DataPoint
         .append("DataPoint: ");
     if (time != null)
     {
-      result.append(getLocalDateTime())
-        .append(" (");
+      result.append(getLocalDateTime());
     }
-    if (latitude != null && longitude != null)
+    if (location !=null && location.latitude != null && location.longitude != null)
     {
-      result.append(new DecimalFormat("0").format(getX()))
+      result.append(" (")
+        .append(new DecimalFormat("0").format(location.getX()))
         .append("m,")
-        .append(new DecimalFormat("0").format(getY()))
+        .append(new DecimalFormat("0").format(location.getY()))
         .append("m) ");
     }
-    if (velocity != null)
+    if (location !=null && location.velocity != null)
     {
-      result.append(new DecimalFormat("0.0").format(velocity))
+      result.append(new DecimalFormat("0.0").format(location.velocity))
           .append("kts ");
     }
-    if (bearing != null)
+    if (location !=null && location.bearing != null)
     {
-      result.append(new DecimalFormat("0.0").format(getBearingAs360Degrees()))
+      result.append(new DecimalFormat("0.0").format(location.getBearingAs360Degrees()))
           .append("°Abs ");
     }
-    if (bearing != null && windDirection != null)
+    if (location !=null && location.bearing != null
+        && wind != null && wind.direction != null)
     {
       result.append(new DecimalFormat("0.0").format(getRelativeBearingAs360Degrees()))
           .append("°Rel");
@@ -327,17 +248,18 @@ public class DataPoint
   {
     StringBuilder result = new StringBuilder()
         .append(DateTimeFormatter.ISO_LOCAL_TIME.format(getLocalDateTime()));
-    if (velocity != null)
+    if (location != null && location.velocity != null)
     {
-      result.append(new DecimalFormat("0.0").format(velocity))
+      result.append(new DecimalFormat("0.0").format(location.velocity))
           .append("kts ");
     }
-    if (bearing != null)
+    if (location != null && location.bearing != null)
     {
-      result.append(new DecimalFormat("0.0").format(getBearingAs360Degrees()))
+      result.append(new DecimalFormat("0.0").format(location.getBearingAs360Degrees()))
           .append("°Abs ");
     }
-    if (bearing != null && windDirection != null)
+    if (location != null && location.bearing != null
+        && wind != null && wind.direction != null)
     {
       result.append(new DecimalFormat("0.0").format(getRelativeBearingAs360Degrees()))
           .append("°Rel");

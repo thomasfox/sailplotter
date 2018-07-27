@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.Location;
 import com.github.thomasfox.sailplotter.model.ManeuverType;
 import com.github.thomasfox.sailplotter.model.PointOfSail;
 import com.github.thomasfox.sailplotter.model.Tack;
@@ -36,13 +37,15 @@ public class TackListByCorrelationAnalyzer
       Tack nextTack = tackList.get(i);
       if (lastTack.hasMainPoints() && nextTack.hasMainPoints())
       {
-        DataPoint intersection = DataPoint.intersection(
-            lastTack.getAfterStartManeuver(),
-            lastTack.getBeforeEndManeuver(),
-            nextTack.getAfterStartManeuver(),
-            nextTack.getBeforeEndManeuver());
-        lastTack.tackStraightLineIntersectionEnd = new DataPoint(intersection);
-        nextTack.tackStraightLineIntersectionStart = new DataPoint(intersection);
+        Location intersection = Location.intersection(
+            lastTack.getAfterStartManeuver().location,
+            lastTack.getBeforeEndManeuver().location,
+            nextTack.getAfterStartManeuver().location,
+            nextTack.getBeforeEndManeuver().location);
+        lastTack.tackStraightLineIntersectionEnd = new DataPoint(-1);
+        lastTack.tackStraightLineIntersectionEnd.location = intersection;
+        nextTack.tackStraightLineIntersectionStart = new DataPoint(-1);
+        nextTack.tackStraightLineIntersectionStart.location = new Location(intersection);
 
         calculateTackIntersectionTimes(lastTack, nextTack);
       }
@@ -79,8 +82,14 @@ public class TackListByCorrelationAnalyzer
         }
       }
       int change = (countNearerToLast - countNearerToNext) / 2;
-      lastTack.end(points.get(lastTack.endOfTackDataPointIndex + change), lastTack.endOfTackDataPointIndex + change, points);
-      nextTack.start(points.get(nextTack.startOfTackDataPointIndex + change), nextTack.startOfTackDataPointIndex + change);
+      if (-change < lastTack.endOfTackDataPointIndex - lastTack.startOfTackDataPointIndex)
+      {
+        lastTack.end(points.get(lastTack.endOfTackDataPointIndex + change), lastTack.endOfTackDataPointIndex + change, points);
+      }
+      if (change < lastTack.endOfTackDataPointIndex - lastTack.startOfTackDataPointIndex)
+      {
+        nextTack.start(points.get(nextTack.startOfTackDataPointIndex + change), nextTack.startOfTackDataPointIndex + change);
+      }
     }
     return tacks;
   }
@@ -146,7 +155,7 @@ public class TackListByCorrelationAnalyzer
     for (int dataPointIndex = 0; dataPointIndex < points.size(); ++dataPointIndex)
     {
       DataPoint point = points.get(dataPointIndex);
-      if (point.bearing == null)
+      if (point.location == null || point.location.bearing == null)
       {
         if (currentTack == null)
         {
@@ -200,37 +209,37 @@ public class TackListByCorrelationAnalyzer
 
   void calculateTackIntersectionTimes(Tack lastTack, Tack nextTack)
   {
-    if (Math.abs(lastTack.getBeforeEndManeuver().getY() - lastTack.getAfterStartManeuver().getY()) > 1d)
+    if (Math.abs(lastTack.getBeforeEndManeuver().location.getY() - lastTack.getAfterStartManeuver().location.getY()) > 1d)
     {
       lastTack.tackStraightLineIntersectionEnd.time = new Double(lastTack.getBeforeEndManeuver().time
           + (lastTack.getBeforeEndManeuver().time - lastTack.getAfterStartManeuver().time)
-            * (lastTack.tackStraightLineIntersectionEnd.getY()- lastTack.getBeforeEndManeuver().getY())
-            / (lastTack.getBeforeEndManeuver().getY() - lastTack.getAfterStartManeuver().getY()))
+            * (lastTack.tackStraightLineIntersectionEnd.location.getY()- lastTack.getBeforeEndManeuver().location.getY())
+            / (lastTack.getBeforeEndManeuver().location.getY() - lastTack.getAfterStartManeuver().location.getY()))
         .longValue();
     }
-    else if (Math.abs(lastTack.getBeforeEndManeuver().getX() - lastTack.getAfterStartManeuver().getX()) > 1d)
+    else if (Math.abs(lastTack.getBeforeEndManeuver().location.getX() - lastTack.getAfterStartManeuver().location.getX()) > 1d)
     {
       lastTack.tackStraightLineIntersectionEnd.time = new Double(lastTack.getBeforeEndManeuver().time
             + (lastTack.getBeforeEndManeuver().time - lastTack.getAfterStartManeuver().time)
-              * (lastTack.tackStraightLineIntersectionEnd.getX() - lastTack.getBeforeEndManeuver().getX())
-              / (lastTack.getBeforeEndManeuver().getX() - lastTack.getAfterStartManeuver().getX()))
+              * (lastTack.tackStraightLineIntersectionEnd.location.getX() - lastTack.getBeforeEndManeuver().location.getX())
+              / (lastTack.getBeforeEndManeuver().location.getX() - lastTack.getAfterStartManeuver().location.getX()))
           .longValue();
     }
 
-    if (Math.abs(nextTack.getBeforeEndManeuver().getY() - nextTack.getAfterStartManeuver().getY()) > 1d)
+    if (Math.abs(nextTack.getBeforeEndManeuver().location.getY() - nextTack.getAfterStartManeuver().location.getY()) > 1d)
     {
       nextTack.tackStraightLineIntersectionStart.time = new Double(nextTack.getAfterStartManeuver().time
           + (nextTack.getBeforeEndManeuver().time - nextTack.getAfterStartManeuver().time)
-            * (nextTack.tackStraightLineIntersectionStart.getY() - nextTack.getAfterStartManeuver().getY())
-            / (nextTack.getBeforeEndManeuver().getY() - nextTack.getAfterStartManeuver().getY()))
+            * (nextTack.tackStraightLineIntersectionStart.location.getY() - nextTack.getAfterStartManeuver().location.getY())
+            / (nextTack.getBeforeEndManeuver().location.getY() - nextTack.getAfterStartManeuver().location.getY()))
         .longValue();
     }
-    else if (Math.abs(nextTack.getBeforeEndManeuver().getX() - nextTack.getAfterStartManeuver().getX()) > 1d)
+    else if (Math.abs(nextTack.getBeforeEndManeuver().location.getX() - nextTack.getAfterStartManeuver().location.getX()) > 1d)
     {
       nextTack.tackStraightLineIntersectionStart.time = new Double(nextTack.getAfterStartManeuver().time
             + (nextTack.getBeforeEndManeuver().time - nextTack.getAfterStartManeuver().time)
-              * (nextTack.tackStraightLineIntersectionStart.getX()- nextTack.getAfterStartManeuver().getX())
-              / (nextTack.getBeforeEndManeuver().getX() - nextTack.getAfterStartManeuver().getX()))
+              * (nextTack.tackStraightLineIntersectionStart.location.getX()- nextTack.getAfterStartManeuver().location.getX())
+              / (nextTack.getBeforeEndManeuver().location.getX() - nextTack.getAfterStartManeuver().location.getX()))
           .longValue();
     }
   }

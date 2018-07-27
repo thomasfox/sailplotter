@@ -39,7 +39,7 @@ public class Tack
    */
   public double getLength()
   {
-    return end.distance(start);
+    return end.location.distance(start.location);
   }
 
   /**
@@ -140,7 +140,7 @@ public class Tack
     start = startPoint;
     startOfTackDataPointIndex = dataPointIndex;
     pointOfSail = startPoint.getPointOfSail();
-    windDirection = startPoint.windDirection;
+    windDirection = startPoint.wind.direction;
   }
 
   public void end(DataPoint point, int dataPointIndex, List<DataPoint> completeData)
@@ -164,14 +164,14 @@ public class Tack
     DataPoint result = null;
     for (DataPoint candidate : pointsWithinTack)
     {
-      if (candidate.distance(start) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
+      if (candidate.location.distance(start.location) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
       {
         result = candidate;
         break;
       }
     }
     // sanity check: must not be too close to end
-    if (result != null && result.distance(end) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
+    if (result != null && result.location.distance(end.location) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
     {
       return result;
     }
@@ -192,14 +192,14 @@ public class Tack
     for (int i = pointsWithinTack.size() - 1; i >= 0; --i)
     {
       DataPoint candidate = pointsWithinTack.get(i);
-      if (candidate.distance(end) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
+      if (candidate.location.distance(end.location) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
       {
         result = candidate;
         break;
       }
     }
     // sanity check: must not be too close to start
-    if (result != null && result.distance(start) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
+    if (result != null && result.location.distance(start.location) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
     {
       return result;
     }
@@ -222,7 +222,7 @@ public class Tack
     {
       return false;
     }
-    return (afterStartManeuver.distance(beforeEndManeuver) > 10d);
+    return (afterStartManeuver.location.distance(beforeEndManeuver.location) > 10d);
   }
 
   /**

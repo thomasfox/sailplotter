@@ -265,12 +265,12 @@ public class SwingGui
   private void resetMapPlot()
   {
     Range xRange = new Range(
-        getMinimum(data, DataPoint::getX) - data.get(0).getX(),
-        getMaximum(data, DataPoint::getX) - data.get(0).getX());
+        getMinimum(data, d->d.location.getX()) - data.get(0).location.getX(),
+        getMaximum(data, d->d.location.getX()) - data.get(0).location.getX());
     mapPlot.getDomainAxis().setRange(xRange);
     Range yRange = new Range(
-        getMinimum(data, DataPoint::getY) - data.get(0).getY(),
-        getMaximum(data, DataPoint::getY) - data.get(0).getY());
+        getMinimum(data, d->d.location.getY()) - data.get(0).location.getY(),
+        getMaximum(data, d->d.location.getY()) - data.get(0).location.getY());
     mapPlot.getRangeAxis().setRange(yRange);
     expandRangesToAspectRatio(mapPlot, Constants.MAP_ASPECT_RATIO);
     mapPlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
@@ -283,7 +283,7 @@ public class SwingGui
   {
     Range dataRange = new DateRange(data.get(0).time, data.get(data.size() -1).time);
     fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
-    Range valueRange = new DateRange(0, getMaximum(data, DataPoint::getVelocity));
+    Range valueRange = new DateRange(0, getMaximum(data, d->d.location.getVelocity()));
     fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
@@ -381,7 +381,7 @@ public class SwingGui
     TimeSeries series = new TimeSeries("latitude");
     for (DataPoint point: data)
     {
-      series.addOrUpdate(point.getMillisecond(), point.latitude);
+      series.addOrUpdate(point.getMillisecond(), point.location.latitude);
     }
     return series;
   }
@@ -419,7 +419,7 @@ public class SwingGui
     TimeSeries series = new TimeSeries("velocity");
     for (DataPoint point : getSubset(data, position))
     {
-      series.addOrUpdate(point.getMillisecond(), point.velocity);
+      series.addOrUpdate(point.getMillisecond(), point.location.velocity);
     }
     return series;
   }
@@ -429,7 +429,7 @@ public class SwingGui
     TimeSeries series = new TimeSeries("bearing");
     for (DataPoint point : getSubset(data, position))
     {
-      series.addOrUpdate(point.getMillisecond(), point.bearing);
+      series.addOrUpdate(point.getMillisecond(), point.location.bearing);
     }
     return series;
   }
@@ -479,7 +479,7 @@ public class SwingGui
       if (point.getLocalDateTime().isAfter(getDataStartTime())
           && point.getLocalDateTime().isBefore(getDataEndTime()))
       {
-        if (point.bearing != null)
+        if (point.location.bearing != null)
         {
           bearingHistogramDataset.addObservation(point.getRelativeBearingAs360Degrees());
         }
@@ -499,10 +499,10 @@ public class SwingGui
       if (point.getLocalDateTime().isAfter(getDataStartTime())
           && point.getLocalDateTime().isBefore(getDataEndTime()))
       {
-        if (point.bearing != null && point.velocity != null)
+        if (point.location.bearing != null && point.location.velocity != null)
         {
           int bucket = new Double(point.getRelativeBearingInArcs() * Constants.NUMBER_OF_BEARING_BINS / 2 / Math.PI).intValue();
-          velocityBuckets.get(bucket).add(point.velocity);
+          velocityBuckets.get(bucket).add(point.location.velocity);
         }
       }
     }
@@ -594,31 +594,31 @@ public class SwingGui
   private void updateXyDataset()
   {
     xyDataset.removeAllSeries();
-    xyDataset.addSeries(getXySeries(data, TimeWindowPosition.BEFORE, data.get(0).getX(), data.get(0).getY()));
-    xyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
-    xyDataset.addSeries(getXySeries(data, TimeWindowPosition.AFTER, data.get(0).getX(), data.get(0).getY()));
+    xyDataset.addSeries(getXySeries(data, TimeWindowPosition.BEFORE, data.get(0).location.getX(), data.get(0).location.getY()));
+    xyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).location.getX(), data.get(0).location.getY()));
+    xyDataset.addSeries(getXySeries(data, TimeWindowPosition.AFTER, data.get(0).location.getX(), data.get(0).location.getY()));
   }
 
   private void updateZoomXyDataset()
   {
     zoomXyDataset.removeAllSeries();
-    zoomXyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
-    zoomXyDataset.addSeries(getTackIntersectionSeries(tackList, TimeWindowPosition.IN, data.get(0).getX(), data.get(0).getY()));
+    zoomXyDataset.addSeries(getXySeries(data, TimeWindowPosition.IN, data.get(0).location.getX(), data.get(0).location.getY()));
+    zoomXyDataset.addSeries(getTackIntersectionSeries(tackList, TimeWindowPosition.IN, data.get(0).location.getX(), data.get(0).location.getY()));
   }
 
   private void updateMapZoomRange()
   {
     List<DataPoint> dataSubset = getSubset(data, TimeWindowPosition.IN);
-    double minimumX = getMinimum(dataSubset, DataPoint::getX);
-    double maximumX = getMaximum(dataSubset, DataPoint::getX);
+    double minimumX = getMinimum(dataSubset, d->d.location.getX());
+    double maximumX = getMaximum(dataSubset, d->d.location.getX());
     Range zoomXRange = new Range(
-        minimumX - data.get(0).getX() - (maximumX - minimumX) * 0.1,
-        maximumX - data.get(0).getX() + (maximumX - minimumX) * 0.1);
-    double minimumY = getMinimum(dataSubset, DataPoint::getY);
-    double maximumY = getMaximum(dataSubset, DataPoint::getY);
+        minimumX - data.get(0).location.getX() - (maximumX - minimumX) * 0.1,
+        maximumX - data.get(0).location.getX() + (maximumX - minimumX) * 0.1);
+    double minimumY = getMinimum(dataSubset, d->d.location.getY());
+    double maximumY = getMaximum(dataSubset, d->d.location.getY());
     Range zoomYRange = new Range(
-        minimumY - data.get(0).getY() - (maximumY - minimumY) * 0.1,
-        maximumY - data.get(0).getY() + (maximumY - minimumY) * 0.1);
+        minimumY - data.get(0).location.getY() - (maximumY - minimumY) * 0.1,
+        maximumY - data.get(0).location.getY() + (maximumY - minimumY) * 0.1);
 
     zoomMapPlot.getDomainAxis().setRange(zoomXRange);
     zoomMapPlot.getRangeAxis().setRange(zoomYRange);
@@ -657,7 +657,7 @@ public class SwingGui
         ++tackIndex;
         containingTack = tackList.get(tackIndex);
       }
-      XYSailDataItem item = new XYSailDataItem(point.getX() - xOffset, point.getY() - yOffset, point.getXYLabel());
+      XYSailDataItem item = new XYSailDataItem(point.location.getX() - xOffset, point.location.getY() - yOffset, point.getXYLabel());
       if (containingTack.startOfTackDataPointIndex == point.index)
       {
         item.setStartOfTack(tackIndex);
@@ -692,11 +692,11 @@ public class SwingGui
       if (tack.tackStraightLineIntersectionStart != null && tack.tackStraightLineIntersectionEnd != null)
       {
         series.add(
-            tack.tackStraightLineIntersectionStart.getX() - xOffset,
-            tack.tackStraightLineIntersectionStart.getY() - yOffset);
+            tack.tackStraightLineIntersectionStart.location.getX() - xOffset,
+            tack.tackStraightLineIntersectionStart.location.getY() - yOffset);
         series.add(
-            tack.tackStraightLineIntersectionEnd.getX() - xOffset,
-            tack.tackStraightLineIntersectionEnd.getY() - yOffset);
+            tack.tackStraightLineIntersectionEnd.location.getX() - xOffset,
+            tack.tackStraightLineIntersectionEnd.location.getY() - yOffset);
       }
     }
     return series;
