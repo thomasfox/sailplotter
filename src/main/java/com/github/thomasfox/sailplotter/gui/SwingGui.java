@@ -15,6 +15,7 @@ import java.util.function.Function;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
@@ -49,6 +50,8 @@ import com.github.thomasfox.sailplotter.model.TackSeries;
 
 public class SwingGui
 {
+  private final JFrame frame;
+
   private final ZoomPanel zoomPanel;
 
   private final TimeSeriesCollection fullVelocityBearingOverTimeDataset = new TimeSeriesCollection();
@@ -94,7 +97,7 @@ public class SwingGui
     analyze();
     zoomPanel = new ZoomPanel(data.size());
 
-    JFrame frame = new JFrame("SailPlotter");
+    frame = new JFrame("SailPlotter");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new GridBagLayout());
 
@@ -816,12 +819,23 @@ public class SwingGui
 
   public void loadFile(File file)
   {
-    data = getData(file);
-    zoomPanel.setDataSize(data.size());
-    analyze();
-    resetFullVelocityBearingOverTimePlot();
-    resetMapPlot();
-    redisplay(true);
+    try
+    {
+      data = getData(file);
+      zoomPanel.setDataSize(data.size());
+      analyze();
+      resetFullVelocityBearingOverTimePlot();
+      resetMapPlot();
+      redisplay(true);
+    }
+    catch (Exception e)
+    {
+      JOptionPane.showMessageDialog(
+          frame,
+          "Could not load File" + e.getMessage(),
+          "Error loading File",
+          JOptionPane.ERROR_MESSAGE);
+    }
   }
 
 }
