@@ -20,12 +20,15 @@ public class SailLoggerImporter implements Importer
     int index = 0;
     for (SailLoggerTrackPoint rawPoint : rawData.track)
     {
-      DataPoint dataPoint = new DataPoint(index);
-      dataPoint.location.latitude = rawPoint.locLat;
-      dataPoint.location.longitude = rawPoint.locLong;
-      dataPoint.time = rawPoint.locT;
-      result.add(dataPoint);
-      index++;
+      if (rawPoint.hasGpsData())
+      {
+        DataPoint dataPoint = new DataPoint(index);
+        dataPoint.location.latitude = rawPoint.locLat;
+        dataPoint.location.longitude = rawPoint.locLong;
+        dataPoint.time = rawPoint.locT;
+        result.add(dataPoint);
+        index++;
+      }
     }
     return result;
   }
@@ -52,30 +55,37 @@ public class SailLoggerImporter implements Importer
 
   public static final class SailLoggerTrackPoint
   {
-    public long locT;
-    public float locAcc;
-    public double locLat;
-    public double locLong;
-    public float locBear;
-    public float locVel;
-    public long magT;
-    public double magX;
-    public double magY;
-    public double magZ;
-    public long accT;
-    public double accX;
-    public double accY;
-    public double accZ;
+    public Long locT;
+    public Float locAcc;
+    public Double locLat;
+    public Double locLong;
+    public Float locBear;
+    public Float locVel;
+    public Long magT;
+    public Double magX;
+    public Double magY;
+    public Double magZ;
+    public Long accT;
+    public Double accX;
+    public Double accY;
+    public Double accZ;
+
+    public boolean hasGpsData()
+    {
+      return (locT != null);
+    }
   }
 
   public static final class SailLoggerStart
   {
     public String format;
     public long startT;
+    public String startTFormatted;
   }
 
   public static final class SailLoggerEnd
   {
     public long endT;
+    public String endTFormatted;
   }
 }

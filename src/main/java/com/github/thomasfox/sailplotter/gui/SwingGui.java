@@ -41,9 +41,7 @@ import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.analyze.TackListByCorrelationAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.TackSeriesAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
-import com.github.thomasfox.sailplotter.importer.SailLoggerImporter;
-import com.github.thomasfox.sailplotter.importer.SailRacerImporter;
-import com.github.thomasfox.sailplotter.importer.ViewRangerImporter;
+import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
 import com.github.thomasfox.sailplotter.model.TackSeries;
@@ -93,7 +91,7 @@ public class SwingGui
   public SwingGui(String filePath, int windDirectionInDegrees)
   {
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
-    data = getData(new File(filePath));
+    data = new FormatAwareImporter().read(new File(filePath));
     analyze();
     zoomPanel = new ZoomPanel(data.size());
 
@@ -341,29 +339,6 @@ public class SwingGui
   private static void printUsage()
   {
     System.out.println("Usage: ${startcommand} ${file} ${windDirectionInDegreees}");
-  }
-
-  private List<DataPoint> getData(File file)
-  {
-    List<DataPoint> data;
-    if (file.getPath().endsWith(".log"))
-    {
-      data = new SailRacerImporter().read(file);
-    }
-    if (file.getPath().endsWith(".saillog"))
-    {
-      data = new SailLoggerImporter().read(file);
-    }
-    else if (file.getPath().endsWith(".vrtp"))
-    {
-      data = new ViewRangerImporter().read(file);
-    }
-    else
-    {
-      throw new RuntimeException("unknown extenson of file " + file.getName()
-          + ", known extensions are .log, .saillog and .vrtp");
-    }
-    return data;
   }
 
   private void updateFullVelocityBearingOverTimeDataset()
@@ -826,7 +801,7 @@ public class SwingGui
   {
     try
     {
-      data = getData(file);
+      data = new FormatAwareImporter().read(file);
       zoomPanel.setDataSize(data.size());
       analyze();
       resetFullVelocityBearingOverTimePlot();
@@ -835,9 +810,10 @@ public class SwingGui
     }
     catch (Exception e)
     {
+      e.printStackTrace();
       JOptionPane.showMessageDialog(
           frame,
-          "Could not load File: " + e.getMessage(),
+          "Could not load File: " + e.getClass().getName() + ":" + e.getMessage(),
           "Error loading File",
           JOptionPane.ERROR_MESSAGE);
     }
