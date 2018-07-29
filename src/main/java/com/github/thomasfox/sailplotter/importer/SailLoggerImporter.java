@@ -23,8 +23,8 @@ public class SailLoggerImporter implements Importer
       if (rawPoint.hasGpsData())
       {
         DataPoint dataPoint = new DataPoint(index);
-        dataPoint.location.latitude = rawPoint.locLat;
-        dataPoint.location.longitude = rawPoint.locLong;
+        dataPoint.location.latitude = rawPoint.locLat / 180d * Math.PI;
+        dataPoint.location.longitude = rawPoint.locLong / 180d * Math.PI;
         dataPoint.time = rawPoint.locT;
         result.add(dataPoint);
         index++;
