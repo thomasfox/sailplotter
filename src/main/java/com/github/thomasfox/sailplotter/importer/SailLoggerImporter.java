@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class SailLoggerImporter implements Importer
@@ -25,6 +26,8 @@ public class SailLoggerImporter implements Importer
         DataPoint dataPoint = new DataPoint(index);
         dataPoint.location.latitude = rawPoint.locLat / 180d * Math.PI;
         dataPoint.location.longitude = rawPoint.locLong / 180d * Math.PI;
+        dataPoint.location.velocity = rawPoint.locVel / Constants.NAUTICAL_MILE * 3600d;
+        dataPoint.location.bearing = rawPoint.locBear / 180d * Math.PI;
         dataPoint.time = rawPoint.locT;
         result.add(dataPoint);
         index++;

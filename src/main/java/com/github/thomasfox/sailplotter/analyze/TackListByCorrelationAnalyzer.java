@@ -155,7 +155,7 @@ public class TackListByCorrelationAnalyzer
     for (int dataPointIndex = 0; dataPointIndex < points.size(); ++dataPointIndex)
     {
       DataPoint point = points.get(dataPointIndex);
-      if (point.location == null || point.location.bearing == null)
+      if (point.location == null || point.location.bearingFromLatLong == null)
       {
         if (currentTack == null)
         {

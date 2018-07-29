@@ -291,7 +291,7 @@ public class SwingGui
   {
     Range dataRange = new DateRange(data.get(0).time, data.get(data.size() -1).time);
     fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
-    Range valueRange = new DateRange(0, getMaximum(data, d->d.location.getVelocity()));
+    Range valueRange = new DateRange(0, getMaximum(data, d->d.location.getVelocityFromLatLong()));
     fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
@@ -409,7 +409,7 @@ public class SwingGui
     TimeSeries series = new TimeSeries("velocity");
     for (DataPoint point : getSubset(data, position))
     {
-      series.addOrUpdate(point.getMillisecond(), point.location.velocity);
+      series.addOrUpdate(point.getMillisecond(), point.location.velocityFromLatLong);
     }
     return series;
   }
@@ -419,7 +419,7 @@ public class SwingGui
     TimeSeries series = new TimeSeries("bearing");
     for (DataPoint point : getSubset(data, position))
     {
-      series.addOrUpdate(point.getMillisecond(), point.location.bearing);
+      series.addOrUpdate(point.getMillisecond(), point.location.bearingFromLatLong);
     }
     return series;
   }
@@ -469,7 +469,7 @@ public class SwingGui
       if (point.getLocalDateTime().isAfter(getDataStartTime())
           && point.getLocalDateTime().isBefore(getDataEndTime()))
       {
-        if (point.location.bearing != null)
+        if (point.location.bearingFromLatLong != null)
         {
           bearingHistogramDataset.addObservation(point.getRelativeBearingAs360Degrees());
         }
@@ -489,10 +489,10 @@ public class SwingGui
       if (point.getLocalDateTime().isAfter(getDataStartTime())
           && point.getLocalDateTime().isBefore(getDataEndTime()))
       {
-        if (point.location.bearing != null && point.location.velocity != null)
+        if (point.location.bearingFromLatLong != null && point.location.velocityFromLatLong != null)
         {
           int bucket = new Double(point.getRelativeBearingInArcs() * Constants.NUMBER_OF_BEARING_BINS / 2 / Math.PI).intValue();
-          velocityBuckets.get(bucket).add(point.location.velocity);
+          velocityBuckets.get(bucket).add(point.location.velocityFromLatLong);
         }
       }
     }

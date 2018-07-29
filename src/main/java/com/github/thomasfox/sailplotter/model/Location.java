@@ -13,11 +13,17 @@ public class Location
   /** Geographical Longitude (Distance from the Greenwich Meridian in direction East) in arcs. */
   public Double longitude;
 
-  /** velocity over ground in knots, from location data. */
+  /** Velocity in knots, measured from GPS. */
   public Double velocity;
 
-  /** bearing over ground in arcs, from location data. */
+  /** Bearing in arcs, measured from GPS. */
   public Double bearing;
+
+  /** velocity over ground in knots, calculated from change in latitude and longitude. */
+  public Double velocityFromLatLong;
+
+  /** bearing over ground in arcs, calculated from change in latitude and longitude. */
+  public Double bearingFromLatLong;
 
   /** velocity averaging distance in meters. */
   public Double velocityBearingAveragedOverDistance;
@@ -30,8 +36,8 @@ public class Location
   {
     this.latitude = toCopy.latitude;
     this.longitude = toCopy.longitude;
-    this.velocity = toCopy.velocity;
-    this.bearing = toCopy.bearing;
+    this.velocityFromLatLong = toCopy.velocityFromLatLong;
+    this.bearingFromLatLong = toCopy.bearingFromLatLong;
     this.velocityBearingAveragedOverDistance = toCopy.velocityBearingAveragedOverDistance;
   }
 
@@ -60,18 +66,18 @@ public class Location
     this.longitude = x / Constants.EARTH_RADIUS / Math.cos(latitude);
   }
 
-  public Double getBearingAs360Degrees()
+  public Double getBearingFromLatLongAs360Degrees()
   {
-    if (bearing != null)
+    if (bearingFromLatLong != null)
     {
-      return bearing / 2 / Math.PI * 360;
+      return bearingFromLatLong / 2 / Math.PI * 360;
     }
     return null;
   }
 
-  public Double getVelocity()
+  public Double getVelocityFromLatLong()
   {
-    return velocity;
+    return velocityFromLatLong;
   }
 
   public static Location intersection(Location line1Point1, Location line1Point2, Location line2Point1, Location line2Point2)

@@ -95,8 +95,8 @@ public class Exporter
     {
       this.latitude = location.latitude;
       this.longitude = location.longitude;
-      this.velocity = location.velocity;
-      this.bearing = location.bearing;
+      this.velocity = location.velocityFromLatLong;
+      this.bearing = location.bearingFromLatLong;
       this.velocityBearingAveragedOverDistance = location.velocityBearingAveragedOverDistance;
       if (referenceLocation != null)
       {

@@ -69,6 +69,11 @@ public class DataPoint
         localDateTime.getYear());
   }
 
+  public boolean hasLocation()
+  {
+    return location != null && location.latitude != null && location.longitude != null;
+  }
+
   public long averageTime(DataPoint other)
   {
     return (time + other.time) / 2;
@@ -83,11 +88,11 @@ public class DataPoint
 
   public Double getRelativeBearingInArcs()
   {
-    if (wind == null || wind.direction == null || location == null || location.bearing == null)
+    if (wind == null || wind.direction == null || location == null || location.bearingFromLatLong == null)
     {
       return null;
     }
-    double result =  location.bearing - wind.direction;
+    double result =  location.bearingFromLatLong - wind.direction;
     if (result < 0)
     {
       result += 2 * Math.PI;
@@ -187,11 +192,11 @@ public class DataPoint
    */
   public Double getBearingDifference(Double absoluteBearingInArcs)
   {
-    if (location == null || location.bearing == null || absoluteBearingInArcs == null)
+    if (location == null || location.bearingFromLatLong == null || absoluteBearingInArcs == null)
     {
       return null;
     }
-    double bearingDifference = location.bearing - absoluteBearingInArcs;
+    double bearingDifference = location.bearingFromLatLong - absoluteBearingInArcs;
     if (bearingDifference > Math.PI)
     {
       bearingDifference -= 2 * Math.PI;
@@ -225,17 +230,17 @@ public class DataPoint
         .append(new DecimalFormat("0").format(location.getY()))
         .append("m) ");
     }
-    if (location !=null && location.velocity != null)
+    if (location !=null && location.velocityFromLatLong != null)
     {
-      result.append(new DecimalFormat("0.0").format(location.velocity))
+      result.append(new DecimalFormat("0.0").format(location.velocityFromLatLong))
           .append("kts ");
     }
-    if (location !=null && location.bearing != null)
+    if (location !=null && location.bearingFromLatLong != null)
     {
-      result.append(new DecimalFormat("0.0").format(location.getBearingAs360Degrees()))
+      result.append(new DecimalFormat("0.0").format(location.getBearingFromLatLongAs360Degrees()))
           .append("°Abs ");
     }
-    if (location !=null && location.bearing != null
+    if (location !=null && location.bearingFromLatLong != null
         && wind != null && wind.direction != null)
     {
       result.append(new DecimalFormat("0.0").format(getRelativeBearingAs360Degrees()))
@@ -248,17 +253,17 @@ public class DataPoint
   {
     StringBuilder result = new StringBuilder()
         .append(DateTimeFormatter.ISO_LOCAL_TIME.format(getLocalDateTime()));
-    if (location != null && location.velocity != null)
+    if (location != null && location.velocityFromLatLong != null)
     {
-      result.append(new DecimalFormat("0.0").format(location.velocity))
+      result.append(new DecimalFormat("0.0").format(location.velocityFromLatLong))
           .append("kts ");
     }
-    if (location != null && location.bearing != null)
+    if (location != null && location.bearingFromLatLong != null)
     {
-      result.append(new DecimalFormat("0.0").format(location.getBearingAs360Degrees()))
+      result.append(new DecimalFormat("0.0").format(location.getBearingFromLatLongAs360Degrees()))
           .append("°Abs ");
     }
-    if (location != null && location.bearing != null
+    if (location != null && location.bearingFromLatLong != null
         && wind != null && wind.direction != null)
     {
       result.append(new DecimalFormat("0.0").format(getRelativeBearingAs360Degrees()))

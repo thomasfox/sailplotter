@@ -17,8 +17,8 @@ public class DataPointTest
 
     point.location.latitude = 0.1d;
     point.location.longitude = -0.2d;
-    point.location.bearing = 0.3d;
-    point.location.velocity = 4d;
+    point.location.bearingFromLatLong = 0.3d;
+    point.location.velocityFromLatLong = 4d;
     point.location.velocityBearingAveragedOverDistance = 5d;
 
     point.wind = new Wind();
@@ -44,8 +44,8 @@ public class DataPointTest
     assertThat(copy.location).isNotSameAs(point.location);
     assertThat(copy.location.latitude).isEqualTo(0.1d);
     assertThat(copy.location.longitude).isEqualTo(-0.2d);
-    assertThat(copy.location.bearing).isEqualTo(0.3d);
-    assertThat(copy.location.velocity).isEqualTo(4d);
+    assertThat(copy.location.bearingFromLatLong).isEqualTo(0.3d);
+    assertThat(copy.location.velocityFromLatLong).isEqualTo(4d);
     assertThat(copy.location.velocityBearingAveragedOverDistance).isEqualTo(5d);
 
     assertThat(copy.wind).isNotSameAs(point.wind);
@@ -111,7 +111,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
-    point.location.bearing = 2d;
+    point.location.bearingFromLatLong = 2d;
     point.wind = new Wind();
     point.wind.direction = 1d;
 
@@ -127,7 +127,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
-    point.location.bearing = 1d;
+    point.location.bearingFromLatLong = 1d;
     point.wind = new Wind();
     point.wind.direction = 2d;
 
@@ -143,7 +143,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
-    point.location.bearing = 1.5 * Math.PI;
+    point.location.bearingFromLatLong = 1.5 * Math.PI;
     point.wind = new Wind();
     point.wind.direction = Math.PI / 2;
 
@@ -159,7 +159,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
-    point.location.bearing = Math.PI / 2;
+    point.location.bearingFromLatLong = Math.PI / 2;
     point.wind = new Wind();
     point.wind.direction = Math.PI;
 
@@ -175,7 +175,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
-    point.location.bearing = Math.PI / 2;
+    point.location.bearingFromLatLong = Math.PI / 2;
     point.wind = new Wind();
     point.wind.direction = Math.PI;
 
@@ -433,8 +433,8 @@ public class DataPointTest
     DataPoint dataPoint = new DataPoint(-1);
     dataPoint.time = 315576000000l;
     dataPoint.location.setXAndY(2d, 7d);
-    dataPoint.location.velocity = 12d;
-    dataPoint.location.bearing = Math.PI / 2;
+    dataPoint.location.velocityFromLatLong = 12d;
+    dataPoint.location.bearingFromLatLong = Math.PI / 2;
     dataPoint.wind = new Wind();
     dataPoint.wind.direction = Math.PI;
 
