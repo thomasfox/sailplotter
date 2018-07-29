@@ -218,7 +218,7 @@ public class SwingGui
     frame.getContentPane().add(zoomXyChartPanel, gridBagConstraints);
 
     updateTackVelocityBearingPolar();
-    JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over Relative Bearing", tackVelocityBearingPolar, false, true, false);
+    JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over rel. Bearing", tackVelocityBearingPolar, false, true, false);
     PolarPlot tackVelocityBearingPlot = (PolarPlot) tackVelocityBearingChart.getPlot();
     PolarScatterRenderer tackVelocityRenderer = new PolarScatterRenderer();
     tackVelocityRenderer.setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
@@ -226,7 +226,7 @@ public class SwingGui
 
     ChartPanel tackVelocityBearingChartPanel = new ChartPanel(tackVelocityBearingChart);
     gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.2;
+    gridBagConstraints.weightx = 0.166;
     gridBagConstraints.weighty = 0.5;
     gridBagConstraints.fill = GridBagConstraints.BOTH;
     gridBagConstraints.gridx = 2;
@@ -234,10 +234,10 @@ public class SwingGui
     frame.getContentPane().add(tackVelocityBearingChartPanel, gridBagConstraints);
 
     updateVelocityBearingPolar();
-    JFreeChart chart = ChartFactory.createPolarChart("Velocity over Relative Bearing", velocityBearingPolar, false, false, false);
+    JFreeChart chart = ChartFactory.createPolarChart("Velocity over rel. Bearing", velocityBearingPolar, false, false, false);
     ChartPanel chartPanel = new ChartPanel(chart);
     gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.2;
+    gridBagConstraints.weightx = 0.166;
     gridBagConstraints.weighty = 0.5;
     gridBagConstraints.fill = GridBagConstraints.BOTH;
     gridBagConstraints.gridx = 3;
@@ -246,7 +246,7 @@ public class SwingGui
 
     tackTablePanel = new TackTablePanel(tackList, this::tackSelected);
     gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.333;
+    gridBagConstraints.weightx = 0.666;
     gridBagConstraints.weighty = 0.25;
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.fill = GridBagConstraints.BOTH;
@@ -256,7 +256,7 @@ public class SwingGui
 
     tackSeriesTablePanel = new TackSeriesTablePanel(tackSeriesList, this::tackSeriesSelected);
     gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.25;
+    gridBagConstraints.weightx = 0.333;
     gridBagConstraints.weighty = 0.25;
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.fill = GridBagConstraints.BOTH;
@@ -809,9 +809,6 @@ public class SwingGui
     try
     {
       data = new FormatAwareImporter().read(file);
-      if (data.size() < 2) {
-        throw new RuntimeException("Track contains lesss than 2 points");
-      }
       menubar.setLoadStartFile(file);
       menubar.setSaveStartFile(new Exporter().replaceExtension(file));
       zoomPanel.setDataSize(data.size());

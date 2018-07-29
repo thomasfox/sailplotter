@@ -28,6 +28,9 @@ public class FormatAwareImporter implements Importer
       throw new RuntimeException("unknown extenson of file " + file.getName()
           + ", known extensions are .log, .saillog and .vrtp");
     }
+    if (data.size() < 2) {
+      throw new RuntimeException("Track contains lesss than 2 points");
+    }
     return data;
   }
 }
