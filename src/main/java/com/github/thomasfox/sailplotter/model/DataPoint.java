@@ -83,7 +83,7 @@ public class DataPoint
 
   public Double getRelativeBearingInArcs()
   {
-    if (wind.direction == null || location.bearing == null)
+    if (wind == null || wind.direction == null || location == null || location.bearing == null)
     {
       return null;
     }

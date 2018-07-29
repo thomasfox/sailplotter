@@ -41,6 +41,7 @@ import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.analyze.TackListByCorrelationAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.TackSeriesAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
+import com.github.thomasfox.sailplotter.exporter.Exporter;
 import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
@@ -51,6 +52,8 @@ public class SwingGui
   private final JFrame frame;
 
   private final ZoomPanel zoomPanel;
+
+  private final Menubar menubar;
 
   private final TimeSeriesCollection fullVelocityBearingOverTimeDataset = new TimeSeriesCollection();
 
@@ -99,7 +102,11 @@ public class SwingGui
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(new GridBagLayout());
 
-    frame.setJMenuBar(new Menubar(frame, new File(filePath), this::loadFile));
+    menubar = new Menubar(frame)
+        .addLoadFileMenuItem(new File(filePath), this::loadFile)
+        .addSaveFileMenuItem(new Exporter().replaceExtension(new File(filePath)), this::saveFile);
+
+    frame.setJMenuBar(menubar);
 
     updateFullVelocityBearingOverTimeDataset();
     JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart(
@@ -802,6 +809,11 @@ public class SwingGui
     try
     {
       data = new FormatAwareImporter().read(file);
+      if (data.size() < 2) {
+        throw new RuntimeException("Track contains lesss than 2 points");
+      }
+      menubar.setLoadStartFile(file);
+      menubar.setSaveStartFile(new Exporter().replaceExtension(file));
       zoomPanel.setDataSize(data.size());
       analyze();
       resetFullVelocityBearingOverTimePlot();
@@ -819,4 +831,35 @@ public class SwingGui
     }
   }
 
+  public void saveFile(File file)
+  {
+    try
+    {
+      if (file.exists()) {
+        JOptionPane.showMessageDialog(
+            frame,
+            "File exists" ,
+            "Error saving File",
+            JOptionPane.ERROR_MESSAGE);
+      }
+      else
+      {
+        new Exporter().save(file, data);
+        JOptionPane.showMessageDialog(
+            frame,
+            "File saved: " + file.getName() ,
+            "File saved",
+            JOptionPane.INFORMATION_MESSAGE);
+      }
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(
+          frame,
+          "Could not save File: " + e.getClass().getName() + ":" + e.getMessage(),
+          "Error saving File",
+          JOptionPane.ERROR_MESSAGE);
+    }
+  }
 }

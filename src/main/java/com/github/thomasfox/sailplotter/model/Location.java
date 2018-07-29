@@ -60,9 +60,13 @@ public class Location
     this.longitude = x / Constants.EARTH_RADIUS / Math.cos(latitude);
   }
 
-  public double getBearingAs360Degrees()
+  public Double getBearingAs360Degrees()
   {
-    return bearing / 2 / Math.PI * 360;
+    if (bearing != null)
+    {
+      return bearing / 2 / Math.PI * 360;
+    }
+    return null;
   }
 
   public Double getVelocity()
@@ -100,5 +104,13 @@ public class Location
     return Math.sqrt(xDist * xDist + yDist * yDist);
   }
 
+  public Double xRelativeTo(Location reference)
+  {
+    return getX() - reference.getX();
+  }
 
+  public Double yRelativeTo(Location reference)
+  {
+    return getY() - reference.getY();
+  }
 }

@@ -23,39 +23,103 @@ public class Menubar extends JMenuBar
 
   private final JFileChooser fileChooser = new JFileChooser();
 
-  Consumer<File> loadFileConsumer;
+  private Consumer<File> loadFileConsumer;
+
+  private Consumer<File> saveFileConsumer;
+
+  private File loadStartFile;
+
+  private File saveStartFile;
 
   /**
    * Constructor for the menubar of the application.
    *
    * @param applicationFrame The application's main window, not null.
+   */
+  public Menubar(JFrame applicationFrame)
+  {
+    this.applicationFrame = applicationFrame;
+    fileMenu.setMnemonic(KeyEvent.VK_F);
+    add(fileMenu);
+  }
+
+  /**
+   * Adds a load file menu item.
+   *
    * @param startFile the file which is selected by the fileChooser  at the start.
    * @param loadFileConsumer the function which is called whenever the user opens a file.
    */
-  public Menubar(JFrame applicationFrame, File startFile, Consumer<File> loadFileConsumer)
+  public Menubar addLoadFileMenuItem(File startFile, Consumer<File> loadFileConsumer)
   {
-    this.applicationFrame = applicationFrame;
     this.loadFileConsumer = loadFileConsumer;
     if (startFile != null)
     {
-      fileChooser.setSelectedFile(startFile);
+      loadStartFile = startFile;
     }
 
-    fileMenu.setMnemonic(KeyEvent.VK_F);
-    JMenuItem loadFile = new JMenuItem("load", KeyEvent.VK_T);
+    JMenuItem loadFile = new JMenuItem("load", KeyEvent.VK_L);
     loadFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.ALT_MASK));
     loadFile.addActionListener(this::loadFile);
     fileMenu.add(loadFile);
-    add(fileMenu);
+    return this;
   }
 
   public void loadFile(ActionEvent e)
   {
+    if (loadStartFile != null)
+    {
+      fileChooser.setSelectedFile(loadStartFile);
+    }
     int returnVal = fileChooser.showOpenDialog(applicationFrame);
     if (returnVal == JFileChooser.APPROVE_OPTION)
     {
       File file = fileChooser.getSelectedFile();
       loadFileConsumer.accept(file);
     }
+  }
+
+  public void setLoadStartFile(File loadStartFile)
+  {
+    this.loadStartFile = loadStartFile;
+  }
+
+  /**
+   * Adds a save file menu item.
+   *
+   * @param startFile the file which is selected by the fileChooser  at the start.
+   * @param saveFileConsumer the function which is called whenever the user specifies a file to save to.
+   */
+  public Menubar addSaveFileMenuItem(File startFile, Consumer<File> saveFileConsumer)
+  {
+    this.saveFileConsumer = saveFileConsumer;
+    if (startFile != null)
+    {
+      saveStartFile = startFile;
+    }
+
+    JMenuItem saveFile = new JMenuItem("save", KeyEvent.VK_S);
+    saveFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+    saveFile.addActionListener(this::saveFile);
+    fileMenu.add(saveFile);
+    return this;
+  }
+
+  public void saveFile(ActionEvent e)
+  {
+    if (saveStartFile != null)
+    {
+      fileChooser.setSelectedFile(saveStartFile);
+    }
+    int returnVal = fileChooser.showOpenDialog(applicationFrame);
+    if (returnVal == JFileChooser.APPROVE_OPTION)
+    {
+      File file = fileChooser.getSelectedFile();
+      saveFileConsumer.accept(file);
+    }
+  }
+
+  public void setSaveStartFile(File saveStartFile)
+  {
+    this.saveStartFile = saveStartFile;
   }
 }
