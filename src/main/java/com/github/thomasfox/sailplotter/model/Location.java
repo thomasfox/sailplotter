@@ -28,6 +28,12 @@ public class Location
   /** velocity averaging distance in meters. */
   public Double velocityBearingAveragedOverDistance;
 
+  /** Time from GPS signal, as unix timestamp. */
+  public Long satelliteTime;
+
+  /** true if this location is not measured directly but interpolated from neighbouring points. */
+  public boolean interpolated;
+
   public Location()
   {
   }
@@ -36,9 +42,13 @@ public class Location
   {
     this.latitude = toCopy.latitude;
     this.longitude = toCopy.longitude;
+    this.velocity = toCopy.velocity;
+    this.bearing = toCopy.bearing;
     this.velocityFromLatLong = toCopy.velocityFromLatLong;
     this.bearingFromLatLong = toCopy.bearingFromLatLong;
     this.velocityBearingAveragedOverDistance = toCopy.velocityBearingAveragedOverDistance;
+    this.satelliteTime = toCopy.satelliteTime;
+    this.interpolated = toCopy.interpolated;
   }
 
   public static Location copy(Location toCopy)
@@ -118,5 +128,31 @@ public class Location
   public Double yRelativeTo(Location reference)
   {
     return getY() - reference.getY();
+  }
+
+  public static Location interpolate(Location loc1, long weight1, Location loc2, long weight2)
+  {
+    double totalWeight = weight1 + weight2;
+    double weightFactor1 = weight1 / totalWeight;
+    double weightFactor2 = weight2 / totalWeight;
+    Location result = new Location();
+    result.interpolated = true;
+    if (loc1.latitude != null && loc2.latitude != null)
+    {
+      result.latitude = weightFactor1 * loc1.latitude + weightFactor2 * loc2.latitude;
+    }
+    if (loc1.longitude != null && loc2.longitude != null)
+    {
+      result.longitude = weightFactor1 * loc1.longitude + weightFactor2 * loc2.longitude;
+    }
+    if (loc1.velocity != null && loc2.velocity != null)
+    {
+      result.velocity = weightFactor1 * loc1.velocity + weightFactor2 * loc2.velocity;
+    }
+    if (loc1.bearing != null && loc2.bearing != null)
+    {
+      result.bearing = weightFactor1 * loc1.bearing + weightFactor2 * loc2.bearing;
+    }
+    return result;
   }
 }

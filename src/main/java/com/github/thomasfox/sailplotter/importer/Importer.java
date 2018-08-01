@@ -1,9 +1,8 @@
 package com.github.thomasfox.sailplotter.importer;
 
 import java.io.File;
-import java.util.List;
 
-import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.Data;
 
 /**
  * Reads a file and loads the contained Data into sailplotter.
@@ -17,5 +16,5 @@ public interface Importer
    *
    * @return the data points contained in the file.
    */
-  List<DataPoint> read(File file);
+  Data read(File file);
 }

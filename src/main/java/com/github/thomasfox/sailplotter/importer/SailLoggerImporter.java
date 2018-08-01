@@ -3,35 +3,59 @@ package com.github.thomasfox.sailplotter.importer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.thomasfox.sailplotter.Constants;
+import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.Location;
+import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
 public class SailLoggerImporter implements Importer
 {
   final ObjectMapper mapper = new ObjectMapper();
 
   @Override
-  public List<DataPoint> read(File file)
+  public Data read(File file)
   {
-    List<DataPoint> result = new ArrayList<>();
+    Data result = new Data();
     SailLoggerData rawData = readFileInternal(file);
     int index = 0;
     for (SailLoggerTrackPoint rawPoint : rawData.track)
     {
+      if (!rawPoint.hasGpsData() && !rawPoint.hasCompassData() && !rawPoint.hasAccelerationData())
+      {
+        continue;
+      }
+      DataPoint dataPoint = new DataPoint(index);
       if (rawPoint.hasGpsData())
       {
-        DataPoint dataPoint = new DataPoint(index);
+        dataPoint.location = new Location();
         dataPoint.location.latitude = rawPoint.locLat / 180d * Math.PI;
         dataPoint.location.longitude = rawPoint.locLong / 180d * Math.PI;
         dataPoint.location.velocity = rawPoint.locVel / Constants.NAUTICAL_MILE * 3600d;
         dataPoint.location.bearing = rawPoint.locBear / 180d * Math.PI;
-        dataPoint.time = rawPoint.locT;
-        result.add(dataPoint);
-        index++;
+        dataPoint.location.satelliteTime = rawPoint.locT;
+        dataPoint.time = rawPoint.locDevT;
       }
+      if (rawPoint.hasCompassData())
+      {
+        dataPoint.magneticField = new ThreeDimVector();
+        dataPoint.magneticField.x = rawPoint.magX;
+        dataPoint.magneticField.y = rawPoint.magY;
+        dataPoint.magneticField.z = rawPoint.magZ;
+        dataPoint.time = rawPoint.magT;
+      }
+      if (rawPoint.hasAccelerationData())
+      {
+        dataPoint.acceleration = new ThreeDimVector();
+        dataPoint.acceleration.x = rawPoint.accX;
+        dataPoint.acceleration.y = rawPoint.accY;
+        dataPoint.acceleration.z = rawPoint.accZ;
+        dataPoint.time = rawPoint.accT;
+      }
+      result.add(dataPoint);
+      index++;
     }
     return result;
   }
@@ -64,6 +88,7 @@ public class SailLoggerImporter implements Importer
     public Double locLong;
     public Float locBear;
     public Float locVel;
+    public Long locDevT;
     public Long magT;
     public Double magX;
     public Double magY;
@@ -76,6 +101,16 @@ public class SailLoggerImporter implements Importer
     public boolean hasGpsData()
     {
       return (locT != null);
+    }
+
+    public boolean hasCompassData()
+    {
+      return (magX != null || magY != null || magZ != null);
+    }
+
+    public boolean hasAccelerationData()
+    {
+      return (accX != null || accY != null || accZ != null);
     }
   }
 

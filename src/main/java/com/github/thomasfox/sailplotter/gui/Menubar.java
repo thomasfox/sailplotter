@@ -19,6 +19,8 @@ public class Menubar extends JMenuBar
 
   private final JMenu fileMenu = new JMenu("File");
 
+  private final JMenu viewMenu = new JMenu("View");
+
   private final JFrame applicationFrame;
 
   private final JFileChooser fileChooser = new JFileChooser();
@@ -31,6 +33,8 @@ public class Menubar extends JMenuBar
 
   private File saveStartFile;
 
+  private Consumer<String> viewChangedConsumer;
+
   /**
    * Constructor for the menubar of the application.
    *
@@ -41,6 +45,8 @@ public class Menubar extends JMenuBar
     this.applicationFrame = applicationFrame;
     fileMenu.setMnemonic(KeyEvent.VK_F);
     add(fileMenu);
+    viewMenu.setMnemonic(KeyEvent.VK_V);
+    add(viewMenu);
   }
 
   /**
@@ -121,5 +127,23 @@ public class Menubar extends JMenuBar
   public void setSaveStartFile(File saveStartFile)
   {
     this.saveStartFile = saveStartFile;
+  }
+
+  public Menubar addViews(Consumer<String> viewChangedConsumer, String... viewNames)
+  {
+    for (String viewName : viewNames)
+    {
+      JMenuItem viewMenuItem = new JMenuItem(viewName);
+      viewMenuItem.addActionListener(this::viewChanged);
+      viewMenu.add(viewMenuItem);
+    }
+    this.viewChangedConsumer = viewChangedConsumer;
+    return this;
+  }
+
+  public void viewChanged(ActionEvent e)
+  {
+    JMenuItem selectedViewItem = (JMenuItem) e.getSource();
+    viewChangedConsumer.accept(selectedViewItem.getText());
   }
 }

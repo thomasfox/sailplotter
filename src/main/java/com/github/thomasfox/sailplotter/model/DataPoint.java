@@ -8,6 +8,8 @@ import java.time.format.DateTimeFormatter;
 import org.jfree.data.time.Millisecond;
 
 import com.github.thomasfox.sailplotter.Constants;
+import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
+import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
 public class DataPoint
 {
@@ -17,14 +19,23 @@ public class DataPoint
    */
   public int index = -1;
 
-  /** millis since 01.01.1970 0:00:00.000 */
+  /** millis since 01.01.1970 0:00:00.000 GMT.*/
   public Long time;
 
-  /** location of boat, typically obtained from GPS. */
-  public Location location = new Location();
+  /** Location of boat, typically obtained from GPS. */
+  public Location location;
 
-  /** bearing of boat, typically obtained from a compass reading. */
-  public CompassBearing compassBearing;
+  /**
+   * Magnetic field at boat position, in microtesla,
+   * in arbitrary but constant orientation.
+   */
+  public ThreeDimVector magneticField;
+
+  /**
+   * Measured acceleration in Nm/s^2, including gravitational acceleration,
+   * in arbitrary but constant orientation.
+   */
+  public ThreeDimVector acceleration;
 
   /** Wind data at place of boat, can be interpolated. */
   public Wind wind;
@@ -42,7 +53,8 @@ public class DataPoint
     this.time = toCopy.time;
     this.location = Location.copy(toCopy.location);
     this.wind = Wind.copy(toCopy.wind);
-    this.compassBearing = CompassBearing.copy(toCopy.compassBearing);
+    this.magneticField = ThreeDimVector.copy(toCopy.magneticField);
+    this.acceleration = ThreeDimVector.copy(toCopy.acceleration);
     this.manoeuverState = toCopy.manoeuverState;
   }
 
@@ -71,7 +83,17 @@ public class DataPoint
 
   public boolean hasLocation()
   {
-    return location != null && location.latitude != null && location.longitude != null;
+    return location != null && location.latitude != null && location.longitude != null && !location.interpolated;
+  }
+
+  public boolean hasAcceleration()
+  {
+    return acceleration != null && acceleration.x != null && acceleration.y != null && acceleration.z != null;
+  }
+
+  public boolean hasMagneticField()
+  {
+    return magneticField != null && magneticField.x != null && magneticField.y != null && magneticField.z != null;
   }
 
   public long averageTime(DataPoint other)
@@ -137,28 +159,7 @@ public class DataPoint
   {
     double xDistance = other.location.getX() - location.getX();
     double yDistance = other.location.getY() - location.getY();
-    Double result = null;
-    if (yDistance != 0)
-    {
-      result = Math.atan(xDistance / yDistance);
-      if (yDistance < 0)
-      {
-        result += Math.PI;
-      }
-    }
-    else if (xDistance > 0)
-    {
-      result = Math.PI / 2;
-    }
-    else if (xDistance < 0)
-    {
-      result =  3 * Math.PI / 2;
-    }
-    while (result != null && result < 0)
-    {
-      result += 2 * Math.PI;
-    }
-    return result;
+    return new TwoDimVector(xDistance, yDistance).getBearingToXInArcs();
   }
 
   public Double getRelativeBearingTo(DataPoint other, Double windDirection)

@@ -22,7 +22,9 @@ import java.time.format.SignStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.Location;
 
 public class SailRacerImporter implements Importer
 {
@@ -45,14 +47,15 @@ public class SailRacerImporter implements Importer
 
 
   @Override
-  public List<DataPoint> read(File file)
+  public Data read(File file)
   {
-    List<DataPoint> result = new ArrayList<>();
+    Data result = new Data();
     List<SailRacerPoint> rawData = readFileInternal(file);
     int index = 0;
     for (SailRacerPoint rawPoint : rawData)
     {
       DataPoint dataPoint = new DataPoint(index);
+      dataPoint.location = new Location();
       dataPoint.location.latitude = rawPoint.lat / 180d * Math.PI;
       dataPoint.location.longitude = rawPoint.lon / 180d * Math.PI;
       dataPoint.time = rawPoint.datetime.toInstant(ZoneOffset.UTC).toEpochMilli();

@@ -2,25 +2,27 @@ package com.github.thomasfox.sailplotter.importer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.Location;
 
 public class ViewRangerImporter implements Importer
 {
   final ObjectMapper mapper = new ObjectMapper();
 
   @Override
-  public List<DataPoint> read(File file)
+  public Data read(File file)
   {
-    List<DataPoint> result = new ArrayList<>();
+    Data result = new Data();
     ViewRangerData rawData = readFileInternal(file);
     int index = 0;
     for (ViewRangerPoint rawPoint : rawData.points)
     {
       DataPoint dataPoint = new DataPoint(index);
+      dataPoint.location = new Location();
       dataPoint.location.latitude = rawPoint.lat / 180d * Math.PI;
       dataPoint.location.longitude = rawPoint.lon / 180d * Math.PI;
       dataPoint.time = rawPoint.time;

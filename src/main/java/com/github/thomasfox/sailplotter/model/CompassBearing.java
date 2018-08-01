@@ -2,11 +2,14 @@ package com.github.thomasfox.sailplotter.model;
 
 public class CompassBearing
 {
-  public double fieldStrengthX;
+  /** Field strength in device x direction in microtesla. */
+  public Double fieldStrengthX;
 
-  public double fieldStrengthY;
+  /** Field strength in device y direction in microtesla. */
+  public Double fieldStrengthY;
 
-  public double fieldStrengthZ;
+  /** Field strength in device z direction in microtesla. */
+  public Double fieldStrengthZ;
 
   public CompassBearing()
   {

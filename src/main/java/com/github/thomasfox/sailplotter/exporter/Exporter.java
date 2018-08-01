@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
 
@@ -32,12 +33,12 @@ public class Exporter
     return new File(result);
   }
 
-  public void save(File file, List<DataPoint> data)
+  public void save(File file, Data data)
   {
     try
     {
-      DataPoint startPoint = data.stream().filter(d -> d.location != null).findFirst().orElse(null);
-      List<ExportPoint> exportPoints = data.stream().map(d -> new ExportPoint(d, startPoint.location)).collect(Collectors.toList());
+      DataPoint startPoint = data.getAllPoints().stream().filter(d -> d.location != null).findFirst().orElse(null);
+      List<ExportPoint> exportPoints = data.getAllPoints().stream().map(d -> new ExportPoint(d, startPoint.location)).collect(Collectors.toList());
       new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValue(file, exportPoints);
     }
     catch (IOException e)

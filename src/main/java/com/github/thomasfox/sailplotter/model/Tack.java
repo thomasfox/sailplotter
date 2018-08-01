@@ -164,6 +164,10 @@ public class Tack
     DataPoint result = null;
     for (DataPoint candidate : pointsWithinTack)
     {
+      if (!candidate.hasLocation())
+      {
+        continue;
+      }
       if (candidate.location.distance(start.location) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
       {
         result = candidate;

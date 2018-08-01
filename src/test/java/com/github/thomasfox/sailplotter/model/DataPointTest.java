@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.within;
 import org.jfree.data.time.Millisecond;
 import org.junit.Test;
 
+import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
+
 public class DataPointTest
 {
   @Test
@@ -25,10 +27,8 @@ public class DataPointTest
     point.wind.direction = 0.5d;
     point.wind.velocity = 6d;
 
-    point.compassBearing = new CompassBearing();
-    point.compassBearing.fieldStrengthX = 70d;
-    point.compassBearing.fieldStrengthY = -80d;
-    point.compassBearing.fieldStrengthZ = 90d;
+    point.magneticField = new ThreeDimVector(70d, -80d, 90d);
+    point.acceleration = new ThreeDimVector(71d, -81d, 91d);
 
     point.manoeuverState = ManoeuverState.IN_TACK;
 
@@ -52,10 +52,15 @@ public class DataPointTest
     assertThat(copy.wind.direction).isEqualTo(0.5d);
     assertThat(copy.wind.velocity).isEqualTo(6d);
 
-    assertThat(copy.compassBearing).isNotSameAs(point.compassBearing);
-    assertThat(copy.compassBearing.fieldStrengthX).isEqualTo(70d);
-    assertThat(copy.compassBearing.fieldStrengthY).isEqualTo(-80d);
-    assertThat(copy.compassBearing.fieldStrengthZ).isEqualTo(90d);
+    assertThat(copy.magneticField).isNotSameAs(point.magneticField);
+    assertThat(copy.magneticField.x).isEqualTo(70d);
+    assertThat(copy.magneticField.y).isEqualTo(-80d);
+    assertThat(copy.magneticField.z).isEqualTo(90d);
+
+    assertThat(copy.acceleration).isNotSameAs(point.acceleration);
+    assertThat(copy.acceleration.x).isEqualTo(71d);
+    assertThat(copy.acceleration.y).isEqualTo(-81d);
+    assertThat(copy.acceleration.z).isEqualTo(91d);
 
     assertThat(copy.manoeuverState).isEqualTo(ManoeuverState.IN_TACK);
   }

@@ -3,6 +3,7 @@ package com.github.thomasfox.sailplotter.analyze;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
 import com.github.thomasfox.sailplotter.model.ManeuverType;
@@ -17,8 +18,9 @@ public class TackListByCorrelationAnalyzer
 
   private static final int ADJUSTMENT_RADIUS = 10;
 
-  public List<Tack> analyze(List<DataPoint> points)
+  public List<Tack> analyze(Data data)
   {
+    List<DataPoint> points = data.getPointsWithLocation();
     List<Tack> tackList = calculateTacksByMaxOffBearing(points);
     tackList = adjustTackStartAndEndPoint(tackList, points);
 
@@ -155,7 +157,11 @@ public class TackListByCorrelationAnalyzer
     for (int dataPointIndex = 0; dataPointIndex < points.size(); ++dataPointIndex)
     {
       DataPoint point = points.get(dataPointIndex);
-      if (point.location == null || point.location.bearingFromLatLong == null)
+      if (point.location == null)
+      {
+        continue;
+      }
+      if (point.location.bearingFromLatLong == null)
       {
         if (currentTack == null)
         {
