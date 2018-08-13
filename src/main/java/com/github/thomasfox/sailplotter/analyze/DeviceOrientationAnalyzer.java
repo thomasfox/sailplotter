@@ -4,35 +4,110 @@ import java.util.List;
 
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
 import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
+/**
+ * This analyzer assumes that the device is fixed in an arbitrary orientation on the boat.
+ * It then finds the boat directions (front, right, down)
+ * in the device's coordinate system in the following steps:
+ * <ul>
+ *   <li>
+ *     The up direction is determined by getting the mean acceleration
+ *     of the device. The mean direction will point in the direction
+ *     of gravity up.
+ *     IF the boat is not heeled on average, this will also be the
+ *     the down direction of the boat.
+ *   </li>
+ *   <li>
+ *     The front direction is determined as follows:
+ *     As an approximation, we assume that the boat is moving on average forward
+ *     (may not be exactly true due to current and leeway).
+ *     The forward direction at one point relative to the earth
+ *     can thus be determined by the gps bearing.
+ *     Compass north is obtained by measuring the horizontal component
+ *     of the magnetic field in the device's coordinate system.
+ *     By approximating compass north with GPS north
+ *     (may not be a good approximation everywhere on earth),
+ *     and subtracting gps bearing from compass bearing,
+ *     we get the front direction in device orientation.
+ *     <br>
+ *     This is determined in two steps (necessary because we have a circle,
+ *     where averaging may be difficult):
+ *     (1) the maximum count in a coarse-grained histogram of differences,
+ *         to get an approximate value
+ *     (2) the average of the difference around the maximum value.
+ *   </li>
+ *   <li>
+ *     Boat right is then the cross product between down and front.
+ *   </li>
+ * </ul>
+ *
+ */
 public class DeviceOrientationAnalyzer
 {
+  private static final int HISTOGRAM_SIZE = 20;
+
   public Data analyze(Data data)
   {
-    // assuming average is upright position of boat
-    ThreeDimVector uprightAcceleration = getAverageAcceleration(data.getAllPoints());
-    if (uprightAcceleration.length() < 0.1)
+    CoordinateSystem horizontalCoordinateSystem
+        = getHorizontalCoordinateSystemFromAverageAcceleration(data.getAllPoints());
+
+    if (horizontalCoordinateSystem == null)
     {
-      // we have no data or we are not on earth or we have no defined upright position
       return data;
     }
-    // for naming sake, assume z direction is approximately up
-    ThreeDimVector xHorizontal = new ThreeDimVector(uprightAcceleration.z, 0d, -uprightAcceleration.x).normalize();
-    ThreeDimVector yHorizontal = uprightAcceleration.crossProduct(xHorizontal).normalize();
 
-    double relativeBearingInArcs = getMaximumOfRelativeBearingOfCompassToGpsInArcs(data.getAllPoints(), xHorizontal, yHorizontal);
+    double maxOccurenceOfRelativeBearingInArcs
+        = getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(data.getAllPoints(), horizontalCoordinateSystem);
 
     return data;
   }
 
-  private ThreeDimVector getAverageAcceleration(List<DataPoint> points)
+  /**
+   * Returns a horizontal coordinate system in the device coordinate system.
+   * Coordinate system x is approximately device x,
+   * coordinate system y is approximately device y,
+   * and coordinate system z is up, determined from mean device acceleration.
+   *
+   * @param data the data points to analyze, not null.
+   *
+   * @return a horizontal coordinate system, or null, if no up direction could be determined.
+   */
+  CoordinateSystem getHorizontalCoordinateSystemFromAverageAcceleration(List<DataPoint> points)
+  {
+    CoordinateSystem horizontalCoordinateSystem = new CoordinateSystem();
+
+    // assuming average is upright position of boat
+    ThreeDimVector uprightAcceleration = getAverageAcceleration(points);
+
+    if (uprightAcceleration == null || uprightAcceleration.length() < 0.1)
+    {
+      // we have no data or we have no defined upright position
+      return null;
+    }
+
+    horizontalCoordinateSystem.z = uprightAcceleration.normalize();
+    if (Math.abs(uprightAcceleration.x) > Math.abs(uprightAcceleration.y))
+    {
+      horizontalCoordinateSystem.x = new ThreeDimVector(uprightAcceleration.z, 0d, -uprightAcceleration.x).normalize();
+      horizontalCoordinateSystem.y = horizontalCoordinateSystem.z.crossProduct(horizontalCoordinateSystem.x).normalize();
+    }
+    else
+    {
+      horizontalCoordinateSystem.y = new ThreeDimVector(0d, uprightAcceleration.z, -uprightAcceleration.y).normalize();
+      horizontalCoordinateSystem.x = horizontalCoordinateSystem.y.crossProduct(horizontalCoordinateSystem.z).normalize();
+    }
+    return horizontalCoordinateSystem;
+  }
+
+  ThreeDimVector getAverageAcceleration(List<DataPoint> points)
   {
     ThreeDimVector averageAcceleration = new ThreeDimVector(0d, 0d, 0d);
     int accelerationCount = 0;
 
-    for (int i = 1; i < points.size() - 1; ++i)
+    for (int i = 0; i < points.size(); ++i)
     {
       DataPoint point = points.get(i);
       if (point.hasAcceleration())
@@ -41,40 +116,38 @@ public class DeviceOrientationAnalyzer
         accelerationCount++;
       }
     }
-    if (accelerationCount > 0)
+    if (accelerationCount == 0)
     {
-      averageAcceleration.multiplyBy(1d / accelerationCount);
+      return null;
     }
+    averageAcceleration.multiplyBy(1d / accelerationCount);
     return averageAcceleration;
   }
 
-  private Double getMaximumOfRelativeBearingOfCompassToGpsInArcs(
+  private Double getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(
       List<DataPoint> points,
-      ThreeDimVector xHorizontal,
-      ThreeDimVector yHorizontal)
+      CoordinateSystem horizontalCoordinateSystem)
   {
-    int histSize = 10;
-    int[] bearingHistogram = new int[histSize];
+    int[] bearingHistogram = new int[HISTOGRAM_SIZE];
     for (int i = 1; i < points.size() - 1; ++i)
     {
       DataPoint point = points.get(i);
       if (point.hasMagneticField() && point.location != null && point.location.bearing != null)
       {
-        TwoDimVector horizontalMagneticField = new TwoDimVector(
-            xHorizontal.scalarProduct(point.magneticField),
-            yHorizontal.scalarProduct(point.magneticField));
-        double compassBearing = new Double(horizontalMagneticField.getBearingToXInArcs());
-        int relativeBearingForHist = new Double(histSize * (compassBearing - point.location.bearing) / 2 / Math.PI).intValue();
-        if (relativeBearingForHist < 0)
+        Double relativeNormalizedBearing = getNormalizedRelativeBearingOfCompassToGps(point, horizontalCoordinateSystem);
+        if (relativeNormalizedBearing != null)
         {
-          relativeBearingForHist += histSize;
+          int histogramBucket = new Double(HISTOGRAM_SIZE * relativeNormalizedBearing).intValue();
+          if (histogramBucket >= 0 && histogramBucket < HISTOGRAM_SIZE)
+          {
+            bearingHistogram[histogramBucket]++;
+          }
         }
-        bearingHistogram[relativeBearingForHist]++;
       }
     }
     Integer relativeBearing = null;
     int maxBearingCount = 0;
-    for (int bearing = 0; bearing < histSize; bearing++)
+    for (int bearing = 0; bearing < HISTOGRAM_SIZE; bearing++)
     {
       if (bearingHistogram[bearing] > maxBearingCount)
       {
@@ -83,5 +156,33 @@ public class DeviceOrientationAnalyzer
       }
     }
     return relativeBearing * 2 * Math.PI / 1000;
+  }
+
+  /**
+   * Returns the relative bearing between horizontal compass direction
+   * and GPS bearing as a value between 0 (0 degrees) and 1 (360 degrees).
+   * If no compass direction or GPS Direction can be obtained,
+   * null is returned.
+   *
+   * @param point the point to calculate the relative bearing for.
+   * @param horizontalCoordinateSystem
+   * @return
+   */
+  public Double getNormalizedRelativeBearingOfCompassToGps(DataPoint point, CoordinateSystem horizontalCoordinateSystem)
+  {
+    if (!point.hasMagneticField() || point.location == null || point.location.bearing == null)
+    {
+      return null;
+    }
+    TwoDimVector horizontalMagneticField = new TwoDimVector(
+        horizontalCoordinateSystem.x.scalarProduct(point.magneticField),
+        horizontalCoordinateSystem.y.scalarProduct(point.magneticField));
+    double compassBearing = new Double(horizontalMagneticField.getBearingToXInArcs());
+    double normalizedRelativeBearing = (compassBearing - point.location.bearing) / 2 / Math.PI;
+    if (normalizedRelativeBearing < 0)
+    {
+      normalizedRelativeBearing += 1;
+    }
+    return normalizedRelativeBearing;
   }
 }
