@@ -2,11 +2,11 @@ package com.github.thomasfox.sailplotter.model.vector;
 
 public class ThreeDimVector
 {
-  public Double x;
+  public double x;
 
-  public Double y;
+  public double y;
 
-  public Double z;
+  public double z;
 
   public ThreeDimVector()
   {
@@ -37,7 +37,7 @@ public class ThreeDimVector
 
   public double length()
   {
-    return Math.sqrt(x*x + y*y + z*z);
+    return Math.sqrt(x * x + y * y + z * z);
   }
 
   public ThreeDimVector normalize()
@@ -63,14 +63,31 @@ public class ThreeDimVector
   public ThreeDimVector crossProduct(ThreeDimVector other)
   {
     return new ThreeDimVector(
-        y*other.z - z*other.y,
-        z*other.x - x*other.z,
-        x*other.y - y*other.x);
+        y * other.z - z * other.y,
+        z * other.x - x * other.z,
+        x * other.y - y * other.x);
   }
 
   public double scalarProduct(ThreeDimVector other)
   {
-    return x*other.x + y*other.y + z*other.z;
+    return x * other.x + y * other.y + z * other.z;
+  }
+
+  public boolean coordinatesAreCloseTo(ThreeDimVector other, double tolerance)
+  {
+    if (Math.abs(x - other.x) > tolerance)
+    {
+      return false;
+    }
+    if (Math.abs(y - other.y) > tolerance)
+    {
+      return false;
+    }
+    if (Math.abs(z - other.z) > tolerance)
+    {
+      return false;
+    }
+    return true;
   }
 
   @Override
@@ -78,4 +95,54 @@ public class ThreeDimVector
   {
     return "(" + x + ", " + y + ", " + z + ")";
   }
+
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(x);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(y);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(z);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (this == obj)
+    {
+      return true;
+    }
+    if (obj == null)
+    {
+      return false;
+    }
+    if (getClass() != obj.getClass())
+    {
+      return false;
+    }
+
+    ThreeDimVector other = (ThreeDimVector) obj;
+    if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
+    {
+      return false;
+    }
+
+    if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
+    {
+      return false;
+    }
+
+    if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
+    {
+      return false;
+    }
+    return true;
+  }
+
 }

@@ -40,18 +40,12 @@ public class SailLoggerImporter implements Importer
       }
       if (rawPoint.hasCompassData())
       {
-        dataPoint.magneticField = new ThreeDimVector();
-        dataPoint.magneticField.x = rawPoint.magX;
-        dataPoint.magneticField.y = rawPoint.magY;
-        dataPoint.magneticField.z = rawPoint.magZ;
+        dataPoint.magneticField = new ThreeDimVector(rawPoint.magX, rawPoint.magY, rawPoint.magZ);
         dataPoint.time = rawPoint.magT;
       }
       if (rawPoint.hasAccelerationData())
       {
-        dataPoint.acceleration = new ThreeDimVector();
-        dataPoint.acceleration.x = rawPoint.accX;
-        dataPoint.acceleration.y = rawPoint.accY;
-        dataPoint.acceleration.z = rawPoint.accZ;
+        dataPoint.acceleration = new ThreeDimVector(rawPoint.accX, rawPoint.accY, rawPoint.accZ);
         dataPoint.time = rawPoint.accT;
       }
       result.add(dataPoint);
@@ -105,12 +99,12 @@ public class SailLoggerImporter implements Importer
 
     public boolean hasCompassData()
     {
-      return (magX != null || magY != null || magZ != null);
+      return (magX != null && magY != null && magZ != null && magT != null);
     }
 
     public boolean hasAccelerationData()
     {
-      return (accX != null || accY != null || accZ != null);
+      return (accX != null && accY != null && accZ != null && accT != null);
     }
   }
 

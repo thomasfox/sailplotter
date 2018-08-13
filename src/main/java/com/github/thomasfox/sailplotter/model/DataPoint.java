@@ -88,12 +88,12 @@ public class DataPoint
 
   public boolean hasAcceleration()
   {
-    return acceleration != null && acceleration.x != null && acceleration.y != null && acceleration.z != null;
+    return acceleration != null;
   }
 
   public boolean hasMagneticField()
   {
-    return magneticField != null && magneticField.x != null && magneticField.y != null && magneticField.z != null;
+    return magneticField != null;
   }
 
   public long averageTime(DataPoint other)
