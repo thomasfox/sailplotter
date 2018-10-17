@@ -60,6 +60,13 @@ public class Location
     return new Location(toCopy);
   }
 
+  public static Location fromXAndY(double x, double y)
+  {
+    Location result = new Location();
+    result.setXAndY(x, y);
+    return result;
+  }
+
   public double getY()
   {
     return latitude * Constants.EARTH_RADIUS;
