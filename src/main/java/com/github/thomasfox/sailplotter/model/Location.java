@@ -13,6 +13,9 @@ public class Location
   /** Geographical Longitude (Distance from the Greenwich Meridian in direction East) in arcs. */
   public Double longitude;
 
+  /** Altitude above sea level, in meters */
+  public Double altitude;
+
   /** Velocity in knots, measured from GPS. */
   public Double velocity;
 
@@ -42,6 +45,7 @@ public class Location
   {
     this.latitude = toCopy.latitude;
     this.longitude = toCopy.longitude;
+    this.altitude = toCopy.altitude;
     this.velocity = toCopy.velocity;
     this.bearing = toCopy.bearing;
     this.velocityFromLatLong = toCopy.velocityFromLatLong;
@@ -151,6 +155,10 @@ public class Location
     if (loc1.longitude != null && loc2.longitude != null)
     {
       result.longitude = weightFactor1 * loc1.longitude + weightFactor2 * loc2.longitude;
+    }
+    if (loc1.altitude != null && loc2.altitude != null)
+    {
+      result.altitude = weightFactor1 * loc1.altitude + weightFactor2 * loc2.altitude;
     }
     if (loc1.velocity != null && loc2.velocity != null)
     {

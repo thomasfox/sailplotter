@@ -18,7 +18,7 @@ import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
  *     of the device. The mean direction will point in the direction
  *     of gravity up.
  *     IF the boat is not heeled on average, this will also be the
- *     the down direction of the boat.
+ *     the up direction of the boat.
  *   </li>
  *   <li>
  *     The front direction is determined as follows:
@@ -47,7 +47,7 @@ import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
  */
 public class DeviceOrientationAnalyzer
 {
-  private static final int HISTOGRAM_SIZE = 20;
+  private static final int HISTOGRAM_SIZE = 360;
 
   public Data analyze(Data data)
   {
@@ -59,9 +59,31 @@ public class DeviceOrientationAnalyzer
       return data;
     }
 
-    double maxOccurenceOfRelativeBearingInArcs
-        = getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(data.getAllPoints(), horizontalCoordinateSystem);
+    setCompassBearings(data.getAllPoints(), horizontalCoordinateSystem);
 
+    Double maxOccurenceOfRelativeBearingInArcs
+        = getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(data.getAllPoints());
+
+    if (maxOccurenceOfRelativeBearingInArcs != null)
+    {
+      for (int i = 1; i < data.getAllPoints().size() - 1; ++i)
+      {
+        DataPoint point = data.getAllPoints().get(i);
+        if (point.hasMagneticField()
+            && point.magneticField.compassBearing != null)
+        {
+          point.magneticField.compassBearing -= maxOccurenceOfRelativeBearingInArcs;
+          if (point.magneticField.compassBearing < 0)
+          {
+            point.magneticField.compassBearing += 2 * Math.PI;
+          }
+          if (point.magneticField.compassBearing > 2 * Math.PI)
+          {
+            point.magneticField.compassBearing -= 2 * Math.PI;
+          }
+        }
+      }
+    }
     return data;
   }
 
@@ -124,9 +146,27 @@ public class DeviceOrientationAnalyzer
     return averageAcceleration;
   }
 
-  private Double getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(
+  private void setCompassBearings(
       List<DataPoint> points,
       CoordinateSystem horizontalCoordinateSystem)
+  {
+    for (int i = 1; i < points.size() - 1; ++i)
+    {
+      DataPoint point = points.get(i);
+      if (point.hasMagneticField())
+      {
+        TwoDimVector horizontalMagneticField = new TwoDimVector(
+            horizontalCoordinateSystem.x.scalarProduct(point.magneticField),
+            horizontalCoordinateSystem.y.scalarProduct(point.magneticField));
+        // 2pi - fieldDir because we look at the fixed field from the turned device
+        Double compassBearing = new Double(2 * Math.PI - horizontalMagneticField.getBearingToYInArcs());
+        point.magneticField.compassBearing = compassBearing;
+      }
+    }
+  }
+
+  private Double getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(
+      List<DataPoint> points)
   {
     int[] bearingHistogram = new int[HISTOGRAM_SIZE];
     for (int i = 1; i < points.size() - 1; ++i)
@@ -134,7 +174,7 @@ public class DeviceOrientationAnalyzer
       DataPoint point = points.get(i);
       if (point.hasMagneticField() && point.location != null && point.location.bearing != null)
       {
-        Double relativeNormalizedBearing = getNormalizedRelativeBearingOfCompassToGps(point, horizontalCoordinateSystem);
+        Double relativeNormalizedBearing = getNormalizedRelativeBearingOfCompassToGps(point);
         if (relativeNormalizedBearing != null)
         {
           int histogramBucket = new Double(HISTOGRAM_SIZE * relativeNormalizedBearing).intValue();
@@ -155,7 +195,11 @@ public class DeviceOrientationAnalyzer
         relativeBearing = bearing;
       }
     }
-    return relativeBearing * 2 * Math.PI / 1000;
+    if (relativeBearing == null)
+    {
+      return null;
+    }
+    return relativeBearing * 2 * Math.PI / HISTOGRAM_SIZE;
   }
 
   /**
@@ -168,16 +212,14 @@ public class DeviceOrientationAnalyzer
    * @param horizontalCoordinateSystem
    * @return
    */
-  public Double getNormalizedRelativeBearingOfCompassToGps(DataPoint point, CoordinateSystem horizontalCoordinateSystem)
+  public Double getNormalizedRelativeBearingOfCompassToGps(DataPoint point)
   {
-    if (!point.hasMagneticField() || point.location == null || point.location.bearing == null)
+    if (point.magneticField == null || point.magneticField.compassBearing == null
+        || point.location == null || point.location.bearing == null)
     {
       return null;
     }
-    TwoDimVector horizontalMagneticField = new TwoDimVector(
-        horizontalCoordinateSystem.x.scalarProduct(point.magneticField),
-        horizontalCoordinateSystem.y.scalarProduct(point.magneticField));
-    double compassBearing = new Double(horizontalMagneticField.getBearingToXInArcs());
+    double compassBearing = point.magneticField.compassBearing;
     double normalizedRelativeBearing = (compassBearing - point.location.bearing) / 2 / Math.PI;
     if (normalizedRelativeBearing < 0)
     {

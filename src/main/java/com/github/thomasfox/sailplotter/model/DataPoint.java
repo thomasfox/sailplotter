@@ -29,7 +29,7 @@ public class DataPoint
    * Magnetic field at boat position, in microtesla,
    * in arbitrary but constant orientation.
    */
-  public ThreeDimVector magneticField;
+  public MagneticField magneticField;
 
   /**
    * Measured acceleration in Nm/s^2, including gravitational acceleration,
@@ -53,7 +53,7 @@ public class DataPoint
     this.time = toCopy.time;
     this.location = Location.copy(toCopy.location);
     this.wind = Wind.copy(toCopy.wind);
-    this.magneticField = ThreeDimVector.copy(toCopy.magneticField);
+    this.magneticField = MagneticField.copy(toCopy.magneticField);
     this.acceleration = ThreeDimVector.copy(toCopy.acceleration);
     this.manoeuverState = toCopy.manoeuverState;
   }
@@ -159,7 +159,7 @@ public class DataPoint
   {
     double xDistance = other.location.getX() - location.getX();
     double yDistance = other.location.getY() - location.getY();
-    return new TwoDimVector(xDistance, yDistance).getBearingToXInArcs();
+    return new TwoDimVector(xDistance, yDistance).getBearingToYInArcs();
   }
 
   public Double getRelativeBearingTo(DataPoint other, Double windDirection)

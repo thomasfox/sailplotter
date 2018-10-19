@@ -17,6 +17,7 @@ public class DataPointTest
     DataPoint point = new DataPoint(37);
     point.time = 1234567890l;
 
+    point.location = new Location();
     point.location.latitude = 0.1d;
     point.location.longitude = -0.2d;
     point.location.bearingFromLatLong = 0.3d;
@@ -27,7 +28,8 @@ public class DataPointTest
     point.wind.direction = 0.5d;
     point.wind.velocity = 6d;
 
-    point.magneticField = new ThreeDimVector(70d, -80d, 90d);
+    point.magneticField = new MagneticField(70d, -80d, 90d);
+    point.magneticField.compassBearing = Math.PI / 2;
     point.acceleration = new ThreeDimVector(71d, -81d, 91d);
 
     point.manoeuverState = ManoeuverState.IN_TACK;
@@ -56,6 +58,7 @@ public class DataPointTest
     assertThat(copy.magneticField.x).isEqualTo(70d);
     assertThat(copy.magneticField.y).isEqualTo(-80d);
     assertThat(copy.magneticField.z).isEqualTo(90d);
+    assertThat(copy.magneticField.compassBearing).isEqualTo(Math.PI / 2);
 
     assertThat(copy.acceleration).isNotSameAs(point.acceleration);
     assertThat(copy.acceleration.x).isEqualTo(71d);
@@ -116,6 +119,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
+    point.location = new Location();
     point.location.bearingFromLatLong = 2d;
     point.wind = new Wind();
     point.wind.direction = 1d;
@@ -132,6 +136,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
+    point.location = new Location();
     point.location.bearingFromLatLong = 1d;
     point.wind = new Wind();
     point.wind.direction = 2d;
@@ -148,6 +153,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
+    point.location = new Location();
     point.location.bearingFromLatLong = 1.5 * Math.PI;
     point.wind = new Wind();
     point.wind.direction = Math.PI / 2;
@@ -164,6 +170,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
+    point.location = new Location();
     point.location.bearingFromLatLong = Math.PI / 2;
     point.wind = new Wind();
     point.wind.direction = Math.PI;
@@ -180,6 +187,7 @@ public class DataPointTest
   {
     // prepare
     DataPoint point = new DataPoint(-1);
+    point.location = new Location();
     point.location.bearingFromLatLong = Math.PI / 2;
     point.wind = new Wind();
     point.wind.direction = Math.PI;
@@ -196,9 +204,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0.00001d;
     point2.location.longitude = 0d;
 
@@ -214,9 +224,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0.00001d * Math.cos(22.5d / 360 * 2 * Math.PI);
     point2.location.longitude = 0.00001d * Math.sin(22.5d / 360 * 2 * Math.PI);
 
@@ -232,9 +244,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0.00001d;
     point2.location.longitude = 0.00001d;
 
@@ -250,9 +264,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0.00001d * Math.cos(67.5d / 360 * 2 * Math.PI);
     point2.location.longitude = 0.00001d * Math.sin(67.5d / 360 * 2 * Math.PI);
 
@@ -268,9 +284,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0d;
     point2.location.longitude = 0.00001d;
 
@@ -286,9 +304,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0.00001d * Math.cos(112.5d / 360 * 2 * Math.PI);
     point2.location.longitude = 0.00001d * Math.sin(112.5d / 360 * 2 * Math.PI);
 
@@ -304,9 +324,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = -0.00001d;
     point2.location.longitude = 0.00001d;
 
@@ -322,9 +344,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = -0.00001d;
     point2.location.longitude = 0d;
 
@@ -340,9 +364,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = -0.00001d;
     point2.location.longitude = -0.00001d;
 
@@ -358,9 +384,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0d;
     point2.location.longitude = -0.00001d;
 
@@ -376,9 +404,11 @@ public class DataPointTest
   {
     // prepare
     DataPoint point1 = new DataPoint(0);
+    point1.location = new Location();
     point1.location.latitude = 0d;
     point1.location.longitude = 0d;
     DataPoint point2 = new DataPoint(1);
+    point2.location = new Location();
     point2.location.latitude = 0.00001d;
     point2.location.longitude = -0.00001d;
 
@@ -437,7 +467,7 @@ public class DataPointTest
     // prepare
     DataPoint dataPoint = new DataPoint(-1);
     dataPoint.time = 315576000000l;
-    dataPoint.location.setXAndY(2d, 7d);
+    dataPoint.location = Location.fromXAndY(2d, 7d);
     dataPoint.location.velocityFromLatLong = 12d;
     dataPoint.location.bearingFromLatLong = Math.PI / 2;
     dataPoint.wind = new Wind();

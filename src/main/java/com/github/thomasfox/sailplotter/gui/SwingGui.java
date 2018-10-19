@@ -99,7 +99,9 @@ public class SwingGui
 
   TackSeriesTablePanel tackSeriesTablePanel;
 
-  JPanel cards;
+  JPanel views;
+
+  TimeSeriesCollection zoomedBearingOverTimeDataset = new TimeSeriesCollection();
 
   double windBearing;
 
@@ -113,13 +115,14 @@ public class SwingGui
     zoomPanel = new ZoomPanel(pointsWithLocation.size());
 
     JPanel overview = new JPanel();
+    overview.setLayout(new GridBagLayout());
 
     JPanel drift = new JPanel();
+    drift.setLayout(new GridBagLayout());
 
-    //Create the panel that contains the "cards".
-    cards = new JPanel(new CardLayout());
-    cards.add(overview, OVERVIEW_VIEW_NAME);
-    cards.add(drift, DRIFT_VIEW_NAME);
+    views = new JPanel(new CardLayout());
+    views.add(overview, OVERVIEW_VIEW_NAME);
+    views.add(drift, DRIFT_VIEW_NAME);
 
 
     frame = new JFrame("SailPlotter");
@@ -131,8 +134,7 @@ public class SwingGui
         .addViews(this::changeView, OVERVIEW_VIEW_NAME, DRIFT_VIEW_NAME);
     frame.setJMenuBar(menubar);
 
-    overview.setLayout(new GridBagLayout());
-    frame.getContentPane().add(cards, BorderLayout.CENTER);
+    frame.getContentPane().add(views, BorderLayout.CENTER);
 
     updateFullVelocityBearingOverTimeDataset();
     JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart(
@@ -290,6 +292,25 @@ public class SwingGui
     gridBagConstraints.gridy = 2;
     overview.add(tackSeriesTablePanel, gridBagConstraints);
 
+    updateZoomedBearingOverTimeDataset();
+    JFreeChart zoomedBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Bearing (Zoom)", "Time", "Bearing [arcs]", zoomedBearingOverTimeDataset, true, false, false);
+    XYPlot zoomedBearingOverTimePlot = (XYPlot) zoomedBearingOverTimeChart.getPlot();
+    zoomedBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
+    zoomedBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0x00, 0xFF, 0x00));
+    zoomedBearingOverTimePlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0xFF));
+    ((XYLineAndShapeRenderer) zoomedBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(0, true);
+    ((XYLineAndShapeRenderer) zoomedBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(1, true);
+    ((XYLineAndShapeRenderer) zoomedBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(2, true);
+    ChartPanel zoomedBearingOverTimeChartPanel = new ChartPanel(zoomedBearingOverTimeChart);
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 0.5;
+    gridBagConstraints.weighty = 0.5;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    drift.add(zoomedBearingOverTimeChartPanel, gridBagConstraints);
+
+
     frame.pack();
     frame.setVisible(true);
 
@@ -382,16 +403,24 @@ public class SwingGui
     fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));
     fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
     fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.AFTER));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(TimeWindowPosition.BEFORE));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(TimeWindowPosition.IN));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(TimeWindowPosition.AFTER));
+    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
+    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
+    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.AFTER));
   }
 
   private void updateZoomedVelocityBearingOverTimeDataset()
   {
     zoomedVelocityBearingOverTimeDataset.removeAllSeries();
     zoomedVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
-    zoomedVelocityBearingOverTimeDataset.addSeries(getBearingTimeSeries(TimeWindowPosition.IN));
+    zoomedVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
+  }
+
+  private void updateZoomedBearingOverTimeDataset()
+  {
+    zoomedBearingOverTimeDataset.removeAllSeries();
+    zoomedBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
+    zoomedBearingOverTimeDataset.addSeries(getGpsBearingTimeSeries(TimeWindowPosition.IN));
+    zoomedBearingOverTimeDataset.addSeries(getCompassBearingTimeSeries(TimeWindowPosition.IN));
   }
 
   public static TimeSeries getLatitudeTimeSeries(List<DataPoint> data)
@@ -442,12 +471,35 @@ public class SwingGui
     return series;
   }
 
-  public TimeSeries getBearingTimeSeries(TimeWindowPosition position)
+  public TimeSeries getBearingFromLatLongTimeSeries(TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("bearing");
     for (DataPoint point : getLocationSubset(position))
     {
       series.addOrUpdate(point.getMillisecond(), point.location.bearingFromLatLong);
+    }
+    return series;
+  }
+
+  public TimeSeries getGpsBearingTimeSeries(TimeWindowPosition position)
+  {
+    TimeSeries series = new TimeSeries("gps bearing");
+    for (DataPoint point : getLocationSubset(position))
+    {
+      series.addOrUpdate(point.getMillisecond(), point.location.bearing);
+    }
+    return series;
+  }
+
+  public TimeSeries getCompassBearingTimeSeries(TimeWindowPosition position)
+  {
+    TimeSeries series = new TimeSeries("compass bearing");
+    for (DataPoint point : data.getAllPoints())
+    {
+      if (isInSelectedPosition(point, position) && point.hasMagneticField() && point.magneticField.compassBearing != null)
+      {
+        series.addOrUpdate(point.getMillisecond(), point.magneticField.compassBearing);
+      }
     }
     return series;
   }
@@ -630,7 +682,7 @@ public class SwingGui
     double startX = pointsWithLocation.get(0).location.getX();
     double minimumX = getMinimum(dataSubset, d->d.location.getX());
     double maximumX = getMaximum(dataSubset, d->d.location.getX());
-    if (minimumX - maximumX < 1)
+    if (maximumX - minimumX < 1)
     {
       minimumX = -1 + startX;
       maximumX = 1 + startX;
@@ -642,7 +694,7 @@ public class SwingGui
     double startY = pointsWithLocation.get(0).location.getY();
     double minimumY = getMinimum(dataSubset, d->d.location.getY());
     double maximumY = getMaximum(dataSubset, d->d.location.getY());
-    if (minimumY - maximumY < 1)
+    if (maximumY - minimumY < 1)
     {
       minimumY = -1 + startY;
       maximumY = 1 + startY;
@@ -773,6 +825,7 @@ public class SwingGui
       updateTackVelocityBearingPolar();
       updateZoomXyDataset();
       updateMapZoomRange();
+      updateZoomedBearingOverTimeDataset();
       if (updateTableContent)
       {
         tackTablePanel.updateContent(tackList);
@@ -907,7 +960,7 @@ public class SwingGui
 
   public void changeView(String viewName)
   {
-    CardLayout cl = (CardLayout)(cards.getLayout());
-    cl.show(cards, viewName);
+    CardLayout cl = (CardLayout)(views.getLayout());
+    cl.show(views, viewName);
   }
 }

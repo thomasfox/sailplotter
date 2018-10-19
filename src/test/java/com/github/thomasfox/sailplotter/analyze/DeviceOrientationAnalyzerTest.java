@@ -5,9 +5,12 @@ import static  org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.assertj.core.data.Offset;
 import org.junit.Test;
 
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.Location;
+import com.github.thomasfox.sailplotter.model.MagneticField;
 import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
 import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
@@ -95,13 +98,29 @@ public class DeviceOrientationAnalyzerTest
   public void getHorizontalCoordinateSystemFromAverageAcceleration_noData()
   {
     // arrange
-    List<DataPoint> points = givenAccelerationDataIs();
+    List<DataPoint> points = new ArrayList<>();
 
     // act
     CoordinateSystem coordinateSystem = sut.getHorizontalCoordinateSystemFromAverageAcceleration(points);
 
     // assert
     assertThat(coordinateSystem).isNull();
+  }
+
+  @Test
+  public void getNormalizedRelativeBearingOfCompassToGps()
+  {
+    // arrange
+    List<DataPoint> points = givenAccelerationDataIs(new ThreeDimVector(0d, 0d, 0d)); // acceleration is ignored
+    givenCompassBearingIs(points, Math.PI / 2);
+    givenGpsBearingIs(points, Math.PI);
+
+    // act
+    Double normalizedRelativeBearing = sut.getNormalizedRelativeBearingOfCompassToGps(points.get(0));
+
+
+    // assert
+    assertThat(normalizedRelativeBearing).isCloseTo(0.75, Offset.offset(0.00001));
   }
 
   private List<DataPoint> givenAccelerationDataIs(ThreeDimVector... accelerationData)
@@ -114,5 +133,40 @@ public class DeviceOrientationAnalyzerTest
       points.add(point);
     }
     return points;
+  }
+
+  private void givenMagneticFieldIs(List<DataPoint> points, MagneticField... magenticFields)
+  {
+    int i = 0;
+    for (DataPoint point : points)
+    {
+      point.magneticField = magenticFields[i];
+      ++i;
+    }
+  }
+
+  private void givenCompassBearingIs(List<DataPoint> points, Double... compassBearings)
+  {
+    int i = 0;
+    for (DataPoint point : points)
+    {
+      if (point.magneticField == null)
+      {
+        point.magneticField = new MagneticField();
+      }
+      point.magneticField.compassBearing = compassBearings[i];
+      ++i;
+    }
+  }
+
+  private void givenGpsBearingIs(List<DataPoint> points, Double... bearings)
+  {
+    int i = 0;
+    for (DataPoint point : points)
+    {
+      point.location = new Location();
+      point.location.bearing = bearings[i];
+      ++i;
+    }
   }
 }

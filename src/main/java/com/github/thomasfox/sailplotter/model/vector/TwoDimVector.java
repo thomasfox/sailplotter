@@ -32,12 +32,12 @@ public class TwoDimVector
   }
 
   /**
-   * Gets the bearing of this point to the X direction.
+   * Gets the bearing of this point to the Y direction.
    *
-   * @return the bearing to the X direction, in arcs, in the range [0, 2*PI[,
+   * @return the bearing to the Y direction, in arcs, in the range [0, 2*PI[,
    *         or null if the vector has the length 0.
    */
-  public Double getBearingToXInArcs()
+  public Double getBearingToYInArcs()
   {
     Double result = null;
     if (y != 0)

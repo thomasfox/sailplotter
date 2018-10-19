@@ -9,6 +9,7 @@ import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
+import com.github.thomasfox.sailplotter.model.MagneticField;
 import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
 public class SailLoggerImporter implements Importer
@@ -40,7 +41,7 @@ public class SailLoggerImporter implements Importer
       }
       if (rawPoint.hasCompassData())
       {
-        dataPoint.magneticField = new ThreeDimVector(rawPoint.magX, rawPoint.magY, rawPoint.magZ);
+        dataPoint.magneticField = new MagneticField(rawPoint.magX, rawPoint.magY, rawPoint.magZ);
         dataPoint.time = rawPoint.magT;
       }
       if (rawPoint.hasAccelerationData())

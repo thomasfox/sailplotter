@@ -3,11 +3,19 @@ package com.github.thomasfox.sailplotter.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
+
 public class Data
 {
   private final List<DataPoint> points = new ArrayList<>();
 
   private transient List<DataPoint> locationPoints;
+
+  /**
+   * Coordinate System of the boat main axes (front, right, down)
+   * in the coordinate system of the measuring device.
+   */
+  public CoordinateSystem deviceOrientation = null;
 
   public void add(DataPoint point)
   {
