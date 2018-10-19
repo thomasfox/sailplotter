@@ -25,19 +25,19 @@ import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
  *     As an approximation, we assume that the boat is moving on average forward
  *     (may not be exactly true due to current and leeway).
  *     The forward direction at one point relative to the earth
- *     can thus be determined by the gps bearing.
- *     Compass north is obtained by measuring the horizontal component
+ *     can thus be determined by the gps-based absolute bearing.
+ *     A fixed direction on the earth coordinate system
+ *     (probably close to north, but that is not important)
+ *     is obtained by measuring the horizontal component
  *     of the magnetic field in the device's coordinate system.
- *     By approximating compass north with GPS north
- *     (may not be a good approximation everywhere on earth),
- *     and subtracting gps bearing from compass bearing,
- *     we get the front direction in device orientation.
+ *     Thus the difference between compass bearing and gps-based
+ *     bearing should be fixed.
  *     <br>
- *     This is determined in two steps (necessary because we have a circle,
- *     where averaging may be difficult):
- *     (1) the maximum count in a coarse-grained histogram of differences,
- *         to get an approximate value
- *     (2) the average of the difference around the maximum value.
+ *     This difference is determined by obtaining the maximum difference count
+ *     in a histogram of angle differences.
+ *     Adding this difference to the compass bearing,
+ *     we get the approximate front direction of the boat
+ *     for every point where we have a compass bearing
  *   </li>
  *   <li>
  *     Boat right is then the cross product between down and front.
