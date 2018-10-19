@@ -50,6 +50,18 @@ public class ThreeDimMatrix
     this.a33 = a33;
   }
 
+  /**
+   * Gets the rotation matrix which rotates the given start vector
+   * to a given end vector.
+   * By multiplying a vector with this matrix, the vector is rotated
+   * the same amount and the same direction as sis needed for rotating
+   * the start vector to the end vector.
+   *
+   * @param rotationStart the rotation start
+   * @param rotationEnd the rotation end vector
+   *
+   * @return the rotation matrix
+   */
   public static ThreeDimMatrix getRotationMatrix(ThreeDimVector rotationStart, ThreeDimVector rotationEnd)
   {
     ThreeDimVector rotationStartUnitVector = rotationStart.normalize();
