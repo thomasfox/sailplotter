@@ -5,8 +5,10 @@ import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 public class MagneticField extends ThreeDimVector
 {
   /**
-   * Horizontal compass bearing in arcs,
-   * in a coordinate system fixed relative to the device coordinate system.
+   * Angle between geographic north and boat front direction, in arcs.
+   *
+   * This angle is not measured directly, but computed from compass and
+   * gps data.
    */
   public Double compassBearing;
 
