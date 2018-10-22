@@ -105,6 +105,8 @@ public class SwingGui
 
   TimeSeriesCollection zoomedBearingOverTimeDataset = new TimeSeriesCollection();
 
+  CommentPanel commentPanel;
+
   double windBearing;
 
   boolean inUpdate = false;
@@ -318,7 +320,7 @@ public class SwingGui
     gridBagConstraints.gridy = 0;
     directions.add(zoomedBearingOverTimeChartPanel, gridBagConstraints);
 
-    CommentPanel commentPanel = new CommentPanel(data.comment, data::setComment);
+    commentPanel = new CommentPanel(data.comment, data::setComment);
     gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.weightx = 1;
     gridBagConstraints.weighty = 0.9;
@@ -841,6 +843,7 @@ public class SwingGui
       updateZoomXyDataset();
       updateMapZoomRange();
       updateZoomedBearingOverTimeDataset();
+      commentPanel.setText(data.comment);
       if (updateTableContent)
       {
         tackTablePanel.updateContent(tackList);

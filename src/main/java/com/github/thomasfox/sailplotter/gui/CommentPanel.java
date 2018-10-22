@@ -33,6 +33,11 @@ public class CommentPanel extends JScrollPane implements DocumentListener
     textArea.getDocument().addDocumentListener(this);
   }
 
+  public void setText(String text)
+  {
+    textArea.setText(text);
+  }
+
   @Override
   public void changedUpdate(DocumentEvent e)
   {
