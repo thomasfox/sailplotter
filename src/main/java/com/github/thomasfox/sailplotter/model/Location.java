@@ -1,5 +1,8 @@
 package com.github.thomasfox.sailplotter.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.thomasfox.sailplotter.Constants;
 
 /**
@@ -8,33 +11,43 @@ import com.github.thomasfox.sailplotter.Constants;
 public class Location
 {
   /** Geographical Latitude (Distance from the Aequator in direction North) in arcs. */
+  @JsonInclude(Include.NON_NULL)
   public Double latitude;
 
   /** Geographical Longitude (Distance from the Greenwich Meridian in direction East) in arcs. */
+  @JsonInclude(Include.NON_NULL)
   public Double longitude;
 
   /** Altitude above sea level, in meters */
+  @JsonInclude(Include.NON_NULL)
   public Double altitude;
 
   /** Velocity in knots, measured from GPS. */
+  @JsonInclude(Include.NON_NULL)
   public Double velocity;
 
   /** Bearing in arcs, measured from GPS. */
+  @JsonInclude(Include.NON_NULL)
   public Double bearing;
 
   /** velocity over ground in knots, calculated from change in latitude and longitude. */
+  @JsonInclude(Include.NON_NULL)
   public Double velocityFromLatLong;
 
   /** bearing over ground in arcs, calculated from change in latitude and longitude. */
+  @JsonInclude(Include.NON_NULL)
   public Double bearingFromLatLong;
 
   /** velocity averaging distance in meters. */
+  @JsonInclude(Include.NON_NULL)
   public Double velocityBearingAveragedOverDistance;
 
   /** Time from GPS signal, as unix timestamp. */
+  @JsonInclude(Include.NON_NULL)
   public Long satelliteTime;
 
   /** true if this location is not measured directly but interpolated from neighbouring points. */
+  @JsonInclude(Include.NON_DEFAULT)
   public boolean interpolated;
 
   public Location()
@@ -71,11 +84,13 @@ public class Location
     return result;
   }
 
+  @JsonIgnore
   public double getY()
   {
     return latitude * Constants.EARTH_RADIUS;
   }
 
+  @JsonIgnore
   public double getX()
   {
     return longitude * Math.cos(latitude) * Constants.EARTH_RADIUS;
@@ -87,6 +102,7 @@ public class Location
     this.longitude = x / Constants.EARTH_RADIUS / Math.cos(latitude);
   }
 
+  @JsonIgnore
   public Double getBearingFromLatLongAs360Degrees()
   {
     if (bearingFromLatLong != null)
@@ -94,11 +110,6 @@ public class Location
       return bearingFromLatLong / 2 / Math.PI * 360;
     }
     return null;
-  }
-
-  public Double getVelocityFromLatLong()
-  {
-    return velocityFromLatLong;
   }
 
   public static Location intersection(Location line1Point1, Location line1Point2, Location line2Point1, Location line2Point2)

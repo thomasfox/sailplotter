@@ -7,6 +7,9 @@ import java.time.format.DateTimeFormatter;
 
 import org.jfree.data.time.Millisecond;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
@@ -17,6 +20,7 @@ public class DataPoint
    * The index of the point in the global list of data points,
    * or -1 to indicate that the data point is not a member of the global list of data points.
    */
+  @JsonIgnore
   public int index = -1;
 
   /** millis since 01.01.1970 0:00:00.000 GMT.*/
@@ -29,17 +33,21 @@ public class DataPoint
    * Magnetic field at boat position, typically obtained by a
    * mobile phone's magnetic sensors.
    */
+  @JsonInclude(Include.NON_NULL)
   public MagneticField magneticField;
 
   /**
    * Measured acceleration in Nm/s^2, including gravitational acceleration,
    * in arbitrary but constant orientation.
    */
+  @JsonInclude(Include.NON_NULL)
   public ThreeDimVector acceleration;
 
   /** Wind data at place of boat, can be interpolated. */
+  @JsonInclude(Include.NON_NULL)
   public Wind wind;
 
+  @JsonInclude(Include.NON_NULL)
   public ManoeuverState manoeuverState;
 
   public DataPoint(int index)
@@ -58,6 +66,7 @@ public class DataPoint
     this.manoeuverState = toCopy.manoeuverState;
   }
 
+  @JsonIgnore
   public LocalDateTime getLocalDateTime()
   {
     return getLocalDateTime(time);
@@ -68,6 +77,7 @@ public class DataPoint
     return LocalDateTime.ofInstant(Instant.ofEpochMilli(millisSince1970), Constants.timeZoneId);
   }
 
+  @JsonIgnore
   public Millisecond getMillisecond()
   {
     LocalDateTime localDateTime = getLocalDateTime();
@@ -107,7 +117,6 @@ public class DataPoint
     return result;
   }
 
-
   public Double getRelativeBearingInArcs()
   {
     if (wind == null || wind.direction == null || location == null || location.bearingFromLatLong == null)
@@ -122,6 +131,7 @@ public class DataPoint
     return result;
   }
 
+  @JsonIgnore
   public Double getRelativeBearingAs360Degrees()
   {
     Double relativeBearingInArcs = getRelativeBearingInArcs();
@@ -137,6 +147,7 @@ public class DataPoint
     return result;
   }
 
+  @JsonIgnore
   public PointOfSail getPointOfSail()
   {
     Double relativeBearingInArcs = getRelativeBearingInArcs();
@@ -250,6 +261,7 @@ public class DataPoint
     return result.toString();
   }
 
+  @JsonIgnore
   public String getXYLabel()
   {
     StringBuilder result = new StringBuilder()

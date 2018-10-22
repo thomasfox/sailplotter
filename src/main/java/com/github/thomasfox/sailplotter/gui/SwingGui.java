@@ -57,7 +57,9 @@ public class SwingGui
 {
   private static final String OVERVIEW_VIEW_NAME = "Overview";
 
-  private static final String DRIFT_VIEW_NAME = "Drift";
+  private static final String DIRECTIONS_VIEW_NAME = "Directions";
+
+  private static final String COMMENTS_VIEW_NAME = "Comments";
 
   private final JFrame frame;
 
@@ -117,13 +119,16 @@ public class SwingGui
     JPanel overview = new JPanel();
     overview.setLayout(new GridBagLayout());
 
-    JPanel drift = new JPanel();
-    drift.setLayout(new GridBagLayout());
+    JPanel directions = new JPanel();
+    directions.setLayout(new GridBagLayout());
+
+    JPanel comments = new JPanel();
+    comments.setLayout(new GridBagLayout());
 
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
-    views.add(drift, DRIFT_VIEW_NAME);
-
+    views.add(directions, DIRECTIONS_VIEW_NAME);
+    views.add(comments, COMMENTS_VIEW_NAME);
 
     frame = new JFrame("SailPlotter");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -131,7 +136,10 @@ public class SwingGui
     menubar = new Menubar(frame)
         .addLoadFileMenuItem(new File(filePath), this::loadFile)
         .addSaveFileMenuItem(new Exporter().replaceExtension(new File(filePath)), this::saveFile)
-        .addViews(this::changeView, OVERVIEW_VIEW_NAME, DRIFT_VIEW_NAME);
+        .addViews(this::changeView,
+            OVERVIEW_VIEW_NAME,
+            DIRECTIONS_VIEW_NAME,
+            COMMENTS_VIEW_NAME);
     frame.setJMenuBar(menubar);
 
     frame.getContentPane().add(views, BorderLayout.CENTER);
@@ -308,12 +316,19 @@ public class SwingGui
     gridBagConstraints.fill = GridBagConstraints.BOTH;
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 0;
-    drift.add(zoomedBearingOverTimeChartPanel, gridBagConstraints);
+    directions.add(zoomedBearingOverTimeChartPanel, gridBagConstraints);
 
+    CommentPanel commentPanel = new CommentPanel(data.comment, data::setComment);
+    gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.weightx = 1;
+    gridBagConstraints.weighty = 0.9;
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    comments.add(commentPanel, gridBagConstraints);
 
     frame.pack();
     frame.setVisible(true);
-
   }
 
 
@@ -340,7 +355,7 @@ public class SwingGui
         pointsWithLocation.get(0).time,
         pointsWithLocation.get(pointsWithLocation.size() -1).time);
     fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
-    Range valueRange = new DateRange(0, getMaximum(pointsWithLocation, d->d.location.getVelocityFromLatLong()));
+    Range valueRange = new DateRange(0, getMaximum(pointsWithLocation, d->d.location.velocityFromLatLong));
     fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));

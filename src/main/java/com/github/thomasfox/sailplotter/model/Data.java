@@ -3,6 +3,9 @@ package com.github.thomasfox.sailplotter.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
 
 public class Data
@@ -15,7 +18,13 @@ public class Data
    * Coordinate System of the boat main axes (front, right, down)
    * in the coordinate system of the measuring device.
    */
+  @JsonInclude(Include.NON_NULL)
   public CoordinateSystem deviceOrientation = null;
+
+  /**
+   * Textual comment on the data set.
+   */
+  public String comment;
 
   public void add(DataPoint point)
   {
@@ -23,6 +32,7 @@ public class Data
     resetCache();
   }
 
+  @JsonIgnore
   public List<DataPoint> getPointsWithLocation()
   {
     if (locationPoints == null)
@@ -36,7 +46,6 @@ public class Data
   {
     return new ArrayList<>(points);
   }
-
 
   private void fillLocationPoints()
   {
@@ -54,5 +63,10 @@ public class Data
   private void resetCache()
   {
     locationPoints = null;
+  }
+
+  public void setComment(String comment)
+  {
+    this.comment = comment;
   }
 }

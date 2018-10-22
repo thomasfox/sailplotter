@@ -1,0 +1,66 @@
+package com.github.thomasfox.sailplotter.gui;
+
+import java.awt.Font;
+import java.util.function.Consumer;
+
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+
+public class CommentPanel extends JScrollPane implements DocumentListener
+{
+  /** SerialVersionUID. */
+  private static final long serialVersionUID = 1L;
+
+  /** Is called with the new content of the text whenever the text changes. */
+  private final Consumer<String> textConsumer;
+
+  private final JTextArea textArea;
+
+  public CommentPanel(String text, Consumer<String> textConsumer)
+  {
+    this.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    this.textConsumer = textConsumer;
+    textArea = new JTextArea(text);
+    textArea.setFont(new Font("Serif", Font.ITALIC, 16));
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+    setViewportView(textArea);
+    textArea.getDocument().addDocumentListener(this);
+  }
+
+  @Override
+  public void changedUpdate(DocumentEvent e)
+  {
+    textChanged(e);
+  }
+
+  @Override
+  public void insertUpdate(DocumentEvent e)
+  {
+    textChanged(e);
+  }
+
+  @Override
+  public void removeUpdate(DocumentEvent e)
+  {
+    textChanged(e);
+  }
+
+  private void textChanged(DocumentEvent event)
+  {
+    Document document = event.getDocument();
+    try
+    {
+      textConsumer.accept(document.getText(0, document.getLength()));
+    }
+    catch (BadLocationException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+}

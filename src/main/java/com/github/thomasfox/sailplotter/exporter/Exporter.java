@@ -2,13 +2,10 @@ package com.github.thomasfox.sailplotter.exporter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.thomasfox.sailplotter.model.Data;
-import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class Exporter
 {
@@ -34,9 +31,7 @@ public class Exporter
   {
     try
     {
-      DataPoint startPoint = data.getAllPoints().stream().filter(d -> d.location != null).findFirst().orElse(null);
-      List<ExportPoint> exportPoints = data.getAllPoints().stream().map(d -> new ExportPoint(d, startPoint.location)).collect(Collectors.toList());
-      new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValue(file, exportPoints);
+      new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValue(file, data);
     }
     catch (IOException e)
     {
