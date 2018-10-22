@@ -26,8 +26,8 @@ public class DataPoint
   public Location location;
 
   /**
-   * Magnetic field at boat position, in microtesla,
-   * in arbitrary but constant orientation.
+   * Magnetic field at boat position, typically obtained by a
+   * mobile phone's magnetic sensors.
    */
   public MagneticField magneticField;
 

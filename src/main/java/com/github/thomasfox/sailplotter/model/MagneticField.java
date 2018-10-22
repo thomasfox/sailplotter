@@ -2,13 +2,20 @@ package com.github.thomasfox.sailplotter.model;
 
 import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
+/**
+ * Magnetic field at boat position.
+ * The x,y and z components of the field are measured in microtesla,
+ * in arbitrary but constant orientation (because we do not know
+ * how the mobile phone is fixed on the boat, but we assume 
+ * that its orientation does not change over time).
+ */
 public class MagneticField extends ThreeDimVector
 {
   /**
-   * Angle between geographic north and boat front direction, in arcs.
+   * Computed angle between geographic north and boat front direction, in arcs.
    *
-   * This angle is not measured directly, but computed from compass and
-   * gps data.
+   * This angle is not measured directly, but computed from compass (and
+   * gps) data.
    */
   public Double compassBearing;
 
