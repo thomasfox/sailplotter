@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.time.LocalDateTime;
@@ -118,14 +116,9 @@ public class SwingGui
     analyze();
     zoomPanel = new ZoomPanel(pointsWithLocation.size());
 
-    JPanel overview = new JPanel();
-    overview.setLayout(new GridBagLayout());
-
-    JPanel directions = new JPanel();
-    directions.setLayout(new GridBagLayout());
-
-    JPanel comments = new JPanel();
-    comments.setLayout(new GridBagLayout());
+    MainPanel overview = new MainPanel();
+    MainPanel directions = new MainPanel();
+    MainPanel comments = new MainPanel();
 
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
@@ -158,13 +151,8 @@ public class SwingGui
     fullVelocityBearingOverTimePlot = (XYPlot) fullVelocityBearingOverTimeChart.getPlot();
     resetFullVelocityBearingOverTimePlot();
     ChartPanel fullVelocityBearingOverTimeChartPanel = new ChartPanel(fullVelocityBearingOverTimeChart);
-    GridBagConstraints gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.333;
-    gridBagConstraints.weighty = 0.25;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 0;
-    overview.add(fullVelocityBearingOverTimeChartPanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(0).gridy(0).weightx(0.333).weighty(0.25)
+        .add(fullVelocityBearingOverTimeChartPanel);
 
     updateZoomedVelocityBearingOverTimeDataset();
     JFreeChart zoomedVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Velocity and Bearing (Zoom)", "Time", "Velocity [kts] / Bearing [arcs]", zoomedVelocityBearingOverTimeDataset, false, false, false);
@@ -174,13 +162,8 @@ public class SwingGui
     ((XYLineAndShapeRenderer) zoomedVelocityBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(0, true);
     ((XYLineAndShapeRenderer) zoomedVelocityBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(1, true);
     ChartPanel zoomedvelocityBearingOverTimeChartPanel = new ChartPanel(zoomedVelocityBearingOverTimeChart);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.333;
-    gridBagConstraints.weighty = 0.25;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 0;
-    overview.add(zoomedvelocityBearingOverTimeChartPanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(1).gridy(0).weightx(0.333).weighty(0.25)
+        .add(zoomedvelocityBearingOverTimeChartPanel);
 
     JPanel topRightPanel = new JPanel();
     bearingHistogramDataset = new SimpleHistogramDataset("Relative Bearing");
@@ -216,27 +199,16 @@ public class SwingGui
     topRightPanel.add(windDirectionPanel);
 
     topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.333;
-    gridBagConstraints.weighty = 0.25;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 0;
-    gridBagConstraints.gridwidth = 2;
-    overview.add(topRightPanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(2).gridy(0).weightx(0.333).weighty(0.25).columnSpan(2)
+        .add(topRightPanel);
 
     updateXyDataset();
     JFreeChart xyChart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", xyDataset, PlotOrientation.VERTICAL, false, false, false);
     mapPlot = (XYPlot) xyChart.getPlot();
     resetMapPlot();
     ChartPanel xyChartPanel = new ChartPanel(xyChart);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.333;
-    gridBagConstraints.weighty = 0.5;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 1;
-    overview.add(xyChartPanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(0).gridy(1).weightx(0.333).weighty(0.5)
+        .add(xyChartPanel);
 
     updateZoomXyDataset();
     JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, true, false);
@@ -247,13 +219,8 @@ public class SwingGui
     ((XYLineAndShapeRenderer) zoomMapPlot.getRenderer()).setSeriesShapesVisible(0, true);
     ((XYLineAndShapeRenderer) zoomMapPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
     ChartPanel zoomXyChartPanel = new ChartPanel(zoomXyChart);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.333;
-    gridBagConstraints.weighty = 0.5;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 1;
-    overview.add(zoomXyChartPanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(1).gridy(1).weightx(0.333).weighty(0.5)
+        .add(zoomXyChartPanel);
 
     updateTackVelocityBearingPolar();
     JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over rel. Bearing", tackVelocityBearingPolar, false, true, false);
@@ -263,44 +230,22 @@ public class SwingGui
     tackVelocityBearingPlot.setRenderer(tackVelocityRenderer);
 
     ChartPanel tackVelocityBearingChartPanel = new ChartPanel(tackVelocityBearingChart);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.166;
-    gridBagConstraints.weighty = 0.5;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 1;
-    overview.add(tackVelocityBearingChartPanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(2).gridy(1).weightx(0.166).weighty(0.5)
+        .add(tackVelocityBearingChartPanel);
 
     updateVelocityBearingPolar();
     JFreeChart chart = ChartFactory.createPolarChart("Velocity over rel. Bearing", velocityBearingPolar, false, false, false);
     ChartPanel chartPanel = new ChartPanel(chart);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.166;
-    gridBagConstraints.weighty = 0.5;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 3;
-    gridBagConstraints.gridy = 1;
-    overview.add(chartPanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(3).gridy(1).weightx(0.166).weighty(0.5)
+        .add(chartPanel);
 
     tackTablePanel = new TackTablePanel(tackList, this::tackSelected);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.666;
-    gridBagConstraints.weighty = 0.25;
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 2;
-    overview.add(tackTablePanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(0).gridy(2).weightx(0.666).weighty(0.25).columnSpan(2)
+        .add(tackTablePanel);
 
     tackSeriesTablePanel = new TackSeriesTablePanel(tackSeriesList, this::tackSeriesSelected);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.333;
-    gridBagConstraints.weighty = 0.25;
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 2;
-    overview.add(tackSeriesTablePanel, gridBagConstraints);
+    overview.layoutForAdding().gridx(2).gridy(2).weightx(0.666).weighty(0.25).columnSpan(2)
+        .add(tackSeriesTablePanel);
 
     updateZoomedBearingOverTimeDataset();
     JFreeChart zoomedBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Bearing (Zoom)", "Time", "Bearing [arcs]", zoomedBearingOverTimeDataset, true, false, false);
@@ -312,22 +257,12 @@ public class SwingGui
     ((XYLineAndShapeRenderer) zoomedBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(1, true);
     ((XYLineAndShapeRenderer) zoomedBearingOverTimePlot.getRenderer()).setSeriesShapesVisible(2, true);
     ChartPanel zoomedBearingOverTimeChartPanel = new ChartPanel(zoomedBearingOverTimeChart);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 0.5;
-    gridBagConstraints.weighty = 0.5;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 0;
-    directions.add(zoomedBearingOverTimeChartPanel, gridBagConstraints);
+    directions.layoutForAdding().gridx(0).gridy(0).weightx(0.5).weighty(0.5)
+        .add(zoomedBearingOverTimeChartPanel);
 
     commentPanel = new CommentPanel(data.comment, data::setComment);
-    gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.weightx = 1;
-    gridBagConstraints.weighty = 0.9;
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 0;
-    comments.add(commentPanel, gridBagConstraints);
+    comments.layoutForAdding().gridx(0).gridy(0).weightx(1).weighty(0.9)
+      .add(commentPanel);
 
     frame.pack();
     frame.setVisible(true);
