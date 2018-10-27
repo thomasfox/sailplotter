@@ -21,25 +21,25 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
 {
   private static final long serialVersionUID = 1L;
 
-  private final TimeSeriesCollection fullVelocityBearingOverTimeDataset = new TimeSeriesCollection();
+  private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-  private final XYPlot fullVelocityBearingOverTimePlot;
+  private final XYPlot plot;
 
   public FullVelocityBearingOverTimePlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
     super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
-    JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart(
+    JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Velocity and Bearing (Full)",
         "Time",
         "Velocity [kts] / Bearing [arcs]",
-        fullVelocityBearingOverTimeDataset,
+        dataset,
         false,
         false,
         false);
-    fullVelocityBearingOverTimePlot = (XYPlot) fullVelocityBearingOverTimeChart.getPlot();
+    plot = (XYPlot) chart.getPlot();
     onDataChanged();
     onZoomChanged();
-    ChartPanel chartPanel = new ChartPanel(fullVelocityBearingOverTimeChart);
+    ChartPanel chartPanel = new ChartPanel(chart);
     chartPanel.setPreferredSize(null);
     setLayout(new GridLayout(1, 1));
     GridBagConstraints gridBagConstraints = new GridBagConstraints();
@@ -50,13 +50,13 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
-    fullVelocityBearingOverTimeDataset.removeAllSeries();
-    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));
-    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
-    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.AFTER));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.AFTER));
+    dataset.removeAllSeries();
+    dataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));
+    dataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.AFTER));
+    dataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
+    dataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.AFTER));
   }
 
   @Override
@@ -66,14 +66,14 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
     Range dataRange = new DateRange(
         pointsWithLocation.get(0).time,
         pointsWithLocation.get(pointsWithLocation.size() -1).time);
-    fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
+    plot.getDomainAxis().setRange(dataRange);
     Range valueRange = new DateRange(0, getMaximum(pointsWithLocation, d->d.location.velocityFromLatLong));
-    fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
+    plot.getRangeAxis().setRange(valueRange);
+    plot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
+    plot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
+    plot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
+    plot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
+    plot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
+    plot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
   }
 }
