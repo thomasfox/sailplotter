@@ -30,7 +30,6 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.statistics.SimpleHistogramDataset;
-import org.jfree.data.time.DateRange;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -45,6 +44,8 @@ import com.github.thomasfox.sailplotter.analyze.TackSeriesAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.UseGpsTimeDataCorrector;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
 import com.github.thomasfox.sailplotter.exporter.Exporter;
+import com.github.thomasfox.sailplotter.gui.plot.AbstractPlotPanel;
+import com.github.thomasfox.sailplotter.gui.plot.FullVelocityBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
@@ -65,7 +66,7 @@ public class SwingGui
 
   private final Menubar menubar;
 
-  private final TimeSeriesCollection fullVelocityBearingOverTimeDataset = new TimeSeriesCollection();
+  private final AbstractPlotPanel fullVelocityBearingOverTimePlotPanel;
 
   private final TimeSeriesCollection zoomedVelocityBearingOverTimeDataset = new TimeSeriesCollection();
 
@@ -80,8 +81,6 @@ public class SwingGui
   XYSeriesCollection xyDataset = new XYSeriesCollection();
 
   XYSeriesCollection zoomXyDataset = new XYSeriesCollection();
-
-  XYPlot fullVelocityBearingOverTimePlot;
 
   XYPlot mapPlot;
 
@@ -139,20 +138,9 @@ public class SwingGui
 
     frame.getContentPane().add(views, BorderLayout.CENTER);
 
-    updateFullVelocityBearingOverTimeDataset();
-    JFreeChart fullVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart(
-        "Velocity and Bearing (Full)",
-        "Time",
-        "Velocity [kts] / Bearing [arcs]",
-        fullVelocityBearingOverTimeDataset,
-        false,
-        false,
-        false);
-    fullVelocityBearingOverTimePlot = (XYPlot) fullVelocityBearingOverTimeChart.getPlot();
-    resetFullVelocityBearingOverTimePlot();
-    ChartPanel fullVelocityBearingOverTimeChartPanel = new ChartPanel(fullVelocityBearingOverTimeChart);
+    fullVelocityBearingOverTimePlotPanel = new FullVelocityBearingOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
     overview.layoutForAdding().gridx(0).gridy(0).weightx(0.333).weighty(0.25)
-        .add(fullVelocityBearingOverTimeChartPanel);
+        .add(fullVelocityBearingOverTimePlotPanel);
 
     updateZoomedVelocityBearingOverTimeDataset();
     JFreeChart zoomedVelocityBearingOverTimeChart = ChartFactory.createTimeSeriesChart("Velocity and Bearing (Zoom)", "Time", "Velocity [kts] / Bearing [arcs]", zoomedVelocityBearingOverTimeDataset, false, false, false);
@@ -285,23 +273,6 @@ public class SwingGui
     mapPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
   }
 
-
-  private void resetFullVelocityBearingOverTimePlot()
-  {
-    Range dataRange = new DateRange(
-        pointsWithLocation.get(0).time,
-        pointsWithLocation.get(pointsWithLocation.size() -1).time);
-    fullVelocityBearingOverTimePlot.getDomainAxis().setRange(dataRange);
-    Range valueRange = new DateRange(0, getMaximum(pointsWithLocation, d->d.location.velocityFromLatLong));
-    fullVelocityBearingOverTimePlot.getRangeAxis().setRange(valueRange);
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
-    fullVelocityBearingOverTimePlot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
-  }
-
   public static void main(String[] args)
   {
     if (args.length != 2)
@@ -347,17 +318,6 @@ public class SwingGui
   private static void printUsage()
   {
     System.out.println("Usage: ${startcommand} ${file} ${windDirectionInDegreees}");
-  }
-
-  private void updateFullVelocityBearingOverTimeDataset()
-  {
-    fullVelocityBearingOverTimeDataset.removeAllSeries();
-    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));
-    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
-    fullVelocityBearingOverTimeDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.AFTER));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
-    fullVelocityBearingOverTimeDataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.AFTER));
   }
 
   private void updateZoomedVelocityBearingOverTimeDataset()
@@ -769,7 +729,9 @@ public class SwingGui
     try
     {
       inUpdate = true;
-      updateFullVelocityBearingOverTimeDataset();
+      int zoomWindowStartIndex = zoomPanel.getStartIndex();
+      int zoomWindowZoomIndex = zoomPanel.getZoomIndex();
+      fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       updateZoomedVelocityBearingOverTimeDataset();
       updateBearingHistogramDataset();
       updateVelocityBearingPolar();
@@ -864,7 +826,7 @@ public class SwingGui
       menubar.setSaveStartFile(new Exporter().replaceExtension(file));
       analyze();
       zoomPanel.setDataSize(pointsWithLocation.size());
-      resetFullVelocityBearingOverTimePlot();
+      fullVelocityBearingOverTimePlotPanel.dataChanged(data);
       resetMapPlot();
       redisplay(true);
     }
