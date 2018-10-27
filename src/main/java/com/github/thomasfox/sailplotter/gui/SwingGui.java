@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -27,7 +26,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PolarPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.Range;
 import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.statistics.SimpleHistogramDataset;
 import org.jfree.data.time.Millisecond;
@@ -45,7 +43,9 @@ import com.github.thomasfox.sailplotter.analyze.UseGpsTimeDataCorrector;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
 import com.github.thomasfox.sailplotter.exporter.Exporter;
 import com.github.thomasfox.sailplotter.gui.plot.AbstractPlotPanel;
+import com.github.thomasfox.sailplotter.gui.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.plot.FullVelocityBearingOverTimePlotPanel;
+import com.github.thomasfox.sailplotter.gui.plot.ZoomedMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.plot.ZoomedVelocityBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
 import com.github.thomasfox.sailplotter.model.Data;
@@ -71,6 +71,10 @@ public class SwingGui
 
   private final AbstractPlotPanel zoomedVelocityBearingOverTimePlotPanel;
 
+  private final AbstractPlotPanel fullMapPlotPanel;
+
+  private final AbstractPlotPanel zoomedMapPlotPanel;
+
   SimpleHistogramDataset bearingHistogramDataset;
 
   List<SimpleHistogramBin> bearingHistogramBins = new ArrayList<>();
@@ -79,19 +83,9 @@ public class SwingGui
 
   XYSeriesCollection tackVelocityBearingPolar = new XYSeriesCollection();
 
-  XYSeriesCollection xyDataset = new XYSeriesCollection();
-
-  XYSeriesCollection zoomXyDataset = new XYSeriesCollection();
-
-  XYPlot mapPlot;
-
-  XYPlot zoomMapPlot;
-
   Data data;
 
   List<DataPoint> pointsWithLocation;
-
-  List<Tack> tackList;
 
   List<TackSeries> tackSeriesList;
 
@@ -184,25 +178,13 @@ public class SwingGui
     overview.layoutForAdding().gridx(2).gridy(0).weightx(0.333).weighty(0.25).columnSpan(2)
         .add(topRightPanel);
 
-    updateXyDataset();
-    JFreeChart xyChart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", xyDataset, PlotOrientation.VERTICAL, false, false, false);
-    mapPlot = (XYPlot) xyChart.getPlot();
-    resetMapPlot();
-    ChartPanel xyChartPanel = new ChartPanel(xyChart);
+    fullMapPlotPanel = new FullMapPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
     overview.layoutForAdding().gridx(0).gridy(1).weightx(0.333).weighty(0.5)
-        .add(xyChartPanel);
+        .add(fullMapPlotPanel);
 
-    updateZoomXyDataset();
-    JFreeChart zoomXyChart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", zoomXyDataset, PlotOrientation.VERTICAL, false, true, false);
-    zoomMapPlot = (XYPlot) zoomXyChart.getPlot();
-    updateMapZoomRange();
-    zoomMapPlot.setRenderer(new XYZoomRenderer());
-    zoomMapPlot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));
-    ((XYLineAndShapeRenderer) zoomMapPlot.getRenderer()).setSeriesShapesVisible(0, true);
-    ((XYLineAndShapeRenderer) zoomMapPlot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
-    ChartPanel zoomXyChartPanel = new ChartPanel(zoomXyChart);
+    zoomedMapPlotPanel = new ZoomedMapPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
     overview.layoutForAdding().gridx(1).gridy(1).weightx(0.333).weighty(0.5)
-        .add(zoomXyChartPanel);
+        .add(zoomedMapPlotPanel);
 
     updateTackVelocityBearingPolar();
     JFreeChart tackVelocityBearingChart = ChartFactory.createPolarChart("Tack Velocity over rel. Bearing", tackVelocityBearingPolar, false, true, false);
@@ -221,7 +203,7 @@ public class SwingGui
     overview.layoutForAdding().gridx(3).gridy(1).weightx(0.166).weighty(0.5)
         .add(chartPanel);
 
-    tackTablePanel = new TackTablePanel(tackList, this::tackSelected);
+    tackTablePanel = new TackTablePanel(data.getTackList(), this::tackSelected);
     overview.layoutForAdding().gridx(0).gridy(2).weightx(0.666).weighty(0.25).columnSpan(2)
         .add(tackTablePanel);
 
@@ -248,23 +230,6 @@ public class SwingGui
 
     frame.pack();
     frame.setVisible(true);
-  }
-
-
-  private void resetMapPlot()
-  {
-    Range xRange = new Range(
-        getMinimum(pointsWithLocation, d->d.location.getX()) - pointsWithLocation.get(0).location.getX(),
-        getMaximum(pointsWithLocation, d->d.location.getX()) - pointsWithLocation.get(0).location.getX());
-    mapPlot.getDomainAxis().setRange(xRange);
-    Range yRange = new Range(
-        getMinimum(pointsWithLocation, d->d.location.getY()) - pointsWithLocation.get(0).location.getY(),
-        getMaximum(pointsWithLocation, d->d.location.getY()) - pointsWithLocation.get(0).location.getY());
-    mapPlot.getRangeAxis().setRange(yRange);
-    expandRangesToAspectRatio(mapPlot, Constants.MAP_ASPECT_RATIO);
-    mapPlot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
-    mapPlot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
-    mapPlot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
   }
 
   public static void main(String[] args)
@@ -328,44 +293,6 @@ public class SwingGui
     for (DataPoint point: data)
     {
       series.addOrUpdate(point.getMillisecond(), point.location.latitude);
-    }
-    return series;
-  }
-
-  private double getMaximum(List<DataPoint> data, Function<DataPoint, Double> pointFunction)
-  {
-    double maxValue = Double.MIN_VALUE;
-    for (DataPoint dataPoint : data)
-    {
-      Double pointValue = pointFunction.apply(dataPoint);
-      if (pointValue != null && pointValue > maxValue)
-      {
-        maxValue = pointValue;
-      }
-    }
-    return maxValue;
-  }
-
-  private double getMinimum(List<DataPoint> data, Function<DataPoint, Double> pointFunction)
-  {
-    double minValue = Double.MAX_VALUE;
-    for (DataPoint dataPoint : data)
-    {
-      Double pointValue = pointFunction.apply(dataPoint);
-      if (pointValue != null && pointValue < minValue)
-      {
-        minValue = pointValue;
-      }
-    }
-    return minValue;
-  }
-
-  public TimeSeries getVelocityTimeSeries(TimeWindowPosition position)
-  {
-    TimeSeries series = new TimeSeries("velocity");
-    for (DataPoint point : getLocationSubset(position))
-    {
-      series.addOrUpdate(point.getMillisecond(), point.location.velocityFromLatLong);
     }
     return series;
   }
@@ -522,7 +449,7 @@ public class SwingGui
   public void updateTackVelocityBearingPolar()
   {
     XYSeries tackVelocity = new XYSeries("tackVelocity", false, true);
-    for (Tack tack : tackList)
+    for (Tack tack : data.getTackList())
     {
       if (tack.end.getLocalDateTime().isAfter(getLocationDataStartTime())
           && tack.start.getLocalDateTime().isBefore(getLocationDataEndTime())
@@ -560,129 +487,6 @@ public class SwingGui
     return true;
   }
 
-  private void updateXyDataset()
-  {
-    xyDataset.removeAllSeries();
-    xyDataset.addSeries(getXySeries(pointsWithLocation, TimeWindowPosition.BEFORE, pointsWithLocation.get(0).location.getX(), pointsWithLocation.get(0).location.getY()));
-    xyDataset.addSeries(getXySeries(pointsWithLocation, TimeWindowPosition.IN, pointsWithLocation.get(0).location.getX(), pointsWithLocation.get(0).location.getY()));
-    xyDataset.addSeries(getXySeries(pointsWithLocation, TimeWindowPosition.AFTER, pointsWithLocation.get(0).location.getX(), pointsWithLocation.get(0).location.getY()));
-  }
-
-  private void updateZoomXyDataset()
-  {
-    zoomXyDataset.removeAllSeries();
-    zoomXyDataset.addSeries(getXySeries(pointsWithLocation, TimeWindowPosition.IN, pointsWithLocation.get(0).location.getX(), pointsWithLocation.get(0).location.getY()));
-    zoomXyDataset.addSeries(getTackIntersectionSeries(tackList, TimeWindowPosition.IN, pointsWithLocation.get(0).location.getX(), pointsWithLocation.get(0).location.getY()));
-  }
-
-  private void updateMapZoomRange()
-  {
-    List<DataPoint> dataSubset = getLocationSubset(TimeWindowPosition.IN);
-    double startX = pointsWithLocation.get(0).location.getX();
-    double minimumX = getMinimum(dataSubset, d->d.location.getX());
-    double maximumX = getMaximum(dataSubset, d->d.location.getX());
-    if (maximumX - minimumX < 1)
-    {
-      minimumX = -1 + startX;
-      maximumX = 1 + startX;
-    }
-    Range zoomXRange = new Range(
-        minimumX - startX - (maximumX - minimumX) * 0.1,
-        maximumX - startX + (maximumX - minimumX) * 0.1);
-
-    double startY = pointsWithLocation.get(0).location.getY();
-    double minimumY = getMinimum(dataSubset, d->d.location.getY());
-    double maximumY = getMaximum(dataSubset, d->d.location.getY());
-    if (maximumY - minimumY < 1)
-    {
-      minimumY = -1 + startY;
-      maximumY = 1 + startY;
-    }
-    Range zoomYRange = new Range(
-        minimumY - startY - (maximumY - minimumY) * 0.1,
-        maximumY - startY + (maximumY - minimumY) * 0.1);
-
-    zoomMapPlot.getDomainAxis().setRange(zoomXRange);
-    zoomMapPlot.getRangeAxis().setRange(zoomYRange);
-    expandRangesToAspectRatio(zoomMapPlot, Constants.MAP_ASPECT_RATIO);
-  }
-
-  public void expandRangesToAspectRatio(XYPlot plot, double aspectRatio)
-  {
-    Range xRange = plot.getDomainAxis().getRange();
-    Range yRange = plot.getRangeAxis().getRange();
-    if (xRange.getLength() > aspectRatio * yRange.getLength())
-    {
-      yRange = new Range(
-          yRange.getCentralValue() - 0.5d * xRange.getLength() / aspectRatio,
-          yRange.getCentralValue() + 0.5d * xRange.getLength() / aspectRatio);
-      plot.getRangeAxis().setRange(yRange);
-    }
-    else
-    {
-      xRange = new Range(
-          xRange.getCentralValue() - 0.5d * yRange.getLength() * aspectRatio,
-          xRange.getCentralValue() + 0.5d * yRange.getLength() * aspectRatio);
-      plot.getDomainAxis().setRange(xRange);
-    }
-  }
-
-  public XYSeries getXySeries(List<DataPoint> data, TimeWindowPosition position, double xOffset, double yOffset)
-  {
-    XYSeries series = new XYSeries("XY" + position, false, true);
-    int tackIndex = 0;
-    Tack containingTack = tackList.get(tackIndex);
-    for (DataPoint point : getLocationSubset(position))
-    {
-      while (containingTack.endOfTackDataPointIndex < point.index && tackIndex < tackList.size() - 1)
-      {
-        ++tackIndex;
-        containingTack = tackList.get(tackIndex);
-      }
-      XYSailDataItem item = new XYSailDataItem(point.location.getX() - xOffset, point.location.getY() - yOffset, point.getXYLabel());
-      if (containingTack.startOfTackDataPointIndex == point.index)
-      {
-        item.setStartOfTack(tackIndex);
-      }
-      else if (containingTack.endOfTackDataPointIndex == point.index)
-      {
-        item.setEndOfTack(tackIndex);
-      }
-      DataPoint afterStartManeuver = containingTack.getAfterStartManeuver();
-      DataPoint bevoreEndManeuver = containingTack.getBeforeEndManeuver();
-
-      if ((afterStartManeuver != null && afterStartManeuver.index == point.index)
-          || (bevoreEndManeuver != null && bevoreEndManeuver.index == point.index))
-      {
-        item.setTackMainPartLimit(true);
-      }
-
-      series.add(item);
-    }
-    return series;
-  }
-
-  public XYSeries getTackIntersectionSeries(List<Tack> tacks, TimeWindowPosition position, double xOffset, double yOffset)
-  {
-    XYSeries series = new XYSeries("XY", false, true);
-    for (Tack tack : tacks)
-    {
-      if (!isInSelectedPosition(tack.start, position) && !isInSelectedPosition(tack.end, position))
-      {
-        continue;
-      }
-      if (tack.tackStraightLineIntersectionStart != null && tack.tackStraightLineIntersectionEnd != null)
-      {
-        series.add(
-            tack.tackStraightLineIntersectionStart.location.getX() - xOffset,
-            tack.tackStraightLineIntersectionStart.location.getY() - yOffset);
-        series.add(
-            tack.tackStraightLineIntersectionEnd.location.getX() - xOffset,
-            tack.tackStraightLineIntersectionEnd.location.getY() - yOffset);
-      }
-    }
-    return series;
-  }
 
   List<DataPoint> getLocationSubset(TimeWindowPosition position)
   {
@@ -706,8 +510,9 @@ public class SwingGui
     new UseGpsTimeDataCorrector().correct(data);
     new LocationInterpolator().interpolateLocation(data);
     new VelocityBearingAnalyzer().analyze(data, windBearing);
-    tackList = new TackListByCorrelationAnalyzer().analyze(data);
-    tackSeriesList = new TackSeriesAnalyzer().analyze(tackList);
+    data.getTackList().clear();
+    data.getTackList().addAll(new TackListByCorrelationAnalyzer().analyze(data));
+    tackSeriesList = new TackSeriesAnalyzer().analyze(data.getTackList());
     new DeviceOrientationAnalyzer().analyze(data);
   }
 
@@ -720,17 +525,16 @@ public class SwingGui
       int zoomWindowZoomIndex = zoomPanel.getZoomIndex();
       fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+      fullMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+      zoomedMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       updateBearingHistogramDataset();
       updateVelocityBearingPolar();
-      updateXyDataset();
       updateTackVelocityBearingPolar();
-      updateZoomXyDataset();
-      updateMapZoomRange();
       updateZoomedBearingOverTimeDataset();
       commentPanel.setText(data.comment);
       if (updateTableContent)
       {
-        tackTablePanel.updateContent(tackList);
+        tackTablePanel.updateContent(data.getTackList());
         tackSeriesTablePanel.updateContent(tackSeriesList);
       }
     }
@@ -752,7 +556,7 @@ public class SwingGui
       return;
     }
     int index = tackTablePanel.getSelectedTackIndex();
-    Tack tack = tackList.get(index);
+    Tack tack = data.getTackList().get(index);
     zoomPanel.setStartIndex(Math.max(tack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
     zoomPanel.setZoomIndex(Math.min(
         Math.max(
@@ -790,10 +594,10 @@ public class SwingGui
     {
       inUpdate = true;
       tackTablePanel.selectInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
-      zoomPanel.setStartIndex(Math.max(tackList.get(tackSeries.startTackIndex).startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+      zoomPanel.setStartIndex(Math.max(data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
       zoomPanel.setZoomIndex(Math.min(
           Math.max(
-              Constants.NUMER_OF_ZOOM_TICKS * (tackList.get(tackSeries.endTackIndex).endOfTackDataPointIndex - tackList.get(tackSeries.startTackIndex).startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (pointsWithLocation.size()),
+              Constants.NUMER_OF_ZOOM_TICKS * (data.getTackList().get(tackSeries.endTackIndex).endOfTackDataPointIndex - data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (pointsWithLocation.size()),
               3),
           Constants.NUMER_OF_ZOOM_TICKS));
     }
@@ -814,7 +618,9 @@ public class SwingGui
       analyze();
       zoomPanel.setDataSize(pointsWithLocation.size());
       fullVelocityBearingOverTimePlotPanel.dataChanged(data);
-      resetMapPlot();
+      zoomedVelocityBearingOverTimePlotPanel.dataChanged(data);
+      fullMapPlotPanel.dataChanged(data);
+      zoomedMapPlotPanel.dataChanged(data);
       redisplay(true);
     }
     catch (Exception e)

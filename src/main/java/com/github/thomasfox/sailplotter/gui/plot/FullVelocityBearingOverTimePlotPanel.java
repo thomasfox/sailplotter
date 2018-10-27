@@ -1,12 +1,9 @@
 package com.github.thomasfox.sailplotter.gui.plot;
 
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
 import java.util.List;
 
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
@@ -39,12 +36,7 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
     plot = (XYPlot) chart.getPlot();
     onDataChanged();
     onZoomChanged();
-    ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(null);
-    setLayout(new GridLayout(1, 1));
-    GridBagConstraints gridBagConstraints = new GridBagConstraints();
-    gridBagConstraints.fill = GridBagConstraints.BOTH;
-    add(chartPanel, gridBagConstraints);
+    addPanelFor(chart);
   }
 
   @Override

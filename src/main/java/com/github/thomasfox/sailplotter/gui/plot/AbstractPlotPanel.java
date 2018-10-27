@@ -1,5 +1,7 @@
 package com.github.thomasfox.sailplotter.gui.plot;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,13 +9,20 @@ import java.util.function.Function;
 
 import javax.swing.JPanel;
 
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.Range;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
+import org.jfree.data.xy.XYSeries;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.gui.XYSailDataItem;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.Tack;
 
 public abstract class AbstractPlotPanel extends JPanel
 {
@@ -30,6 +39,16 @@ public abstract class AbstractPlotPanel extends JPanel
     this.data = data;
     this.zoomWindowLocationStartIndex = zoomWindowLocationStartIndex;
     this.zoomWindowLocationSize = zoomWindowLocationSize;
+  }
+
+  protected void addPanelFor(JFreeChart chart)
+  {
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(null);
+    setLayout(new GridLayout(1, 1));
+    GridBagConstraints gridBagConstraints = new GridBagConstraints();
+    gridBagConstraints.fill = GridBagConstraints.BOTH;
+    add(chartPanel, gridBagConstraints);
   }
 
   public void dataChanged(Data data)
@@ -130,6 +149,61 @@ public abstract class AbstractPlotPanel extends JPanel
     return series;
   }
 
+  public XYSeries getXySeries(TimeWindowPosition position, double xOffset, double yOffset)
+  {
+    XYSeries series = new XYSeries("XY" + position, false, true);
+    int tackIndex = 0;
+    Tack containingTack = data.getTackList().get(tackIndex);
+    for (DataPoint point : getLocationSubset(position))
+    {
+      while (containingTack.endOfTackDataPointIndex < point.index && tackIndex < data.getTackList().size() - 1)
+      {
+        ++tackIndex;
+        containingTack = data.getTackList().get(tackIndex);
+      }
+      XYSailDataItem item = new XYSailDataItem(point.location.getX() - xOffset, point.location.getY() - yOffset, point.getXYLabel());
+      if (containingTack.startOfTackDataPointIndex == point.index)
+      {
+        item.setStartOfTack(tackIndex);
+      }
+      else if (containingTack.endOfTackDataPointIndex == point.index)
+      {
+        item.setEndOfTack(tackIndex);
+      }
+      DataPoint afterStartManeuver = containingTack.getAfterStartManeuver();
+      DataPoint bevoreEndManeuver = containingTack.getBeforeEndManeuver();
+
+      if ((afterStartManeuver != null && afterStartManeuver.index == point.index)
+          || (bevoreEndManeuver != null && bevoreEndManeuver.index == point.index))
+      {
+        item.setTackMainPartLimit(true);
+      }
+
+      series.add(item);
+    }
+    return series;
+  }
+
+  public void expandRangesToAspectRatio(XYPlot plot, double aspectRatio)
+  {
+    Range xRange = plot.getDomainAxis().getRange();
+    Range yRange = plot.getRangeAxis().getRange();
+    if (xRange.getLength() > aspectRatio * yRange.getLength())
+    {
+      yRange = new Range(
+          yRange.getCentralValue() - 0.5d * xRange.getLength() / aspectRatio,
+          yRange.getCentralValue() + 0.5d * xRange.getLength() / aspectRatio);
+      plot.getRangeAxis().setRange(yRange);
+    }
+    else
+    {
+      xRange = new Range(
+          xRange.getCentralValue() - 0.5d * yRange.getLength() * aspectRatio,
+          xRange.getCentralValue() + 0.5d * yRange.getLength() * aspectRatio);
+      plot.getDomainAxis().setRange(xRange);
+    }
+  }
+
   List<DataPoint> getLocationSubset(TimeWindowPosition position)
   {
     List<DataPoint> result = new ArrayList<>();
@@ -145,7 +219,7 @@ public abstract class AbstractPlotPanel extends JPanel
     return result;
   }
 
-  private boolean isInSelectedPosition(DataPoint point, TimeWindowPosition position)
+  protected boolean isInSelectedPosition(DataPoint point, TimeWindowPosition position)
   {
     if (position == TimeWindowPosition.BEFORE && point.getLocalDateTime().isAfter(getLocationDataStartTime()))
     {
