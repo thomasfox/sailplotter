@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -45,6 +44,7 @@ import com.github.thomasfox.sailplotter.exporter.Exporter;
 import com.github.thomasfox.sailplotter.gui.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.plot.FullVelocityBearingOverTimePlotPanel;
+import com.github.thomasfox.sailplotter.gui.plot.VelocityBearingPolarPlotPanel;
 import com.github.thomasfox.sailplotter.gui.plot.ZoomedMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.plot.ZoomedVelocityBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
@@ -75,11 +75,11 @@ public class SwingGui
 
   private final AbstractPlotPanel zoomedMapPlotPanel;
 
+  private final AbstractPlotPanel velocityBearingPolarPlotPanel;
+
   SimpleHistogramDataset bearingHistogramDataset;
 
   List<SimpleHistogramBin> bearingHistogramBins = new ArrayList<>();
-
-  XYSeriesCollection velocityBearingPolar = new XYSeriesCollection();
 
   XYSeriesCollection tackVelocityBearingPolar = new XYSeriesCollection();
 
@@ -197,11 +197,9 @@ public class SwingGui
     overview.layoutForAdding().gridx(2).gridy(1).weightx(0.166).weighty(0.5)
         .add(tackVelocityBearingChartPanel);
 
-    updateVelocityBearingPolar();
-    JFreeChart chart = ChartFactory.createPolarChart("Velocity over rel. Bearing", velocityBearingPolar, false, false, false);
-    ChartPanel chartPanel = new ChartPanel(chart);
+    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
     overview.layoutForAdding().gridx(3).gridy(1).weightx(0.166).weighty(0.5)
-        .add(chartPanel);
+        .add(velocityBearingPolarPlotPanel);
 
     tackTablePanel = new TackTablePanel(data.getTackList(), this::tackSelected);
     overview.layoutForAdding().gridx(0).gridy(2).weightx(0.666).weighty(0.25).columnSpan(2)
@@ -383,69 +381,6 @@ public class SwingGui
     }
   }
 
-  public void updateVelocityBearingPolar()
-  {
-    List<List<Double>> velocityBuckets = new ArrayList<>(Constants.NUMBER_OF_BEARING_BINS);
-    for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
-    {
-      velocityBuckets.add(new ArrayList<Double>());
-    }
-    for (DataPoint point : pointsWithLocation)
-    {
-      if (point.getLocalDateTime().isAfter(getLocationDataStartTime())
-          && point.getLocalDateTime().isBefore(getLocationDataEndTime()))
-      {
-        if (point.location.bearingFromLatLong != null && point.location.velocityFromLatLong != null)
-        {
-          int bucket = new Double(point.getRelativeBearingInArcs() * Constants.NUMBER_OF_BEARING_BINS / 2 / Math.PI).intValue();
-          velocityBuckets.get(bucket).add(point.location.velocityFromLatLong);
-        }
-      }
-    }
-    int max = 0;
-    for (List<Double> bucket : velocityBuckets)
-    {
-      if (bucket.size() > max)
-      {
-        max = bucket.size();
-      }
-    }
-    for (List<Double> bucket : velocityBuckets)
-    {
-      if (bucket.size() < max / Constants.HISTOGRAM_IGNORE_THRESHOLD_FRACTION)
-      {
-        bucket.clear();
-      }
-    }
-
-    XYSeries maxVelocity = new XYSeries("maxVelocity");
-    XYSeries medianVelocity = new XYSeries("medianVelocity");
-    for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
-    {
-      List<Double> velocityDistribution = velocityBuckets.get(i);
-      Collections.sort(velocityDistribution);
-      if (!velocityDistribution.isEmpty())
-      {
-        maxVelocity.add(i * 360d / Constants.NUMBER_OF_BEARING_BINS, velocityDistribution.get(velocityDistribution.size() - 1));
-      }
-      else
-      {
-        maxVelocity.add(i * 360d / Constants.NUMBER_OF_BEARING_BINS, 0);
-      }
-      if (velocityDistribution.size() >= 1)
-      {
-        medianVelocity.add(i * 360d / Constants.NUMBER_OF_BEARING_BINS, velocityDistribution.get(velocityDistribution.size() / 2));
-      }
-      else
-      {
-        medianVelocity.add(i * 360d / Constants.NUMBER_OF_BEARING_BINS, 0);
-      }
-    }
-    velocityBearingPolar.removeAllSeries();
-    velocityBearingPolar.addSeries(maxVelocity);
-    velocityBearingPolar.addSeries(medianVelocity);
-  }
-
   public void updateTackVelocityBearingPolar()
   {
     XYSeries tackVelocity = new XYSeries("tackVelocity", false, true);
@@ -528,7 +463,7 @@ public class SwingGui
       fullMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       updateBearingHistogramDataset();
-      updateVelocityBearingPolar();
+      velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       updateTackVelocityBearingPolar();
       updateZoomedBearingOverTimeDataset();
       commentPanel.setText(data.comment);
@@ -572,7 +507,7 @@ public class SwingGui
     {
       int newWindDirection = Integer.parseInt(inputValue);
       this.windBearing = newWindDirection * Math.PI / 180d;
-      analyze();
+      dataChanged();
       redisplay(true);
     }
     catch (Exception e)
@@ -615,12 +550,7 @@ public class SwingGui
       data = new FormatAwareImporter().read(file);
       menubar.setLoadStartFile(file);
       menubar.setSaveStartFile(new Exporter().replaceExtension(file));
-      analyze();
-      zoomPanel.setDataSize(pointsWithLocation.size());
-      fullVelocityBearingOverTimePlotPanel.dataChanged(data);
-      zoomedVelocityBearingOverTimePlotPanel.dataChanged(data);
-      fullMapPlotPanel.dataChanged(data);
-      zoomedMapPlotPanel.dataChanged(data);
+      dataChanged();
       redisplay(true);
     }
     catch (Exception e)
@@ -632,6 +562,17 @@ public class SwingGui
           "Error loading File",
           JOptionPane.ERROR_MESSAGE);
     }
+  }
+
+  public void dataChanged()
+  {
+    analyze();
+    zoomPanel.setDataSize(pointsWithLocation.size());
+    fullVelocityBearingOverTimePlotPanel.dataChanged(data);
+    zoomedVelocityBearingOverTimePlotPanel.dataChanged(data);
+    fullMapPlotPanel.dataChanged(data);
+    zoomedMapPlotPanel.dataChanged(data);
+    velocityBearingPolarPlotPanel.dataChanged(data);
   }
 
   public void saveFile(File file)
