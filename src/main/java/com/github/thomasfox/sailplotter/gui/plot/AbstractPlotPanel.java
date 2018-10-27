@@ -44,10 +44,11 @@ public abstract class AbstractPlotPanel extends JPanel
   protected void addPanelFor(JFreeChart chart)
   {
     ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(null);
     setLayout(new GridLayout(1, 1));
     GridBagConstraints gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.fill = GridBagConstraints.BOTH;
+    gridBagConstraints.weightx = 1;
+    gridBagConstraints.weighty = 1;
     add(chartPanel, gridBagConstraints);
   }
 
