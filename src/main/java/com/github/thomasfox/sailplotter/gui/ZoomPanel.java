@@ -24,6 +24,8 @@ public class ZoomPanel extends JPanel implements ChangeListener
 
   private final List<ZoomPanelChangeListener> listeners = new ArrayList<>();
 
+  private boolean notifyOff = false;
+
   public ZoomPanel(int dataSize)
   {
     this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -75,7 +77,11 @@ public class ZoomPanel extends JPanel implements ChangeListener
 
   public void notifyListeners()
   {
-    ZoomPanelChangeEvent event = new ZoomPanelChangeEvent(startSlider.getValue(), zoomSlider.getValue());
+    if (notifyOff)
+    {
+      return;
+    }
+    ZoomPanelChangeEvent event = new ZoomPanelChangeEvent(startSlider.getValue(), zoomSlider.getValue(), this);
     listeners.stream().forEach(l -> l.stateChanged(event));
   }
 
@@ -84,9 +90,20 @@ public class ZoomPanel extends JPanel implements ChangeListener
     return startSlider.getValue();
   }
 
-  public void setStartIndex(int startIndex)
+  public synchronized void setStartIndex(int startIndex, boolean notify)
   {
-    startSlider.setValue(startIndex);
+    try
+    {
+      if (!notify)
+      {
+        this.notifyOff = true;
+      }
+      startSlider.setValue(startIndex);
+    }
+    finally
+    {
+      this.notifyOff = false;
+    }
   }
 
   public int getZoomIndex()
@@ -94,8 +111,19 @@ public class ZoomPanel extends JPanel implements ChangeListener
     return zoomSlider.getValue();
   }
 
-  public void setZoomIndex(int zoomIndex)
+  public synchronized void setZoomIndex(int zoomIndex, boolean notify)
   {
-    zoomSlider.setValue(zoomIndex);
+    try
+    {
+      if (!notify)
+      {
+        this.notifyOff = true;
+      }
+      zoomSlider.setValue(zoomIndex);
+    }
+    finally
+    {
+      this.notifyOff = false;
+    }
   }
 }

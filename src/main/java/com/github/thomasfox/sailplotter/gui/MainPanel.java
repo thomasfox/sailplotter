@@ -61,6 +61,11 @@ public class MainPanel extends JPanel
       return this;
     }
 
+    public Layout noFillY()
+    {
+      gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+      return this;
+    }
 
     public void add(Component cmponent)
     {

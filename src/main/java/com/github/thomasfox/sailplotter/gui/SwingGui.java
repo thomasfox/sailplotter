@@ -38,7 +38,6 @@ import com.github.thomasfox.sailplotter.gui.component.table.TackSeriesTablePanel
 import com.github.thomasfox.sailplotter.gui.component.table.TackTablePanel;
 import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
 import com.github.thomasfox.sailplotter.model.Data;
-import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
 import com.github.thomasfox.sailplotter.model.TackSeries;
 
@@ -46,13 +45,15 @@ public class SwingGui
 {
   private static final String OVERVIEW_VIEW_NAME = "Overview";
 
-  private static final String DIRECTIONS_VIEW_NAME = "Directions";
+  private static final String ANGLES_VIEW_NAME = "Angles";
 
   private static final String COMMENTS_VIEW_NAME = "Comments";
 
   private final JFrame frame;
 
-  private final ZoomPanel zoomPanel;
+  private final ZoomPanel zoomPanelOverview;
+
+  private final ZoomPanel zoomPanelDirections;
 
   private final Menubar menubar;
 
@@ -78,8 +79,6 @@ public class SwingGui
 
   Data data;
 
-  List<DataPoint> pointsWithLocation;
-
   List<TackSeries> tackSeriesList;
 
   TackTablePanel tackTablePanel;
@@ -99,7 +98,10 @@ public class SwingGui
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
     data = new FormatAwareImporter().read(new File(filePath));
     analyze();
-    zoomPanel = new ZoomPanel(pointsWithLocation.size());
+    zoomPanelOverview = new ZoomPanel(data.getPointsWithLocation().size());
+    zoomPanelOverview.addListener(this::zoomPanelStateChanged);
+    zoomPanelDirections = new ZoomPanel(data.getPointsWithLocation().size());
+    zoomPanelDirections.addListener(this::zoomPanelStateChanged);
 
     MainPanel overview = new MainPanel();
     MainPanel directions = new MainPanel();
@@ -107,7 +109,7 @@ public class SwingGui
 
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
-    views.add(directions, DIRECTIONS_VIEW_NAME);
+    views.add(directions, ANGLES_VIEW_NAME);
     views.add(comments, COMMENTS_VIEW_NAME);
 
     frame = new JFrame("SailPlotter");
@@ -118,26 +120,24 @@ public class SwingGui
         .addSaveFileMenuItem(new Exporter().replaceExtension(new File(filePath)), this::saveFile)
         .addViews(this::changeView,
             OVERVIEW_VIEW_NAME,
-            DIRECTIONS_VIEW_NAME,
+            ANGLES_VIEW_NAME,
             COMMENTS_VIEW_NAME);
     frame.setJMenuBar(menubar);
 
     frame.getContentPane().add(views, BorderLayout.CENTER);
 
-    fullVelocityBearingOverTimePlotPanel = new FullVelocityBearingOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    fullVelocityBearingOverTimePlotPanel = new FullVelocityBearingOverTimePlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     overview.layoutForAdding().gridx(0).gridy(0).weightx(0.333).weighty(0.25)
         .add(fullVelocityBearingOverTimePlotPanel);
 
-    zoomedVelocityBearingOverTimePlotPanel = new ZoomedVelocityBearingOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedVelocityBearingOverTimePlotPanel = new ZoomedVelocityBearingOverTimePlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     overview.layoutForAdding().gridx(1).gridy(0).weightx(0.333).weighty(0.25)
         .add(zoomedVelocityBearingOverTimePlotPanel);
 
     JPanel topRightPanel = new JPanel();
-    zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     topRightPanel.add(zoomedBearingHistogramPlotPanel);
-
-    zoomPanel.addListener(this::zoomPanelStateChanged);
-    topRightPanel.add(zoomPanel);
+    topRightPanel.add(zoomPanelOverview);
 
     JPanel windDirectionPanel = new JPanel();
     JLabel windDirectionLabel = new JLabel("Wind direction");
@@ -155,19 +155,19 @@ public class SwingGui
     overview.layoutForAdding().gridx(2).gridy(0).weightx(0.333).weighty(0.25).columnSpan(2)
         .add(topRightPanel);
 
-    fullMapPlotPanel = new FullMapPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    fullMapPlotPanel = new FullMapPlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     overview.layoutForAdding().gridx(0).gridy(1).weightx(0.333).weighty(0.5)
         .add(fullMapPlotPanel);
 
-    zoomedMapPlotPanel = new ZoomedMapPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedMapPlotPanel = new ZoomedMapPlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     overview.layoutForAdding().gridx(1).gridy(1).weightx(0.333).weighty(0.5)
         .add(zoomedMapPlotPanel);
 
-    tackVelocityBearingPolarPlotPanel = new TackVelocityBearingPolarPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    tackVelocityBearingPolarPlotPanel = new TackVelocityBearingPolarPlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     overview.layoutForAdding().gridx(2).gridy(1).weightx(0.166).weighty(0.5)
         .add(tackVelocityBearingPolarPlotPanel);
 
-    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     overview.layoutForAdding().gridx(3).gridy(1).weightx(0.166).weighty(0.5)
         .add(velocityBearingPolarPlotPanel);
 
@@ -179,17 +179,21 @@ public class SwingGui
     overview.layoutForAdding().gridx(2).gridy(2).weightx(0.666).weighty(0.25).columnSpan(2)
         .add(tackSeriesTablePanel);
 
-    zoomedBearingOverTimePlotPanel = new ZoomedBearingOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedBearingOverTimePlotPanel = new ZoomedBearingOverTimePlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     directions.layoutForAdding().gridx(0).gridy(0).weightx(0.5).weighty(0.5)
         .add(zoomedBearingOverTimePlotPanel);
 
-    zoomedHeelOverTimePlotPanel = new ZoomedHeelOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedHeelOverTimePlotPanel = new ZoomedHeelOverTimePlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     directions.layoutForAdding().gridx(1).gridy(0).weightx(0.5).weighty(0.5)
         .add(zoomedHeelOverTimePlotPanel);
 
-    zoomedRollOverTimePlotPanel = new ZoomedRollOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedRollOverTimePlotPanel = new ZoomedRollOverTimePlotPanel(data, zoomPanelOverview.getStartIndex(), zoomPanelOverview.getZoomIndex());
     directions.layoutForAdding().gridx(0).gridy(1).weightx(0.5).weighty(0.5)
         .add(zoomedRollOverTimePlotPanel);
+
+    directions.layoutForAdding().gridx(1).gridy(1).weightx(0.5).weighty(0.2).noFillY()
+        .add(zoomPanelDirections);
+
 
     commentPanel = new CommentPanel(data.comment, data::setComment);
     comments.layoutForAdding().gridx(0).gridy(0).weightx(1).weighty(0.9)
@@ -248,7 +252,6 @@ public class SwingGui
 
   public void analyze()
   {
-    pointsWithLocation = data.getPointsWithLocation();
     new UseGpsTimeDataCorrector().correct(data);
     new LocationInterpolator().interpolateLocation(data);
     new VelocityBearingAnalyzer().analyze(data, windBearing);
@@ -263,8 +266,8 @@ public class SwingGui
     try
     {
       inUpdate = true;
-      int zoomWindowStartIndex = zoomPanel.getStartIndex();
-      int zoomWindowZoomIndex = zoomPanel.getZoomIndex();
+      int zoomWindowStartIndex = zoomPanelOverview.getStartIndex();
+      int zoomWindowZoomIndex = zoomPanelOverview.getZoomIndex();
       fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedBearingHistogramPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
@@ -276,6 +279,7 @@ public class SwingGui
       zoomedHeelOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedRollOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       commentPanel.setText(data.comment);
+
       if (updateTableContent)
       {
         tackTablePanel.updateContent(data.getTackList());
@@ -291,6 +295,16 @@ public class SwingGui
   public void zoomPanelStateChanged(ZoomPanelChangeEvent e)
   {
     redisplay(false);
+    if (!e.isSource(zoomPanelOverview))
+    {
+      zoomPanelOverview.setStartIndex(e.getStartIndex(), false);
+      zoomPanelOverview.setZoomIndex(e.getZoomPosition(), false);
+    }
+    if (!e.isSource(zoomPanelDirections))
+    {
+      zoomPanelDirections.setStartIndex(e.getStartIndex(), false);
+      zoomPanelDirections.setZoomIndex(e.getZoomPosition(), false);
+    }
   }
 
   public void tackSelected(ListSelectionEvent e)
@@ -301,12 +315,13 @@ public class SwingGui
     }
     int index = tackTablePanel.getSelectedTackIndex();
     Tack tack = data.getTackList().get(index);
-    zoomPanel.setStartIndex(Math.max(tack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
-    zoomPanel.setZoomIndex(Math.min(
+    zoomPanelOverview.setStartIndex(Math.max(tack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0), true);
+    zoomPanelOverview.setZoomIndex(Math.min(
         Math.max(
-            Constants.NUMER_OF_ZOOM_TICKS * (tack.endOfTackDataPointIndex - tack.startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (pointsWithLocation.size()),
+            Constants.NUMER_OF_ZOOM_TICKS * (tack.endOfTackDataPointIndex - tack.startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.getPointsWithLocation().size()),
             3),
-        Constants.NUMER_OF_ZOOM_TICKS));
+        Constants.NUMER_OF_ZOOM_TICKS),
+        true);
   }
 
   public void windDirectionChanged(ActionEvent event)
@@ -338,12 +353,13 @@ public class SwingGui
     {
       inUpdate = true;
       tackTablePanel.selectInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
-      zoomPanel.setStartIndex(Math.max(data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
-      zoomPanel.setZoomIndex(Math.min(
+      zoomPanelOverview.setStartIndex(Math.max(data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0), true);
+      zoomPanelOverview.setZoomIndex(Math.min(
           Math.max(
-              Constants.NUMER_OF_ZOOM_TICKS * (data.getTackList().get(tackSeries.endTackIndex).endOfTackDataPointIndex - data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (pointsWithLocation.size()),
+              Constants.NUMER_OF_ZOOM_TICKS * (data.getTackList().get(tackSeries.endTackIndex).endOfTackDataPointIndex - data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.getPointsWithLocation().size()),
               3),
-          Constants.NUMER_OF_ZOOM_TICKS));
+          Constants.NUMER_OF_ZOOM_TICKS),
+          true);
     }
     finally
     {
@@ -376,7 +392,8 @@ public class SwingGui
   public void dataChanged()
   {
     analyze();
-    zoomPanel.setDataSize(pointsWithLocation.size());
+    zoomPanelOverview.setDataSize(data.getPointsWithLocation().size());
+    zoomPanelDirections.setDataSize(data.getPointsWithLocation().size());
     fullVelocityBearingOverTimePlotPanel.dataChanged(data);
     zoomedVelocityBearingOverTimePlotPanel.dataChanged(data);
     zoomedBearingHistogramPlotPanel.dataChanged(data);
