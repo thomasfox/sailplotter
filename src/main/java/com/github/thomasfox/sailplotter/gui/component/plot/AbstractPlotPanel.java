@@ -108,7 +108,7 @@ public abstract class AbstractPlotPanel extends JPanel
 
   public TimeSeries getBearingFromLatLongTimeSeries(TimeWindowPosition position)
   {
-    TimeSeries series = new TimeSeries("bearing");
+    TimeSeries series = new TimeSeries("bearing from pos");
     for (DataPoint point : getLocationSubset(position))
     {
       series.addOrUpdate(point.getMillisecond(), point.location.bearingFromLatLong);

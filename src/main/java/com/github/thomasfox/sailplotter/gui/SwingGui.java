@@ -368,6 +368,7 @@ public class SwingGui
     zoomedMapPlotPanel.dataChanged(data);
     tackVelocityBearingPolarPlotPanel.dataChanged(data);
     velocityBearingPolarPlotPanel.dataChanged(data);
+    zoomedBearingOverTimePlotPanel.dataChanged(data);
   }
 
   public void saveFile(File file)
