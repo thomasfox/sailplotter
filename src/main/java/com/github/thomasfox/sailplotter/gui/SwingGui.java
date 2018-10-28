@@ -5,8 +5,6 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -16,13 +14,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.statistics.SimpleHistogramBin;
-import org.jfree.data.statistics.SimpleHistogramDataset;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.analyze.DeviceOrientationAnalyzer;
@@ -37,6 +28,7 @@ import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullVelocityBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.TackVelocityBearingPolarPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.VelocityBearingPolarPlotPanel;
+import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingHistogramPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedVelocityBearingOverTimePlotPanel;
@@ -66,6 +58,8 @@ public class SwingGui
 
   private final AbstractPlotPanel zoomedVelocityBearingOverTimePlotPanel;
 
+  private final AbstractPlotPanel zoomedBearingHistogramPlotPanel;
+
   private final AbstractPlotPanel fullMapPlotPanel;
 
   private final AbstractPlotPanel zoomedMapPlotPanel;
@@ -75,10 +69,6 @@ public class SwingGui
   private final AbstractPlotPanel tackVelocityBearingPolarPlotPanel;
 
   private final AbstractPlotPanel zoomedBearingOverTimePlotPanel;
-
-  SimpleHistogramDataset bearingHistogramDataset;
-
-  List<SimpleHistogramBin> bearingHistogramBins = new ArrayList<>();
 
   Data data;
 
@@ -137,22 +127,8 @@ public class SwingGui
         .add(zoomedVelocityBearingOverTimePlotPanel);
 
     JPanel topRightPanel = new JPanel();
-    bearingHistogramDataset = new SimpleHistogramDataset("Relative Bearing");
-    bearingHistogramDataset.setAdjustForBinSize(false);
-    for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
-    {
-      SimpleHistogramBin bin = new SimpleHistogramBin(
-          (i * 360d / Constants.NUMBER_OF_BEARING_BINS) - 180d,
-          ((i + 1) * 360d / Constants.NUMBER_OF_BEARING_BINS) - 180d,
-          true,
-          false);
-      bearingHistogramBins.add(bin);
-      bearingHistogramDataset.addBin(bin);
-    }
-    updateBearingHistogramDataset();
-    JFreeChart bearingHistogramChart = ChartFactory.createHistogram("Relative Bearing", "Relative Bearing [°]", "Occurances",  bearingHistogramDataset, PlotOrientation.VERTICAL, false, false, false);
-    ChartPanel bearingChartPanel = new ChartPanel(bearingHistogramChart);
-    topRightPanel.add(bearingChartPanel);
+    zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    topRightPanel.add(zoomedBearingHistogramPlotPanel);
 
     zoomPanel.addListener(this::zoomPanelStateChanged);
     topRightPanel.add(zoomPanel);
@@ -256,49 +232,6 @@ public class SwingGui
     System.out.println("Usage: ${startcommand} ${file} ${windDirectionInDegreees}");
   }
 
-  public int getLocationDataStartIndex()
-  {
-    return zoomPanel.getStartIndex();
-  }
-
-  public int getLocationDataEndIndex()
-  {
-    int zoom = zoomPanel.getZoomIndex();
-    int startIndex = getLocationDataStartIndex();
-    int result = startIndex + zoom * (pointsWithLocation.size() - 1) / Constants.NUMER_OF_ZOOM_TICKS;
-    result = Math.min(result, (pointsWithLocation.size() - 1));
-    return result;
-  }
-
-  public LocalDateTime getLocationDataStartTime()
-  {
-    return pointsWithLocation.get(getLocationDataStartIndex()).getLocalDateTime();
-  }
-
-  public LocalDateTime getLocationDataEndTime()
-  {
-    return pointsWithLocation.get(getLocationDataEndIndex()).getLocalDateTime();
-  }
-
-  public void updateBearingHistogramDataset()
-  {
-    for (SimpleHistogramBin bin : bearingHistogramBins)
-    {
-      bin.setItemCount(0);
-    }
-    for (DataPoint point : pointsWithLocation)
-    {
-      if (point.getLocalDateTime().isAfter(getLocationDataStartTime())
-          && point.getLocalDateTime().isBefore(getLocationDataEndTime()))
-      {
-        if (point.location.bearingFromLatLong != null)
-        {
-          bearingHistogramDataset.addObservation(point.getRelativeBearingAs360Degrees());
-        }
-      }
-    }
-  }
-
   public void analyze()
   {
     pointsWithLocation = data.getPointsWithLocation();
@@ -320,9 +253,9 @@ public class SwingGui
       int zoomWindowZoomIndex = zoomPanel.getZoomIndex();
       fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+      zoomedBearingHistogramPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       fullMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-      updateBearingHistogramDataset();
       velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       tackVelocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
@@ -430,8 +363,10 @@ public class SwingGui
     zoomPanel.setDataSize(pointsWithLocation.size());
     fullVelocityBearingOverTimePlotPanel.dataChanged(data);
     zoomedVelocityBearingOverTimePlotPanel.dataChanged(data);
+    zoomedBearingHistogramPlotPanel.dataChanged(data);
     fullMapPlotPanel.dataChanged(data);
     zoomedMapPlotPanel.dataChanged(data);
+    tackVelocityBearingPolarPlotPanel.dataChanged(data);
     velocityBearingPolarPlotPanel.dataChanged(data);
   }
 
