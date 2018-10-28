@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui.plot;
+package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import java.awt.Color;
 

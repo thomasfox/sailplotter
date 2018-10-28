@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui;
+package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.data.xy.XYDataItem;

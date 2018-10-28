@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui.plot;
+package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -6,9 +6,6 @@ import org.jfree.chart.plot.PolarPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import com.github.thomasfox.sailplotter.gui.PolarScatterRenderer;
-import com.github.thomasfox.sailplotter.gui.XYSailDataItem;
-import com.github.thomasfox.sailplotter.gui.XYTooltipFromLabelGenerator;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.Tack;
 

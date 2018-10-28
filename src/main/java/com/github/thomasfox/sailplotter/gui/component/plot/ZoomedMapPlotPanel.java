@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui.plot;
+package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import java.awt.Color;
 import java.util.List;
@@ -14,8 +14,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.gui.XYTooltipFromLabelGenerator;
-import com.github.thomasfox.sailplotter.gui.XYZoomRenderer;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;

@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui;
+package com.github.thomasfox.sailplotter.gui.component.table;
 
 import java.text.DecimalFormat;
 import java.util.List;
