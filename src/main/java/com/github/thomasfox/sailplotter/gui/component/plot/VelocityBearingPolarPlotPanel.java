@@ -31,11 +31,6 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
-  }
-
-  @Override
-  protected void onDataChanged()
-  {
     List<List<Double>> velocityBuckets = new ArrayList<>(Constants.NUMBER_OF_BEARING_BINS);
     for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
     {
@@ -95,5 +90,10 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
     dataset.removeAllSeries();
     dataset.addSeries(maxVelocity);
     dataset.addSeries(medianVelocity);
+  }
+
+  @Override
+  protected void onDataChanged()
+  {
   }
 }
