@@ -6,11 +6,11 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.thomasfox.sailplotter.Constants;
+import com.github.thomasfox.sailplotter.model.Acceleration;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
 import com.github.thomasfox.sailplotter.model.MagneticField;
-import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
 public class SailLoggerImporter implements Importer
 {
@@ -46,7 +46,7 @@ public class SailLoggerImporter implements Importer
       }
       if (rawPoint.hasAccelerationData())
       {
-        dataPoint.acceleration = new ThreeDimVector(rawPoint.accX, rawPoint.accY, rawPoint.accZ);
+        dataPoint.acceleration = new Acceleration(rawPoint.accX, rawPoint.accY, rawPoint.accZ);
         dataPoint.time = rawPoint.accT;
       }
       result.add(dataPoint);

@@ -66,23 +66,9 @@ public class DeviceOrientationAnalyzer
 
     if (maxOccurenceOfRelativeBearingInArcs != null)
     {
-      for (int i = 1; i < data.getAllPoints().size() - 1; ++i)
-      {
-        DataPoint point = data.getAllPoints().get(i);
-        if (point.hasMagneticField()
-            && point.magneticField.compassBearing != null)
-        {
-          point.magneticField.compassBearing -= maxOccurenceOfRelativeBearingInArcs;
-          if (point.magneticField.compassBearing < 0)
-          {
-            point.magneticField.compassBearing += 2 * Math.PI;
-          }
-          if (point.magneticField.compassBearing > 2 * Math.PI)
-          {
-            point.magneticField.compassBearing -= 2 * Math.PI;
-          }
-        }
-      }
+      horizontalCoordinateSystem = horizontalCoordinateSystem.getRotatedAroundZ(maxOccurenceOfRelativeBearingInArcs);
+      setCompassBearings(data.getAllPoints(), horizontalCoordinateSystem);
+      setHeelAndRoll(data.getAllPoints(), horizontalCoordinateSystem);
     }
     return data;
   }
@@ -142,7 +128,7 @@ public class DeviceOrientationAnalyzer
     {
       return null;
     }
-    averageAcceleration.multiplyBy(1d / accelerationCount);
+    averageAcceleration = averageAcceleration.multiplyBy(1d / accelerationCount);
     return averageAcceleration;
   }
 
@@ -161,6 +147,22 @@ public class DeviceOrientationAnalyzer
         // 2pi - fieldDir because we look at the fixed field from the turned device
         Double compassBearing = new Double(2 * Math.PI - horizontalMagneticField.getBearingToYInArcs());
         point.magneticField.compassBearing = compassBearing;
+      }
+    }
+  }
+
+  private void setHeelAndRoll(
+      List<DataPoint> points,
+      CoordinateSystem horizontalCoordinateSystem)
+  {
+    for (int i = 1; i < points.size() - 1; ++i)
+    {
+      DataPoint point = points.get(i);
+      if (point.hasAcceleration())
+      {
+        ThreeDimVector normalizedAcceleration = point.acceleration.normalize();
+        point.acceleration.heel = Math.atan(horizontalCoordinateSystem.getX(normalizedAcceleration));
+        point.acceleration.roll = Math.atan(horizontalCoordinateSystem.getY(normalizedAcceleration));
       }
     }
   }

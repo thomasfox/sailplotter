@@ -8,6 +8,7 @@ import java.util.List;
 import org.assertj.core.data.Offset;
 import org.junit.Test;
 
+import com.github.thomasfox.sailplotter.model.Acceleration;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
 import com.github.thomasfox.sailplotter.model.MagneticField;
@@ -129,7 +130,7 @@ public class DeviceOrientationAnalyzerTest
     for (ThreeDimVector acceleration : accelerationData)
     {
       DataPoint point = new DataPoint(0);
-      point.acceleration = acceleration;
+      point.acceleration = new Acceleration(acceleration.x, acceleration.y, acceleration.z);
       points.add(point);
     }
     return points;

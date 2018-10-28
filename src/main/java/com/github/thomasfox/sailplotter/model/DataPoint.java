@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.thomasfox.sailplotter.Constants;
-import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
 public class DataPoint
@@ -41,7 +40,7 @@ public class DataPoint
    * in arbitrary but constant orientation.
    */
   @JsonInclude(Include.NON_NULL)
-  public ThreeDimVector acceleration;
+  public Acceleration acceleration;
 
   /** Wind data at place of boat, can be interpolated. */
   @JsonInclude(Include.NON_NULL)
@@ -62,7 +61,7 @@ public class DataPoint
     this.location = Location.copy(toCopy.location);
     this.wind = Wind.copy(toCopy.wind);
     this.magneticField = MagneticField.copy(toCopy.magneticField);
-    this.acceleration = ThreeDimVector.copy(toCopy.acceleration);
+    this.acceleration = Acceleration.copy(toCopy.acceleration);
     this.manoeuverState = toCopy.manoeuverState;
   }
 

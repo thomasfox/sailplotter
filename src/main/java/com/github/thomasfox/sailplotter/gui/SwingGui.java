@@ -30,7 +30,9 @@ import com.github.thomasfox.sailplotter.gui.component.plot.TackVelocityBearingPo
 import com.github.thomasfox.sailplotter.gui.component.plot.VelocityBearingPolarPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingHistogramPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingOverTimePlotPanel;
+import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedHeelOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedMapPlotPanel;
+import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedRollOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedVelocityBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.table.TackSeriesTablePanel;
 import com.github.thomasfox.sailplotter.gui.component.table.TackTablePanel;
@@ -69,6 +71,10 @@ public class SwingGui
   private final AbstractPlotPanel tackVelocityBearingPolarPlotPanel;
 
   private final AbstractPlotPanel zoomedBearingOverTimePlotPanel;
+
+  private final AbstractPlotPanel zoomedHeelOverTimePlotPanel;
+
+  private final AbstractPlotPanel zoomedRollOverTimePlotPanel;
 
   Data data;
 
@@ -177,6 +183,14 @@ public class SwingGui
     directions.layoutForAdding().gridx(0).gridy(0).weightx(0.5).weighty(0.5)
         .add(zoomedBearingOverTimePlotPanel);
 
+    zoomedHeelOverTimePlotPanel = new ZoomedHeelOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    directions.layoutForAdding().gridx(1).gridy(0).weightx(0.5).weighty(0.5)
+        .add(zoomedHeelOverTimePlotPanel);
+
+    zoomedRollOverTimePlotPanel = new ZoomedRollOverTimePlotPanel(data, zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    directions.layoutForAdding().gridx(0).gridy(1).weightx(0.5).weighty(0.5)
+        .add(zoomedRollOverTimePlotPanel);
+
     commentPanel = new CommentPanel(data.comment, data::setComment);
     comments.layoutForAdding().gridx(0).gridy(0).weightx(1).weighty(0.9)
       .add(commentPanel);
@@ -259,6 +273,8 @@ public class SwingGui
       velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       tackVelocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       zoomedBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+      zoomedHeelOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+      zoomedRollOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
       commentPanel.setText(data.comment);
       if (updateTableContent)
       {
@@ -369,6 +385,8 @@ public class SwingGui
     tackVelocityBearingPolarPlotPanel.dataChanged(data);
     velocityBearingPolarPlotPanel.dataChanged(data);
     zoomedBearingOverTimePlotPanel.dataChanged(data);
+    zoomedHeelOverTimePlotPanel.dataChanged(data);
+    zoomedRollOverTimePlotPanel.dataChanged(data);
   }
 
   public void saveFile(File file)

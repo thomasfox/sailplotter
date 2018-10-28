@@ -29,11 +29,39 @@ public class CoordinateSystem
     this.z = toCopy.z;
   }
 
+  public double getX(ThreeDimVector in)
+  {
+    return x.scalarProduct(in);
+  }
+
+  public double getY(ThreeDimVector in)
+  {
+    return y.scalarProduct(in);
+  }
+
+  public double getZ(ThreeDimVector in)
+  {
+    return z.scalarProduct(in);
+  }
+
   @Override
   public String toString()
   {
     return "[" + x + ", " + y + ", " + z + "]";
   }
+
+  public CoordinateSystem getRotatedAroundZ(double arcs)
+  {
+    ThreeDimVector rotatedX = x.multiplyBy(Math.cos(arcs));
+    rotatedX.add(y.multiplyBy(Math.sin(arcs)));
+    ThreeDimMatrix rotationMatrix = ThreeDimMatrix.getRotationMatrix(x, rotatedX);
+    CoordinateSystem result = new CoordinateSystem(
+        rotationMatrix.multiply(x),
+        rotationMatrix.multiply(y),
+        rotationMatrix.multiply(z));
+    return result;
+  }
+
   @Override
   public int hashCode()
   {

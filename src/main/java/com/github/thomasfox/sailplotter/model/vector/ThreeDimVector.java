@@ -53,11 +53,13 @@ public class ThreeDimVector
     this.z += other.z;
   }
 
-  public void multiplyBy(Double factor)
+  public ThreeDimVector multiplyBy(Double factor)
   {
-    this.x *= factor;
-    this.y *= factor;
-    this.z *= factor;
+    ThreeDimVector result = new ThreeDimVector(
+        x * factor,
+        y * factor,
+        z * factor);
+    return result;
   }
 
   public ThreeDimVector crossProduct(ThreeDimVector other)

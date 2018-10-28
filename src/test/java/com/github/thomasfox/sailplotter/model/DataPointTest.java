@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.within;
 import org.jfree.data.time.Millisecond;
 import org.junit.Test;
 
-import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
-
 public class DataPointTest
 {
   @Test
@@ -30,7 +28,7 @@ public class DataPointTest
 
     point.magneticField = new MagneticField(70d, -80d, 90d);
     point.magneticField.compassBearing = Math.PI / 2;
-    point.acceleration = new ThreeDimVector(71d, -81d, 91d);
+    point.acceleration = new Acceleration(71d, -81d, 91d);
 
     point.manoeuverState = ManoeuverState.IN_TACK;
 

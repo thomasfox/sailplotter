@@ -139,6 +139,32 @@ public abstract class AbstractPlotPanel extends JPanel
     return series;
   }
 
+  public TimeSeries getAccelerationHeelTimeSeries(TimeWindowPosition position)
+  {
+    TimeSeries series = new TimeSeries("heel");
+    for (DataPoint point : data.getAllPoints())
+    {
+      if (isInSelectedPosition(point, position) && point.hasAcceleration() && point.acceleration.heel != null)
+      {
+        series.addOrUpdate(point.getMillisecond(), point.acceleration.heel * 180d / Math.PI);
+      }
+    }
+    return series;
+  }
+
+  public TimeSeries getAccelerationRollTimeSeries(TimeWindowPosition position)
+  {
+    TimeSeries series = new TimeSeries("roll");
+    for (DataPoint point : data.getAllPoints())
+    {
+      if (isInSelectedPosition(point, position) && point.hasAcceleration() && point.acceleration.roll != null)
+      {
+        series.addOrUpdate(point.getMillisecond(), point.acceleration.roll * 180d / Math.PI);
+      }
+    }
+    return series;
+  }
+
   public TimeSeries getZoomDisplaySeries(List<DataPoint> data)
   {
     Millisecond startValue = data.get(getLocationDataStartIndex()).getMillisecond();
