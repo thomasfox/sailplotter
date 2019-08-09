@@ -11,7 +11,6 @@ import org.jfree.data.time.DateRange;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
@@ -22,9 +21,9 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
 
   private final XYPlot plot;
 
-  public FullVelocityBearingOverTimePlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public FullVelocityBearingOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Velocity and Bearing (Full)",
         "Time",
@@ -34,13 +33,17 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
         false,
         false);
     plot = (XYPlot) chart.getPlot();
-    onDataChanged();
-    onZoomChanged();
+    resetDataSeries();
     addPanelFor(chart);
   }
 
   @Override
   protected void onZoomChanged()
+  {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
   {
     dataset.removeAllSeries();
     dataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));

@@ -21,7 +21,7 @@ public class TackTablePanel extends JScrollPane
 
   private final JTable tacksTable;
 
-  public TackTablePanel(List<Tack> tackList, ListSelectionListener listener)
+  public TackTablePanel(ListSelectionListener listener)
   {
     tackTableModel = new DefaultTableModel(
         new String[] {
@@ -38,7 +38,6 @@ public class TackTablePanel extends JScrollPane
             "Tacking angle at Start",
             "Maneuver at End"},
         0);
-    updateContent(tackList);
     tacksTable = new JTable(tackTableModel);
     tacksTable.setFillsViewportHeight(true);
     tacksTable.getSelectionModel().addListSelectionListener(listener);

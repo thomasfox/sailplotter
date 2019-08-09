@@ -33,9 +33,8 @@ public abstract class AbstractPlotPanel extends JPanel
 
   private int zoomWindowLocationSize;
 
-  protected AbstractPlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  protected AbstractPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    this.data = data;
     this.zoomWindowLocationStartIndex = zoomWindowLocationStartIndex;
     this.zoomWindowLocationSize = zoomWindowLocationSize;
   }
@@ -129,6 +128,10 @@ public abstract class AbstractPlotPanel extends JPanel
   public TimeSeries getCompassBearingTimeSeries(TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("compass bearing");
+    if (data == null)
+    {
+      return series;
+    }
     for (DataPoint point : data.getAllPoints())
     {
       if (isInSelectedPosition(point, position) && point.hasMagneticField() && point.magneticField.compassBearing != null)
@@ -142,6 +145,10 @@ public abstract class AbstractPlotPanel extends JPanel
   public TimeSeries getAccelerationHeelTimeSeries(TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("heel");
+    if (data == null)
+    {
+      return series;
+    }
     for (DataPoint point : data.getAllPoints())
     {
       if (isInSelectedPosition(point, position) && point.hasAcceleration() && point.acceleration.heel != null)
@@ -155,6 +162,10 @@ public abstract class AbstractPlotPanel extends JPanel
   public TimeSeries getAccelerationRollTimeSeries(TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("roll");
+    if (data == null)
+    {
+      return series;
+    }
     for (DataPoint point : data.getAllPoints())
     {
       if (isInSelectedPosition(point, position) && point.hasAcceleration() && point.acceleration.roll != null)
@@ -167,9 +178,13 @@ public abstract class AbstractPlotPanel extends JPanel
 
   public TimeSeries getZoomDisplaySeries(List<DataPoint> data)
   {
+    TimeSeries series = new TimeSeries("velocity");
+    if (data == null)
+    {
+      return series;
+    }
     Millisecond startValue = data.get(getLocationDataStartIndex()).getMillisecond();
     Millisecond endValue = data.get(getLocationDataEndIndex()).getMillisecond();
-    TimeSeries series = new TimeSeries("velocity");
     series.addOrUpdate(startValue, 2);
     series.addOrUpdate(endValue, 2);
     return series;
@@ -178,6 +193,10 @@ public abstract class AbstractPlotPanel extends JPanel
   public XYSeries getXySeries(TimeWindowPosition position, double xOffset, double yOffset)
   {
     XYSeries series = new XYSeries("XY" + position, false, true);
+    if (data == null)
+    {
+      return series;
+    }
     int tackIndex = 0;
     Tack containingTack = data.getTackList().get(tackIndex);
     for (DataPoint point : getLocationSubset(position))
@@ -233,6 +252,11 @@ public abstract class AbstractPlotPanel extends JPanel
   List<DataPoint> getLocationSubset(TimeWindowPosition position)
   {
     List<DataPoint> result = new ArrayList<>();
+    if (data == null)
+    {
+      return result;
+    }
+
     for (DataPoint point : data.getPointsWithLocation())
     {
       if (!isInSelectedPosition(point, position))

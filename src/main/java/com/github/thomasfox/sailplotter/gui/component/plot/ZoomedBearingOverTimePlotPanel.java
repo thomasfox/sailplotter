@@ -9,7 +9,6 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.model.Data;
 
 public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
 {
@@ -19,9 +18,9 @@ public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
 
   private final XYPlot plot;
 
-  public ZoomedBearingOverTimePlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedBearingOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Bearing (Zoom)",
         "Time",

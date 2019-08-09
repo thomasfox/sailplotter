@@ -16,21 +16,26 @@ public class CommentPanel extends JScrollPane implements DocumentListener
   private static final long serialVersionUID = 1L;
 
   /** Is called with the new content of the text whenever the text changes. */
-  private final Consumer<String> textConsumer;
+  private Consumer<String> textConsumer;
 
   private final JTextArea textArea;
 
-  public CommentPanel(String text, Consumer<String> textConsumer)
+  public CommentPanel()
   {
     this.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    this.textConsumer = textConsumer;
-    textArea = new JTextArea(text);
+    setTextConsumer(textConsumer);
+    textArea = new JTextArea();
     textArea.setFont(new Font("Serif", Font.ITALIC, 16));
     textArea.setLineWrap(true);
     textArea.setWrapStyleWord(true);
     setViewportView(textArea);
     textArea.getDocument().addDocumentListener(this);
+  }
+
+  public void setTextConsumer(Consumer<String> textConsumer)
+  {
+    this.textConsumer = textConsumer;
   }
 
   public void setText(String text)

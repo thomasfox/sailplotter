@@ -11,7 +11,6 @@ import org.jfree.data.statistics.SimpleHistogramDataset;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
@@ -23,9 +22,9 @@ public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
 
   List<SimpleHistogramBin> bearingHistogramBins = new ArrayList<>();
 
-  public ZoomedBearingHistogramPlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedBearingHistogramPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     dataset.setAdjustForBinSize(false);
     for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
     {

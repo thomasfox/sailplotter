@@ -5,7 +5,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.model.Data;
 
 public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
 {
@@ -13,9 +12,9 @@ public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
 
   private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-  public ZoomedRollOverTimePlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedRollOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Roll",
         "Time",

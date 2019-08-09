@@ -12,7 +12,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class FullMapPlotPanel extends AbstractPlotPanel
@@ -23,13 +22,12 @@ public class FullMapPlotPanel extends AbstractPlotPanel
 
   private final XYPlot plot;
 
-  public FullMapPlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public FullMapPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", dataset, PlotOrientation.VERTICAL, false, false, false);
     plot = (XYPlot) chart.getPlot();
 
-    onDataChanged();
     onZoomChanged();
     addPanelFor(chart);
   }
@@ -38,6 +36,10 @@ public class FullMapPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
+    if (data == null)
+    {
+      return;
+    }
     List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
     if (pointsWithLocation.size() == 0)
     {

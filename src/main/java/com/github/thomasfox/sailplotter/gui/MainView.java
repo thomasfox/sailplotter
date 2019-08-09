@@ -6,62 +6,69 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
 
-public class MainPanel extends JPanel
+public class MainView extends JPanel
 {
   private static final long serialVersionUID = 1L;
 
-  public MainPanel()
+  public MainView()
   {
     setLayout(new GridBagLayout());
   }
 
-  public Layout layoutForAdding()
+  public Layout createLayout()
   {
     return new Layout(this);
   }
 
   public static class Layout
   {
-    MainPanel panel;
+    MainView panel;
     private final GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
-    private Layout(MainPanel panel)
+    private Layout(MainView panel)
     {
       this.panel = panel;
       gridBagConstraints.fill = GridBagConstraints.BOTH;
     }
 
-    public Layout gridx(int x)
+    public Layout withGridx(int x)
     {
       gridBagConstraints.gridx = x;
       return this;
     }
 
-    public Layout gridy(int y)
+    public Layout withGridy(int y)
     {
       gridBagConstraints.gridy = y;
       return this;
     }
 
-    public Layout weightx(double weightx)
+    public Layout withGridxy(int x, int y)
+    {
+      gridBagConstraints.gridx = x;
+      gridBagConstraints.gridy = y;
+      return this;
+    }
+
+    public Layout withWeightx(double weightx)
     {
       gridBagConstraints.weightx = weightx;
       return this;
     }
 
-    public Layout weighty(double weighty)
+    public Layout withWeighty(double weighty)
     {
       gridBagConstraints.weighty = weighty;
       return this;
     }
 
-    public Layout columnSpan(int width)
+    public Layout withColumnSpan(int width)
     {
       gridBagConstraints.gridwidth = width;
       return this;
     }
 
-    public Layout noFillY()
+    public Layout withNoFillY()
     {
       gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
       return this;

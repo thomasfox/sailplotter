@@ -10,7 +10,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
-import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
@@ -19,9 +18,9 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
 
   private final XYSeriesCollection dataset = new XYSeriesCollection();
 
-  public VelocityBearingPolarPlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public VelocityBearingPolarPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createPolarChart("Velocity over rel. Bearing", dataset, false, false, false);
 
     onDataChanged();
@@ -31,6 +30,11 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    dataset.removeAllSeries();
+    if (data == null)
+    {
+      return;
+    }
     List<List<Double>> velocityBuckets = new ArrayList<>(Constants.NUMBER_OF_BEARING_BINS);
     for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
     {
@@ -87,7 +91,6 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
         medianVelocity.add(i * 360d / Constants.NUMBER_OF_BEARING_BINS, 0);
       }
     }
-    dataset.removeAllSeries();
     dataset.addSeries(maxVelocity);
     dataset.addSeries(medianVelocity);
   }

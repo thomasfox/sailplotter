@@ -5,7 +5,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.model.Data;
 
 public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
 {
@@ -13,9 +12,9 @@ public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
 
   private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-  public ZoomedHeelOverTimePlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedHeelOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Heel",
         "Time",

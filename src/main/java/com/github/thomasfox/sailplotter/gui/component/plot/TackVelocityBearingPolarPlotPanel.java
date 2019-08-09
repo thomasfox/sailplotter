@@ -6,7 +6,6 @@ import org.jfree.chart.plot.PolarPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.Tack;
 
 public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
@@ -15,9 +14,9 @@ public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
 
   private final XYSeriesCollection dataset = new XYSeriesCollection();
 
-  public TackVelocityBearingPolarPlotPanel(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public TackVelocityBearingPolarPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
-    super(data, zoomWindowLocationStartIndex, zoomWindowLocationSize);
+    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createPolarChart("Tack Velocity over rel. Bearing", dataset, false, true, false);
     PolarPlot plot = (PolarPlot) chart.getPlot();
     PolarScatterRenderer renderer = new PolarScatterRenderer();
@@ -31,6 +30,11 @@ public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    dataset.removeAllSeries();
+    if (data == null)
+    {
+      return;
+    }
     XYSeries tackVelocity = new XYSeries("tackVelocity", false, true);
     for (Tack tack : data.getTackList())
     {
@@ -47,7 +51,6 @@ public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
         }
       }
     }
-    dataset.removeAllSeries();
     dataset.addSeries(tackVelocity);  }
 
   @Override

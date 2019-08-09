@@ -26,7 +26,7 @@ public class ZoomPanel extends JPanel implements ChangeListener
 
   private boolean notifyOff = false;
 
-  public ZoomPanel(int dataSize)
+  public ZoomPanel()
   {
     this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
     setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -35,12 +35,7 @@ public class ZoomPanel extends JPanel implements ChangeListener
     label.setPreferredSize(new Dimension(0, 15));
     this.add(label);
 
-    int startSliderSize = 0;
-    if (dataSize > 0)
-    {
-      startSliderSize = dataSize - 1;
-    }
-    startSlider = new JSlider(JSlider.HORIZONTAL, 0, startSliderSize, 0);
+    startSlider = new JSlider(JSlider.HORIZONTAL, 0, 0, 0);
     startSlider.addChangeListener(this);
     this.add(startSlider);
 
