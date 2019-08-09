@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui;
+package com.github.thomasfox.sailplotter.gui.component.view;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -6,11 +6,11 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
 
-public class MainView extends JPanel
+public abstract class AbstractView extends JPanel
 {
   private static final long serialVersionUID = 1L;
 
-  public MainView()
+  public AbstractView()
   {
     setLayout(new GridBagLayout());
   }
@@ -22,10 +22,10 @@ public class MainView extends JPanel
 
   public static class Layout
   {
-    MainView panel;
+    AbstractView panel;
     private final GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
-    private Layout(MainView panel)
+    private Layout(AbstractView panel)
     {
       this.panel = panel;
       gridBagConstraints.fill = GridBagConstraints.BOTH;

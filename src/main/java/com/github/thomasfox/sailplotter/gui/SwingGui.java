@@ -17,10 +17,9 @@ import com.github.thomasfox.sailplotter.analyze.TackSeriesAnalyzer;
 import com.github.thomasfox.sailplotter.analyze.UseGpsTimeDataCorrector;
 import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
 import com.github.thomasfox.sailplotter.exporter.Exporter;
-import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
-import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingOverTimePlotPanel;
-import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedHeelOverTimePlotPanel;
-import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedRollOverTimePlotPanel;
+import com.github.thomasfox.sailplotter.gui.component.view.CommentsView;
+import com.github.thomasfox.sailplotter.gui.component.view.DirectionsView;
+import com.github.thomasfox.sailplotter.gui.component.view.Overview;
 import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
 import com.github.thomasfox.sailplotter.model.Data;
 
@@ -34,47 +33,39 @@ public class SwingGui
 
   private final JFrame frame;
 
-  private final ZoomPanel zoomPanelDirections;
-
   private final Menubar menubar;
 
   private final Overview overview;
 
-  private final AbstractPlotPanel zoomedBearingOverTimePlotPanel;
+  private final DirectionsView directionsView;
 
-  private final AbstractPlotPanel zoomedHeelOverTimePlotPanel;
-
-  private final AbstractPlotPanel zoomedRollOverTimePlotPanel;
+  private final  CommentsView commentsView;
 
   Data data;
 
   JPanel views;
 
-  CommentPanel commentPanel;
-
   double windBearing;
 
-  boolean inUpdate = false;
+  public boolean inUpdate = false;
 
   public SwingGui(String filePath, Integer windDirectionInDegrees)
   {
     overview = new Overview(this);
+    directionsView = new DirectionsView(this);
+    commentsView = new CommentsView(this);
 
     if (windDirectionInDegrees == null)
     {
       windDirectionInDegrees = 0;
     }
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
-    zoomPanelDirections = new ZoomPanel();
-    zoomPanelDirections.addListener(this::zoomPanelStateChanged);
 
-    MainView directions = new MainView();
-    MainView comments = new MainView();
 
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
-    views.add(directions, ANGLES_VIEW_NAME);
-    views.add(comments, COMMENTS_VIEW_NAME);
+    views.add(directionsView, ANGLES_VIEW_NAME);
+    views.add(commentsView, COMMENTS_VIEW_NAME);
 
     frame = new JFrame("SailPlotter");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -90,26 +81,6 @@ public class SwingGui
     frame.setJMenuBar(menubar);
 
     frame.getContentPane().add(views, BorderLayout.CENTER);
-
-    zoomedBearingOverTimePlotPanel = new ZoomedBearingOverTimePlotPanel(overview.zoomPanel.getStartIndex(), overview.zoomPanel.getZoomIndex());
-    directions.createLayout().withGridx(0).withGridy(0).withWeightx(0.5).withWeighty(0.5)
-        .add(zoomedBearingOverTimePlotPanel);
-
-    zoomedHeelOverTimePlotPanel = new ZoomedHeelOverTimePlotPanel(overview.zoomPanel.getStartIndex(), overview.zoomPanel.getZoomIndex());
-    directions.createLayout().withGridx(1).withGridy(0).withWeightx(0.5).withWeighty(0.5)
-        .add(zoomedHeelOverTimePlotPanel);
-
-    zoomedRollOverTimePlotPanel = new ZoomedRollOverTimePlotPanel(overview.zoomPanel.getStartIndex(), overview.zoomPanel.getZoomIndex());
-    directions.createLayout().withGridx(0).withGridy(1).withWeightx(0.5).withWeighty(0.5)
-        .add(zoomedRollOverTimePlotPanel);
-
-    directions.createLayout().withGridx(1).withGridy(1).withWeightx(0.5).withWeighty(0.2).withNoFillY()
-        .add(zoomPanelDirections);
-
-
-    commentPanel = new CommentPanel();
-    comments.createLayout().withGridx(0).withGridy(0).withWeightx(1).withWeighty(0.9)
-      .add(commentPanel);
 
     if (filePath != null)
     {
@@ -197,12 +168,8 @@ public class SwingGui
     {
       inUpdate = true;
       overview.redisplay(updateTableContent);
-      int zoomWindowStartIndex = overview.zoomPanel.getStartIndex();
-      int zoomWindowZoomIndex = overview.zoomPanel.getZoomIndex();
-      zoomedBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-      zoomedHeelOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-      zoomedRollOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-      commentPanel.setText(data.comment);
+      directionsView.redisplay();
+      commentsView.redisplay();
     }
     finally
     {
@@ -218,10 +185,10 @@ public class SwingGui
       overview.zoomPanel.setStartIndex(e.getStartIndex(), false);
       overview.zoomPanel.setZoomIndex(e.getZoomPosition(), false);
     }
-    if (!e.isSource(zoomPanelDirections))
+    if (!e.isSource(directionsView.zoomPanel))
     {
-      zoomPanelDirections.setStartIndex(e.getStartIndex(), false);
-      zoomPanelDirections.setZoomIndex(e.getZoomPosition(), false);
+      directionsView.zoomPanel.setStartIndex(e.getStartIndex(), false);
+      directionsView.zoomPanel.setZoomIndex(e.getZoomPosition(), false);
     }
   }
 
@@ -267,11 +234,8 @@ public class SwingGui
   {
     analyze();
     overview.dataChanged(data);
-    zoomPanelDirections.setDataSize(data.getPointsWithLocation().size());
-    zoomedBearingOverTimePlotPanel.dataChanged(data);
-    zoomedHeelOverTimePlotPanel.dataChanged(data);
-    zoomedRollOverTimePlotPanel.dataChanged(data);
-    commentPanel.setTextConsumer(data::setComment);
+    directionsView.dataChanged(data);
+    commentsView.dataChanged(data);
   }
 
   public void saveFile(File file)

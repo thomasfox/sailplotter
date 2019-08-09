@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui;
+package com.github.thomasfox.sailplotter.gui.component.view;
 
 import java.awt.Dimension;
 import java.util.List;
@@ -10,6 +10,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 
 import com.github.thomasfox.sailplotter.Constants;
+import com.github.thomasfox.sailplotter.gui.SwingGui;
+import com.github.thomasfox.sailplotter.gui.ZoomPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullVelocityBearingOverTimePlotPanel;
@@ -24,13 +26,13 @@ import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.Tack;
 import com.github.thomasfox.sailplotter.model.TackSeries;
 
-public class Overview extends MainView
+public class Overview extends AbstractView
 {
   private static final long serialVersionUID = 1L;
 
-  final SwingGui gui;
+  private final SwingGui gui;
 
-  final ZoomPanel zoomPanel;
+  public final ZoomPanel zoomPanel;
 
   private final AbstractPlotPanel fullVelocityBearingOverTimePlotPanel;
 
@@ -52,7 +54,7 @@ public class Overview extends MainView
 
   private Data data;
 
-  List<TackSeries> tackSeriesList;
+  public List<TackSeries> tackSeriesList;
 
   public Overview(SwingGui gui)
   {
