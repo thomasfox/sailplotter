@@ -90,7 +90,12 @@ public class TackListByCorrelationAnalyzer
       }
       if (change < lastTack.endOfTackDataPointIndex - lastTack.startOfTackDataPointIndex)
       {
-        nextTack.start(points.get(nextTack.startOfTackDataPointIndex + change), nextTack.startOfTackDataPointIndex + change);
+        int dataPointIndex = nextTack.startOfTackDataPointIndex + change;
+        if (dataPointIndex < 0)
+        {
+          dataPointIndex = 0;
+        }
+        nextTack.start(points.get(dataPointIndex), dataPointIndex);
       }
     }
     return tacks;

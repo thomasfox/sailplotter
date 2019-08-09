@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -93,11 +94,22 @@ public class SwingGui
 
   boolean inUpdate = false;
 
-  public SwingGui(String filePath, int windDirectionInDegrees)
+  public SwingGui(String filePath, Integer windDirectionInDegrees)
   {
+    if (windDirectionInDegrees == null)
+    {
+      windDirectionInDegrees = 0;
+    }
     this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
-    data = new FormatAwareImporter().read(new File(filePath));
-    analyze();
+    if (filePath != null)
+    {
+      data = new FormatAwareImporter().read(new File(filePath));
+      analyze();
+    }
+    else
+    {
+      data = new Data();
+    }
     zoomPanelOverview = new ZoomPanel(data.getPointsWithLocation().size());
     zoomPanelOverview.addListener(this::zoomPanelStateChanged);
     zoomPanelDirections = new ZoomPanel(data.getPointsWithLocation().size());
@@ -115,9 +127,10 @@ public class SwingGui
     frame = new JFrame("SailPlotter");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+    File currentFile = Optional.ofNullable(filePath).map(File::new).orElse(null);
     menubar = new Menubar(frame)
-        .addLoadFileMenuItem(new File(filePath), this::loadFile)
-        .addSaveFileMenuItem(new Exporter().replaceExtension(new File(filePath)), this::saveFile)
+        .addLoadFileMenuItem(currentFile, this::loadFile)
+        .addSaveFileMenuItem(new Exporter().replaceExtension(currentFile), this::saveFile)
         .addViews(this::changeView,
             OVERVIEW_VIEW_NAME,
             ANGLES_VIEW_NAME,
@@ -205,42 +218,51 @@ public class SwingGui
 
   public static void main(String[] args)
   {
-    if (args.length != 2)
+    if (args.length > 2)
     {
       printUsage();
       return;
     }
-    String filename = args[0];
-    File file;
-    try
+    String filename = null;
+    if (args.length > 0)
     {
-      file = new File(filename);
+      filename = args[0];
+      File file;
+      try
+      {
+        file = new File(filename);
+      }
+      catch (Exception e)
+      {
+        printUsage();
+        return;
+      }
+      if (!file.canRead())
+      {
+        System.out.println("File " + filename + " cannot be read");
+        return;
+      }
     }
-    catch (Exception e)
+    Integer windDirectionInDegrees = null;
+    if (args.length > 1)
     {
-      printUsage();
-      return;
+      try
+      {
+        windDirectionInDegrees = Integer.parseInt(args[1]);
+      }
+      catch (Exception e)
+      {
+        printUsage();
+        return;
+      }
     }
-    if (!file.canRead())
-    {
-      System.out.println("File " + filename + " cannot be read");
-      return;
-    }
-    int windDirectionInDegreees;
-    try
-    {
-      windDirectionInDegreees = Integer.parseInt(args[1]);
-    }
-    catch (Exception e)
-    {
-      printUsage();
-      return;
-    }
+    final String filenameToPass = filename;
+    final Integer windDirectionInDegreesToPass = windDirectionInDegrees;
     javax.swing.SwingUtilities.invokeLater(new Runnable()
     {
       @Override
       public void run() {
-        new SwingGui(filename, windDirectionInDegreees);
+        new SwingGui(filenameToPass, windDirectionInDegreesToPass);
       }
     });
   }

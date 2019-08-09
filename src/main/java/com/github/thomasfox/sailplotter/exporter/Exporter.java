@@ -13,6 +13,10 @@ public class Exporter
 
   public File replaceExtension(File file)
   {
+    if (file == null)
+    {
+      return null;
+    }
     String result;
     String path = file.getPath();
     if (path.indexOf('.') != -1)

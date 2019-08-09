@@ -55,6 +55,10 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
   protected void onDataChanged()
   {
     List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
+    if (pointsWithLocation.size() == 0)
+    {
+      return;
+    }
     Range dataRange = new DateRange(
         pointsWithLocation.get(0).time,
         pointsWithLocation.get(pointsWithLocation.size() -1).time);

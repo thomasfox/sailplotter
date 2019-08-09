@@ -45,6 +45,10 @@ public class TackSeriesTablePanel extends JScrollPane
     {
       tackSeriesTableModel.removeRow(0);
     }
+    if (tackSeriesList == null)
+    {
+      return;
+    }
     for (TackSeries tackSeries : tackSeriesList)
     {
       tackSeriesTableModel.addRow(new Object[] {

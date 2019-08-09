@@ -1,6 +1,7 @@
 package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import java.awt.Color;
+import java.util.List;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -37,7 +38,12 @@ public class FullMapPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    DataPoint startPoint = data.getPointsWithLocation().get(0);
+    List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
+    if (pointsWithLocation.size() == 0)
+    {
+      return;
+    }
+    DataPoint startPoint = pointsWithLocation.get(0);
     dataset.addSeries(getXySeries(TimeWindowPosition.BEFORE, startPoint.location.getX(), startPoint.location.getY()));
     dataset.addSeries(getXySeries( TimeWindowPosition.IN, startPoint.location.getX(), startPoint.location.getY()));
     dataset.addSeries(getXySeries(TimeWindowPosition.AFTER, startPoint.location.getX(), startPoint.location.getY()));
@@ -46,7 +52,12 @@ public class FullMapPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
-    DataPoint startPoint = data.getPointsWithLocation().get(0);
+    List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
+    if (pointsWithLocation.size() == 0)
+    {
+      return;
+    }
+    DataPoint startPoint = pointsWithLocation.get(0);
     Range xRange = new Range(
         getMinimum(data.getPointsWithLocation(), d->d.location.getX()) - startPoint.location.getX(),
         getMaximum(data.getPointsWithLocation(), d->d.location.getX()) - startPoint.location.getX());

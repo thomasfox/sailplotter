@@ -44,7 +44,12 @@ public class ZoomedMapPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    DataPoint startPoint = data.getPointsWithLocation().get(0);
+    List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
+    if (pointsWithLocation.size() == 0)
+    {
+      return;
+    }
+    DataPoint startPoint = pointsWithLocation.get(0);
     dataset.addSeries(getXySeries(TimeWindowPosition.IN, startPoint.location.getX(), startPoint.location.getY()));
     dataset.addSeries(getTackIntersectionSeries(data.getTackList(), TimeWindowPosition.IN, startPoint.location.getX(), startPoint.location.getY()));
 

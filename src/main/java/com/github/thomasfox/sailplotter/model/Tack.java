@@ -140,7 +140,10 @@ public class Tack
     start = startPoint;
     startOfTackDataPointIndex = dataPointIndex;
     pointOfSail = startPoint.getPointOfSail();
-    windDirection = startPoint.wind.direction;
+    if (startPoint.wind != null)
+    {
+      windDirection = startPoint.wind.direction;
+    }
   }
 
   public void end(DataPoint point, int dataPointIndex, List<DataPoint> completeData)
