@@ -1,6 +1,6 @@
 package com.github.thomasfox.sailplotter.analyze;
 
-import static  org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
