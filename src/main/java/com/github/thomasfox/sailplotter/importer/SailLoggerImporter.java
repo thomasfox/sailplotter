@@ -83,6 +83,7 @@ public class SailLoggerImporter implements Importer
     public Double locLong;
     public Float locBear;
     public Float locVel;
+    public float locAlt;
     public Long locDevT;
     public Long magT;
     public Double magX;
@@ -112,6 +113,8 @@ public class SailLoggerImporter implements Importer
   public static final class SailLoggerStart
   {
     public String format;
+    public String loggedBy;
+    public String loggedByVersion;
     public long startT;
     public String startTFormatted;
   }
