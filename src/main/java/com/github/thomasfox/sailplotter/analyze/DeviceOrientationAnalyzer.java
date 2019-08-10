@@ -14,10 +14,10 @@ import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
  * in the device's coordinate system in the following steps:
  * <ul>
  *   <li>
- *     The up direction is determined by getting the mean acceleration
- *     of the device. The mean direction will point in the direction
- *     of gravity up.
- *     IF the boat is not heeled on average, this will also be the
+ *     The up direction at any point is determined by getting the acceleration
+ *     of the device.
+ *     By determining the mean acceleration, we will get the mean direction of gravity up.
+ *     IF the boat is not heeled or rolled on average, this will also be the
  *     the up direction of the boat.
  *   </li>
  *   <li>
@@ -25,7 +25,7 @@ import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
  *     As an approximation, we assume that the boat is moving on average forward
  *     (may not be exactly true due to current and leeway).
  *     The forward direction at one point relative to the earth
- *     can thus be determined by the gps-based absolute bearing.
+ *     can be determined by the gps-based absolute bearing.
  *     A fixed direction on the earth coordinate system
  *     (probably close to north, but that is not important)
  *     is obtained by measuring the horizontal component
@@ -51,24 +51,24 @@ public class DeviceOrientationAnalyzer
 
   public Data analyze(Data data)
   {
-    CoordinateSystem horizontalCoordinateSystem
+    CoordinateSystem approximateHorizontalCoordinateSystem
         = getHorizontalCoordinateSystemFromAverageAcceleration(data.getAllPoints());
 
-    if (horizontalCoordinateSystem == null)
+    if (approximateHorizontalCoordinateSystem == null)
     {
       return data;
     }
 
-    setCompassBearings(data.getAllPoints(), horizontalCoordinateSystem);
+    setCompassBearings(data.getAllPoints(), approximateHorizontalCoordinateSystem);
 
     Double maxOccurenceOfRelativeBearingInArcs
         = getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(data.getAllPoints());
 
     if (maxOccurenceOfRelativeBearingInArcs != null)
     {
-      horizontalCoordinateSystem = horizontalCoordinateSystem.getRotatedAroundZ(maxOccurenceOfRelativeBearingInArcs);
-      setCompassBearings(data.getAllPoints(), horizontalCoordinateSystem);
-      setHeelAndRoll(data.getAllPoints(), horizontalCoordinateSystem);
+      approximateHorizontalCoordinateSystem = approximateHorizontalCoordinateSystem.getRotatedAroundZ(maxOccurenceOfRelativeBearingInArcs);
+      setCompassBearings(data.getAllPoints(), approximateHorizontalCoordinateSystem);
+      setHeelAndRoll(data.getAllPoints(), approximateHorizontalCoordinateSystem);
     }
     return data;
   }
@@ -90,9 +90,9 @@ public class DeviceOrientationAnalyzer
     // assuming average is upright position of boat
     ThreeDimVector uprightAcceleration = getAverageAcceleration(points);
 
-    if (uprightAcceleration == null || uprightAcceleration.length() < 0.1)
+    if (uprightAcceleration == null || uprightAcceleration.length() < 1)
     {
-      // we have no data or we have no defined upright position
+      // should be close to 10. Less than 1 means we have no data or we have no defined upright position
       return null;
     }
 
@@ -134,16 +134,26 @@ public class DeviceOrientationAnalyzer
 
   private void setCompassBearings(
       List<DataPoint> points,
-      CoordinateSystem horizontalCoordinateSystem)
+      CoordinateSystem approximateHorizontalCoordinateSystem)
   {
     for (int i = 1; i < points.size() - 1; ++i)
     {
       DataPoint point = points.get(i);
       if (point.hasMagneticField())
       {
+        ThreeDimVector up = getAccelerationAt(i, points);
+        if (up == null)
+        {
+          continue;
+        }
+        up = up.normalize();
+        ThreeDimVector roughlyFront = approximateHorizontalCoordinateSystem.x;
+        ThreeDimVector roughlyLeft = up.crossProduct(roughlyFront).normalize();
+        roughlyFront = roughlyLeft.crossProduct(up).normalize();
+        CoordinateSystem coordinateSystemToUse = new CoordinateSystem(roughlyFront, roughlyLeft, up);
         TwoDimVector horizontalMagneticField = new TwoDimVector(
-            horizontalCoordinateSystem.x.scalarProduct(point.magneticField),
-            horizontalCoordinateSystem.y.scalarProduct(point.magneticField));
+            coordinateSystemToUse.x.scalarProduct(point.magneticField),
+            coordinateSystemToUse.y.scalarProduct(point.magneticField));
         // 2pi - fieldDir because we look at the fixed field from the turned device
         Double compassBearing = new Double(2 * Math.PI - horizontalMagneticField.getBearingToYInArcs());
         point.magneticField.compassBearing = compassBearing;
@@ -228,5 +238,89 @@ public class DeviceOrientationAnalyzer
       normalizedRelativeBearing += 1;
     }
     return normalizedRelativeBearing;
+  }
+
+  ThreeDimVector getAccelerationAt(int index, List<DataPoint> dataPoints)
+  {
+    long time = dataPoints.get(index).time;
+    ThreeDimVector nearestBelow = null;
+    Long nearestBelowTime = null;
+    for (int i = index; i >=0 ; i--)
+    {
+      DataPoint dataPoint = dataPoints.get(i);
+      if (!dataPoint.hasAcceleration())
+      {
+        continue;
+      }
+      if (dataPoint.time == time)
+      {
+        return dataPoint.acceleration;
+      }
+      if (dataPoint.time > time)
+      {
+        throw new IllegalArgumentException("points are not ordered, point " + index + " has time " + time
+            + " while point " + i + " has time " + dataPoint.time);
+      }
+      nearestBelowTime = dataPoint.time;
+      nearestBelow = dataPoint.acceleration;
+      break;
+    }
+
+    ThreeDimVector nearestAbove = null;
+    Long nearestAboveTime = null;
+    for (int i = index; i < dataPoints.size(); i++)
+    {
+      DataPoint dataPoint = dataPoints.get(i);
+      if (!dataPoint.hasAcceleration())
+      {
+        continue;
+      }
+      if (dataPoint.time == time)
+      {
+        return dataPoint.acceleration;
+      }
+      if (dataPoint.time < time)
+      {
+        throw new IllegalArgumentException("points are not ordered, point " + index + " has time " + time
+            + " while point " + i + " has time " + dataPoint.time);
+      }
+      nearestAboveTime = dataPoint.time;
+      nearestAbove = dataPoint.acceleration;
+      break;
+    }
+    for (DataPoint dataPoint : dataPoints)
+    {
+      if (!dataPoint.hasAcceleration())
+      {
+        continue;
+      }
+      if (dataPoint.time == time)
+      {
+        return dataPoint.acceleration;
+      }
+      if (dataPoint.time < time && (nearestBelow == null || nearestBelowTime < dataPoint.time))
+      {
+        nearestBelowTime = dataPoint.time;
+        nearestBelow = dataPoint.acceleration;
+      }
+      else if (dataPoint.time > time && (nearestAbove == null || nearestAboveTime > dataPoint.time))
+      {
+        nearestAboveTime = dataPoint.time;
+        nearestAbove = dataPoint.acceleration;
+      }
+    }
+    if (nearestBelowTime == null || nearestAboveTime == null)
+    {
+      // we did not find two enclosing data points with acceleration
+      return null;
+    }
+    if (nearestAboveTime - nearestBelowTime > 1000)
+    {
+      // enclosing points are too far apart
+      return null;
+    }
+    return ThreeDimVector.weightedAdd(
+        nearestBelow, nearestAboveTime - time,
+        nearestAbove, time - nearestBelowTime);
   }
 }

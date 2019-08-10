@@ -1,6 +1,7 @@
 package com.github.thomasfox.sailplotter.analyze;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,10 +120,115 @@ public class DeviceOrientationAnalyzerTest
     // act
     Double normalizedRelativeBearing = sut.getNormalizedRelativeBearingOfCompassToGps(points.get(0));
 
-
     // assert
     assertThat(normalizedRelativeBearing).isCloseTo(0.75, Offset.offset(0.00001));
   }
+
+  @Test
+  public void getAccelerationAt()
+  {
+    // arrange
+    List<DataPoint> points = givenAccelerationDataIs(
+        new ThreeDimVector(10d, 0d, 0d),
+        new ThreeDimVector(1d, 10d, 0d),
+        new ThreeDimVector(1d, 0d, 10d),
+        new ThreeDimVector(10d, 0d, 0d));
+    points.add(2, new DataPoint(0));
+    points.get(0).time = 0l;
+    points.get(1).time = 500l;
+    points.get(2).time = 800l;
+    points.get(3).time = 1000l;
+    points.get(4).time = 1500l;
+
+    // act
+    ThreeDimVector result = sut.getAccelerationAt(2, points);
+
+    // assert
+    assertThat(result.x).isCloseTo(1d, within(0.001));
+    assertThat(result.y).isCloseTo(4d, within(0.001));
+    assertThat(result.z).isCloseTo(6d, within(0.001));
+  }
+
+  @Test
+  public void getAccelerationAt_exactPointFound()
+  {
+    // arrange
+    List<DataPoint> points = givenAccelerationDataIs(
+        new ThreeDimVector(10d, 0d, 0d),
+        new ThreeDimVector(1d, 10d, 2d),
+        new ThreeDimVector(10d, 0d, 0d),
+        new ThreeDimVector(10d, 0d, 0d));
+    points.get(0).time = 0l;
+    points.get(1).time = 500l;
+    points.get(2).time = 1000l;
+    points.get(3).time = 1500l;
+
+    // act
+    ThreeDimVector result = sut.getAccelerationAt(1, points);
+
+    // assert
+    assertThat(result.x).isCloseTo(1d, within(0.001));
+    assertThat(result.y).isCloseTo(10d, within(0.001));
+    assertThat(result.z).isCloseTo(2d, within(0.001));
+  }
+
+  @Test
+  public void getAccelerationAt_intervalTooLong()
+  {
+    // arrange
+    List<DataPoint> points = givenAccelerationDataIs(
+        new ThreeDimVector(10d, 0d, 0d),
+        new ThreeDimVector(1d, 10d, 2d));
+    points.add(1, new DataPoint(0));
+    points.get(0).time = 0l;
+    points.get(1).time = 500l;
+    points.get(2).time = 5000l;
+
+    // act
+    ThreeDimVector result = sut.getAccelerationAt(1, points);
+
+    // assert
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void getAccelerationAt_noDataBelow()
+  {
+    // arrange
+    List<DataPoint> points = givenAccelerationDataIs(
+        new ThreeDimVector(10d, 0d, 0d),
+        new ThreeDimVector(1d, 10d, 2d));
+    points.add(0, new DataPoint(0));
+    points.get(0).time = 0l;
+    points.get(1).time = 1000l;
+    points.get(2).time = 5000l;
+
+    // act
+    ThreeDimVector result = sut.getAccelerationAt(0, points);
+
+    // assert
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void getAccelerationAt_noDataAbove()
+  {
+    // arrange
+    List<DataPoint> points = givenAccelerationDataIs(
+        new ThreeDimVector(10d, 0d, 0d),
+        new ThreeDimVector(1d, 10d, 2d));
+    points.add(new DataPoint(0));
+    points.get(0).time = 0l;
+    points.get(1).time = 100l;
+    points.get(2).time = 200l;
+
+    // act
+    ThreeDimVector result = sut.getAccelerationAt(2, points);
+
+    // assert
+    assertThat(result).isNull();
+  }
+
 
   private List<DataPoint> givenAccelerationDataIs(ThreeDimVector... accelerationData)
   {

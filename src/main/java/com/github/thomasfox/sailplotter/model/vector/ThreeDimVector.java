@@ -92,6 +92,27 @@ public class ThreeDimVector
     return true;
   }
 
+  public static ThreeDimVector weightedAdd(
+      ThreeDimVector vector1, double weight1,
+      ThreeDimVector vector2, double weight2)
+  {
+    if (weight1 < 0)
+    {
+      throw new IllegalArgumentException("weight1 must be >= 0, was " + weight1);
+    }
+    if (weight2 < 0)
+    {
+      throw new IllegalArgumentException("weight2 must be >= 0, was " + weight2);
+    }
+    double normalizedWeight1 = weight1 / (weight1 + weight2);
+    double normalizedWeight2 = weight2 / (weight1 + weight2);
+
+    ThreeDimVector result = vector1.multiplyBy(normalizedWeight1);
+    result.add(vector2.multiplyBy(normalizedWeight2));
+
+    return result;
+  }
+
   @Override
   public String toString()
   {
