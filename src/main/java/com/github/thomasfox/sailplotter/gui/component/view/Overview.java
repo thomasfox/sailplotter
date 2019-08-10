@@ -12,6 +12,7 @@ import javax.swing.event.ListSelectionEvent;
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.SwingGui;
 import com.github.thomasfox.sailplotter.gui.ZoomPanel;
+import com.github.thomasfox.sailplotter.gui.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullVelocityBearingOverTimePlotPanel;
@@ -32,7 +33,7 @@ public class Overview extends AbstractView
 
   private final SwingGui gui;
 
-  public final ZoomPanel zoomPanel;
+  private final ZoomPanel zoomPanel;
 
   private final AbstractPlotPanel fullVelocityBearingOverTimePlotPanel;
 
@@ -205,6 +206,7 @@ public class Overview extends AbstractView
   public void dataChanged(Data data)
   {
     this.data = data;
+    zoomPanel.setDataSize(data.getPointsWithLocation().size());
     fullVelocityBearingOverTimePlotPanel.dataChanged(data);
     zoomedVelocityBearingOverTimePlotPanel.dataChanged(data);
     zoomedBearingHistogramPlotPanel.dataChanged(data);
@@ -214,4 +216,13 @@ public class Overview extends AbstractView
     velocityBearingPolarPlotPanel.dataChanged(data);
   }
 
+  @Override
+  public void alignZoomPanelToChangeEvent(ZoomPanelChangeEvent e)
+  {
+    if (!e.isSource(zoomPanel))
+    {
+      zoomPanel.setStartIndex(e.getStartIndex(), false);
+      zoomPanel.setZoomIndex(e.getZoomPosition(), false);
+    }
+  }
 }

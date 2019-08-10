@@ -35,7 +35,7 @@ public class ZoomPanel extends JPanel implements ChangeListener
     label.setPreferredSize(new Dimension(0, 15));
     this.add(label);
 
-    startSlider = new JSlider(JSlider.HORIZONTAL, 0, 0, 0);
+    startSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
     startSlider.addChangeListener(this);
     this.add(startSlider);
 

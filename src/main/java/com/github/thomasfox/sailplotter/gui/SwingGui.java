@@ -179,17 +179,10 @@ public class SwingGui
 
   public void zoomPanelStateChanged(ZoomPanelChangeEvent e)
   {
+    overview.alignZoomPanelToChangeEvent(e);
+    directionsView.alignZoomPanelToChangeEvent(e);
+    commentsView.alignZoomPanelToChangeEvent(e);
     redisplay(false);
-    if (!e.isSource(overview.zoomPanel))
-    {
-      overview.zoomPanel.setStartIndex(e.getStartIndex(), false);
-      overview.zoomPanel.setZoomIndex(e.getZoomPosition(), false);
-    }
-    if (!e.isSource(directionsView.zoomPanel))
-    {
-      directionsView.zoomPanel.setStartIndex(e.getStartIndex(), false);
-      directionsView.zoomPanel.setZoomIndex(e.getZoomPosition(), false);
-    }
   }
 
   public void windDirectionChanged(ActionEvent event)

@@ -1,12 +1,13 @@
 package com.github.thomasfox.sailplotter.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
 /**
  * Magnetic field at boat position.
  * The x,y and z components of the field are measured in microtesla,
  * in arbitrary but constant orientation (because we do not know
- * how the mobile phone is fixed on the boat, but we assume 
+ * how the mobile phone is fixed on the boat, but we assume
  * that its orientation does not change over time).
  */
 public class MagneticField extends ThreeDimVector
@@ -44,4 +45,16 @@ public class MagneticField extends ThreeDimVector
     }
     return new MagneticField(toCopy);
   }
+
+  @JsonIgnore
+  public Double getCompassBearingAs360Degrees()
+  {
+    if (compassBearing != null)
+    {
+      return compassBearing / 2 / Math.PI * 360;
+    }
+    return null;
+  }
+
+
 }

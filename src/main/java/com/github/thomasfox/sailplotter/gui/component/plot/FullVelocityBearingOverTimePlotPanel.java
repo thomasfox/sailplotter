@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.time.DateRange;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -17,22 +21,44 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
 {
   private static final long serialVersionUID = 1L;
 
-  private final TimeSeriesCollection dataset = new TimeSeriesCollection();
+  private final TimeSeriesCollection velocityDataset = new TimeSeriesCollection();
+
+  private final TimeSeriesCollection bearingDataset = new TimeSeriesCollection();
 
   private final XYPlot plot;
 
   public FullVelocityBearingOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
   {
     super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
-    JFreeChart chart = ChartFactory.createTimeSeriesChart(
+
+    plot = new XYPlot();
+    plot.setDataset(0, velocityDataset);
+    plot.setDataset(1, bearingDataset);
+    ValueAxis timeAxis = new DateAxis("Time");
+    timeAxis.setLowerMargin(0.02);  // reduce the default margins
+    timeAxis.setUpperMargin(0.02);
+    plot.setDomainAxis(0, timeAxis);
+    NumberAxis velocityAxis = new NumberAxis("Velocity [kts]");
+    velocityAxis.setAutoRangeIncludesZero(false);
+    plot.setRangeAxis(0, velocityAxis);
+    NumberAxis bearingAxis = new NumberAxis("Bearing [°]");
+    bearingAxis.setAutoRangeIncludesZero(false);
+    plot.setRangeAxis(1, bearingAxis);
+
+    XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true,
+            false);
+    plot.setRenderer(renderer);
+
+    plot.mapDatasetToRangeAxis(0, 0);
+    plot.mapDatasetToRangeAxis(1, 1);
+
+    JFreeChart chart = new JFreeChart(
         "Velocity and Bearing (Full)",
-        "Time",
-        "Velocity [kts] / Bearing [arcs]",
-        dataset,
-        false,
-        false,
+        JFreeChart.DEFAULT_TITLE_FONT,
+        plot,
         false);
-    plot = (XYPlot) chart.getPlot();
+    ChartFactory.getChartTheme().apply(chart);
+
     resetDataSeries();
     addPanelFor(chart);
   }
@@ -45,13 +71,14 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
 
   private void resetDataSeries()
   {
-    dataset.removeAllSeries();
-    dataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));
-    dataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.AFTER));
-    dataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
-    dataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.AFTER));
+    velocityDataset.removeAllSeries();
+    bearingDataset.removeAllSeries();
+    velocityDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));
+    velocityDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
+    velocityDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.AFTER));
+    bearingDataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
+    bearingDataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
+    bearingDataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.AFTER));
   }
 
   @Override

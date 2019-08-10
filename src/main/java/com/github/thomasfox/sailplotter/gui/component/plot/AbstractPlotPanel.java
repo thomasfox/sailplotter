@@ -105,27 +105,27 @@ public abstract class AbstractPlotPanel extends JPanel
     return series;
   }
 
-  public TimeSeries getBearingFromLatLongTimeSeries(TimeWindowPosition position)
+  public TimeSeries getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("bearing from pos");
     for (DataPoint point : getLocationSubset(position))
     {
-      series.addOrUpdate(point.getMillisecond(), point.location.bearingFromLatLong);
+      series.addOrUpdate(point.getMillisecond(), point.location.getBearingFromLatLongAs360Degrees());
     }
     return series;
   }
 
-  public TimeSeries getGpsBearingTimeSeries(TimeWindowPosition position)
+  public TimeSeries getGpsBearingInDegreesTimeSeries(TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("gps bearing");
     for (DataPoint point : getLocationSubset(position))
     {
-      series.addOrUpdate(point.getMillisecond(), point.location.bearing);
+      series.addOrUpdate(point.getMillisecond(), point.location.getGpsBearingAs360Degrees());
     }
     return series;
   }
 
-  public TimeSeries getCompassBearingTimeSeries(TimeWindowPosition position)
+  public TimeSeries getCompassBearingInDegreesTimeSeries(TimeWindowPosition position)
   {
     TimeSeries series = new TimeSeries("compass bearing");
     if (data == null)
@@ -136,7 +136,7 @@ public abstract class AbstractPlotPanel extends JPanel
     {
       if (isInSelectedPosition(point, position) && point.hasMagneticField() && point.magneticField.compassBearing != null)
       {
-        series.addOrUpdate(point.getMillisecond(), point.magneticField.compassBearing);
+        series.addOrUpdate(point.getMillisecond(), point.magneticField.getCompassBearingAs360Degrees());
       }
     }
     return series;

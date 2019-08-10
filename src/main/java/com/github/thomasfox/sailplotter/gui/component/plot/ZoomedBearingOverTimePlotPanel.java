@@ -24,7 +24,7 @@ public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Bearing (Zoom)",
         "Time",
-        "Bearing [arcs]",
+        "Bearing [degrees]",
         dataset,
         true,
         false,
@@ -46,9 +46,9 @@ public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    dataset.addSeries(getBearingFromLatLongTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(getGpsBearingTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(getCompassBearingTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(getGpsBearingInDegreesTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(getCompassBearingInDegreesTimeSeries(TimeWindowPosition.IN));
   }
 
   @Override

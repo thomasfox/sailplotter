@@ -112,6 +112,16 @@ public class Location
     return null;
   }
 
+  @JsonIgnore
+  public Double getGpsBearingAs360Degrees()
+  {
+    if (bearing != null)
+    {
+      return bearing / 2 / Math.PI * 360;
+    }
+    return null;
+  }
+
   public static Location intersection(Location line1Point1, Location line1Point2, Location line2Point1, Location line2Point2)
   {
     double deltaXLine1 = line1Point2.getX() - line1Point1.getX();

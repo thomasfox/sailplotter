@@ -2,6 +2,7 @@ package com.github.thomasfox.sailplotter.gui.component.view;
 
 import com.github.thomasfox.sailplotter.gui.SwingGui;
 import com.github.thomasfox.sailplotter.gui.ZoomPanel;
+import com.github.thomasfox.sailplotter.gui.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedHeelOverTimePlotPanel;
@@ -18,7 +19,7 @@ public class DirectionsView extends AbstractView
 
   private final AbstractPlotPanel zoomedRollOverTimePlotPanel;
 
-  public final ZoomPanel zoomPanel;
+  private final ZoomPanel zoomPanel;
 
   public DirectionsView(SwingGui gui)
   {
@@ -62,6 +63,16 @@ public class DirectionsView extends AbstractView
     zoomedBearingOverTimePlotPanel.dataChanged(data);
     zoomedHeelOverTimePlotPanel.dataChanged(data);
     zoomedRollOverTimePlotPanel.dataChanged(data);
+  }
+
+  @Override
+  public void alignZoomPanelToChangeEvent(ZoomPanelChangeEvent e)
+  {
+    if (!e.isSource(zoomPanel))
+    {
+      zoomPanel.setStartIndex(e.getStartIndex(), false);
+      zoomPanel.setZoomIndex(e.getZoomPosition(), false);
+    }
   }
 
 }
