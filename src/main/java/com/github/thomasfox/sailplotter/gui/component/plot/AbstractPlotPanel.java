@@ -197,8 +197,13 @@ public abstract class AbstractPlotPanel extends JPanel
     {
       return series;
     }
+    List<Tack> tackList = data.getTackList();
+    if (tackList == null || tackList.size() == 0)
+    {
+      return series;
+    }
     int tackIndex = 0;
-    Tack containingTack = data.getTackList().get(tackIndex);
+    Tack containingTack = tackList.get(tackIndex);
     for (DataPoint point : getLocationSubset(position))
     {
       while (containingTack.endOfTackDataPointIndex < point.index && tackIndex < data.getTackList().size() - 1)
