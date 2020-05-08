@@ -49,6 +49,8 @@ public class DeviceOrientationAnalyzer
 {
   private static final int HISTOGRAM_SIZE = 360;
 
+  private static final int MAX_ACCELERATION_DISTANCE_MILLIS = 1000;
+
   public Data analyze(Data data)
   {
     CoordinateSystem approximateHorizontalCoordinateSystem
@@ -132,6 +134,13 @@ public class DeviceOrientationAnalyzer
     return averageAcceleration;
   }
 
+  /**
+   * Sets the compass bearings for the points with magnetic field measurements.
+   *
+   * @param points the points to set compass bearings for, non null.
+   * @param approximateHorizontalCoordinateSystem A coordinate systems which is fixed at the device
+   *        and which z axis is approximately up in neutral position of the ship, not null.
+   */
   private void setCompassBearings(
       List<DataPoint> points,
       CoordinateSystem approximateHorizontalCoordinateSystem)
@@ -141,21 +150,23 @@ public class DeviceOrientationAnalyzer
       DataPoint point = points.get(i);
       if (point.hasMagneticField())
       {
+        // get the projection of the device-fixed coordinate system on a coordinate system which is truly
+        // horizontal.
         ThreeDimVector up = getAccelerationAt(i, points);
         if (up == null)
         {
           continue;
         }
         up = up.normalize();
-        ThreeDimVector roughlyFront = approximateHorizontalCoordinateSystem.x;
-        ThreeDimVector roughlyLeft = up.crossProduct(roughlyFront).normalize();
-        roughlyFront = roughlyLeft.crossProduct(up).normalize();
-        CoordinateSystem coordinateSystemToUse = new CoordinateSystem(roughlyFront, roughlyLeft, up);
+        ThreeDimVector horizontalX = approximateHorizontalCoordinateSystem.x;
+        ThreeDimVector horizontalY = up.crossProduct(horizontalX).normalize();
+        horizontalX = horizontalY.crossProduct(up).normalize();
+        CoordinateSystem trulyHorizontalCoordinateSystem = new CoordinateSystem(horizontalX, horizontalY, up);
         TwoDimVector horizontalMagneticField = new TwoDimVector(
-            coordinateSystemToUse.x.scalarProduct(point.magneticField),
-            coordinateSystemToUse.y.scalarProduct(point.magneticField));
+            trulyHorizontalCoordinateSystem.x.scalarProduct(point.magneticField),
+            trulyHorizontalCoordinateSystem.y.scalarProduct(point.magneticField));
         // 2pi - fieldDir because we look at the fixed field from the turned device
-        Double compassBearing = new Double(2 * Math.PI - horizontalMagneticField.getBearingToYInArcs());
+        Double compassBearing = Double.valueOf(2 * Math.PI - horizontalMagneticField.getBearingToYInArcs());
         point.magneticField.compassBearing = compassBearing;
       }
     }
@@ -189,7 +200,7 @@ public class DeviceOrientationAnalyzer
         Double relativeNormalizedBearing = getNormalizedRelativeBearingOfCompassToGps(point);
         if (relativeNormalizedBearing != null)
         {
-          int histogramBucket = new Double(HISTOGRAM_SIZE * relativeNormalizedBearing).intValue();
+          int histogramBucket = Double.valueOf(HISTOGRAM_SIZE * relativeNormalizedBearing).intValue();
           if (histogramBucket >= 0 && histogramBucket < HISTOGRAM_SIZE)
           {
             bearingHistogram[histogramBucket]++;
@@ -240,6 +251,18 @@ public class DeviceOrientationAnalyzer
     return normalizedRelativeBearing;
   }
 
+  /**
+   * Approximates the reading of the acceleration sensor at the point with index <code>i</code>
+   * by using a weighted average of the nearest acceleration readings.
+   * Returns null if no points above and below with acceleration readings can be found,
+   * or if the two points are too far apart (more than <code>MAX_ACCELERATION_DISTANCE_MILLIS</code>),
+   *
+   * @param index the index of the point to get the acceleration reading from
+   * @param dataPoints the list of data points, not null. Must be in ascending order with respect to time.
+   *
+   * @return the approximate acceleration reading at point <code>index</code>,
+   *         or null if it cannot be determined.
+   */
   ThreeDimVector getAccelerationAt(int index, List<DataPoint> dataPoints)
   {
     long time = dataPoints.get(index).time;
@@ -314,7 +337,7 @@ public class DeviceOrientationAnalyzer
       // we did not find two enclosing data points with acceleration
       return null;
     }
-    if (nearestAboveTime - nearestBelowTime > 1000)
+    if (nearestAboveTime - nearestBelowTime > MAX_ACCELERATION_DISTANCE_MILLIS)
     {
       // enclosing points are too far apart
       return null;
