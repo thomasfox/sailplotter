@@ -2,8 +2,12 @@ package com.github.thomasfox.sailplotter.importer;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
@@ -38,6 +42,21 @@ public class ViewRangerImporter implements Importer
     {
       ViewRangerData readValue = mapper.readValue(file, ViewRangerData.class);
       return readValue;
+    }
+    catch (JsonMappingException e)
+    {
+      // ViewRanger forgets closing tags when saving. Try adding them.
+      try
+      {
+        String fileContentAsString = FileUtils.readFileToString(file, StandardCharsets.ISO_8859_1);
+        fileContentAsString = fileContentAsString + "]}";
+        ViewRangerData readValue = mapper.readValue(fileContentAsString, ViewRangerData.class);
+        return readValue;
+      }
+      catch (IOException ee)
+      {
+        throw new RuntimeException(ee);
+      }
     }
     catch (IOException e)
     {
