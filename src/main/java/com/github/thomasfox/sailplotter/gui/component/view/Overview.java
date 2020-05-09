@@ -1,6 +1,7 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -214,6 +215,7 @@ public class Overview extends AbstractView
     zoomedMapPlotPanel.dataChanged(data);
     tackVelocityBearingPolarPlotPanel.dataChanged(data);
     velocityBearingPolarPlotPanel.dataChanged(data);
+    tackSeriesList = new ArrayList<>(data.getTackSeriesList());
   }
 
   @Override

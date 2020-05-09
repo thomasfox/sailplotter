@@ -16,6 +16,8 @@ public class Data
 
   private transient List<Tack> tackList = new ArrayList<Tack>();
 
+  private transient List<TackSeries> tackSeriesList = new ArrayList<TackSeries>();
+
   /**
    * Coordinate System of the boat main axes (front, right, down)
    * in the coordinate system of the measuring device.
@@ -75,5 +77,10 @@ public class Data
   public List<Tack> getTackList()
   {
     return tackList;
+  }
+
+  public List<TackSeries> getTackSeriesList()
+  {
+    return tackSeriesList;
   }
 }

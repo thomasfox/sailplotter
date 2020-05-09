@@ -9,13 +9,21 @@ import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
 
 public class ViewRangerImporter implements Importer
 {
-  final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
+
+  private final LoadProgress loadProgress;
+
+  public ViewRangerImporter(LoadProgress loadProgress)
+  {
+    this.loadProgress = loadProgress;
+  }
 
   @Override
   public Data read(File file)
@@ -40,7 +48,9 @@ public class ViewRangerImporter implements Importer
   {
     try
     {
+      loadProgress.fileReadingStarted();
       ViewRangerData readValue = mapper.readValue(file, ViewRangerData.class);
+      loadProgress.fileReadingFinished();
       return readValue;
     }
     catch (JsonMappingException e)
@@ -51,15 +61,18 @@ public class ViewRangerImporter implements Importer
         String fileContentAsString = FileUtils.readFileToString(file, StandardCharsets.ISO_8859_1);
         fileContentAsString = fileContentAsString + "]}";
         ViewRangerData readValue = mapper.readValue(fileContentAsString, ViewRangerData.class);
+        loadProgress.fileReadingFinished();
         return readValue;
       }
       catch (IOException ee)
       {
+        loadProgress.finished();
         throw new RuntimeException(ee);
       }
     }
     catch (IOException e)
     {
+      loadProgress.finished();
       throw new RuntimeException(e);
     }
   }

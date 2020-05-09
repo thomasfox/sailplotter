@@ -22,12 +22,20 @@ import java.time.format.SignStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
 
 public class SailRacerImporter implements Importer
 {
+  private final LoadProgress loadProgress;
+
+  public SailRacerImporter(LoadProgress loadProgress)
+  {
+    this.loadProgress = loadProgress;
+  }
+
   private static final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
       .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
       .appendLiteral('.')
@@ -68,6 +76,7 @@ public class SailRacerImporter implements Importer
   public List<SailRacerPoint> readFileInternal(File file)
   {
     List<SailRacerPoint> result = new ArrayList<>();
+    loadProgress.fileReadingStarted();
     try (InputStream is = new FileInputStream(file))
     {
       BufferedReader reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
@@ -79,8 +88,10 @@ public class SailRacerImporter implements Importer
     }
     catch (IOException e)
     {
+      loadProgress.finished();
       throw new RuntimeException(e);
     }
+    loadProgress.fileReadingFinished();
     return result;
   }
 

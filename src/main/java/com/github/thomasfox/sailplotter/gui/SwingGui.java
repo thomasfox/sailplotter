@@ -10,17 +10,14 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import com.github.thomasfox.sailplotter.analyze.DeviceOrientationAnalyzer;
-import com.github.thomasfox.sailplotter.analyze.LocationInterpolator;
-import com.github.thomasfox.sailplotter.analyze.TackListByCorrelationAnalyzer;
-import com.github.thomasfox.sailplotter.analyze.TackSeriesAnalyzer;
-import com.github.thomasfox.sailplotter.analyze.UseGpsTimeDataCorrector;
-import com.github.thomasfox.sailplotter.analyze.VelocityBearingAnalyzer;
+import com.github.thomasfox.sailplotter.analyze.Analyzer;
 import com.github.thomasfox.sailplotter.exporter.Exporter;
+import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
+import com.github.thomasfox.sailplotter.gui.component.progress.ProgressDialog;
 import com.github.thomasfox.sailplotter.gui.component.view.CommentsView;
 import com.github.thomasfox.sailplotter.gui.component.view.DirectionsView;
 import com.github.thomasfox.sailplotter.gui.component.view.Overview;
-import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
+import com.github.thomasfox.sailplotter.gui.component.worker.LoadFileWorker;
 import com.github.thomasfox.sailplotter.model.Data;
 
 public class SwingGui
@@ -39,11 +36,13 @@ public class SwingGui
 
   private final DirectionsView directionsView;
 
-  private final  CommentsView commentsView;
+  private final CommentsView commentsView;
 
-  Data data;
+  private final ProgressDialog progressDialog;
 
-  JPanel views;
+  private Data data;
+
+  private final JPanel views;
 
   double windBearing;
 
@@ -82,6 +81,11 @@ public class SwingGui
 
     frame.getContentPane().add(views, BorderLayout.CENTER);
 
+    frame.setVisible(true);
+    frame.pack();
+
+    progressDialog = new ProgressDialog(frame);
+
     if (filePath != null)
     {
       loadFile(new File(filePath));
@@ -90,9 +94,6 @@ public class SwingGui
     {
       data = new Data();
     }
-
-    frame.pack();
-    frame.setVisible(true);
   }
 
   public static void main(String[] args)
@@ -140,7 +141,8 @@ public class SwingGui
     javax.swing.SwingUtilities.invokeLater(new Runnable()
     {
       @Override
-      public void run() {
+      public void run()
+      {
         new SwingGui(filenameToPass, windDirectionInDegreesToPass);
       }
     });
@@ -149,17 +151,6 @@ public class SwingGui
   private static void printUsage()
   {
     System.out.println("Usage: ${startcommand} ${file} ${windDirectionInDegreees}");
-  }
-
-  public void analyze()
-  {
-    new UseGpsTimeDataCorrector().correct(data);
-    new LocationInterpolator().interpolateLocation(data);
-    new VelocityBearingAnalyzer().analyze(data, windBearing);
-    data.getTackList().clear();
-    data.getTackList().addAll(new TackListByCorrelationAnalyzer().analyze(data));
-    overview.tackSeriesList = new TackSeriesAnalyzer().analyze(data.getTackList());
-    new DeviceOrientationAnalyzer().analyze(data);
   }
 
   public void redisplay(boolean updateTableContent)
@@ -192,6 +183,7 @@ public class SwingGui
     {
       int newWindDirection = Integer.parseInt(inputValue);
       this.windBearing = newWindDirection * Math.PI / 180d;
+      Analyzer.analyze(data, windBearing, new LoadProgress(null));
       dataChanged();
       redisplay(true);
     }
@@ -204,13 +196,14 @@ public class SwingGui
 
   public void loadFile(File file)
   {
+    menubar.setLoadStartFile(file);
+    menubar.setSaveStartFile(new Exporter().replaceExtension(file));
+
+    LoadProgress loadProgress = new LoadProgress(progressDialog);
     try
     {
-      data = new FormatAwareImporter().read(file);
-      menubar.setLoadStartFile(file);
-      menubar.setSaveStartFile(new Exporter().replaceExtension(file));
-      dataChanged();
-      redisplay(true);
+      LoadFileWorker worker = new LoadFileWorker(loadProgress, file, windBearing, this::setData);
+      worker.execute();
     }
     catch (Exception e)
     {
@@ -221,11 +214,21 @@ public class SwingGui
           "Error loading File",
           JOptionPane.ERROR_MESSAGE);
     }
+    finally
+    {
+      loadProgress.finished();
+    }
+  }
+
+  public void setData(Data data)
+  {
+    this.data = data;
+    dataChanged();
+    redisplay(true);
   }
 
   public void dataChanged()
   {
-    analyze();
     overview.dataChanged(data);
     directionsView.dataChanged(data);
     commentsView.dataChanged(data);

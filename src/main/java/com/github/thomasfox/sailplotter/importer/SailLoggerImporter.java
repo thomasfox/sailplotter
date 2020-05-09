@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.thomasfox.sailplotter.Constants;
+import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.model.Acceleration;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
@@ -14,7 +15,14 @@ import com.github.thomasfox.sailplotter.model.MagneticField;
 
 public class SailLoggerImporter implements Importer
 {
-  final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
+
+  private final LoadProgress loadProgress;
+
+  public SailLoggerImporter(LoadProgress loadProgress)
+  {
+    this.loadProgress = loadProgress;
+  }
 
   @Override
   public Data read(File file)
@@ -59,11 +67,14 @@ public class SailLoggerImporter implements Importer
   {
     try
     {
+      loadProgress.fileReadingStarted();
       SailLoggerData readValue = mapper.readValue(file, SailLoggerData.class);
+      loadProgress.fileReadingFinished();
       return readValue;
     }
     catch (IOException e)
     {
+      loadProgress.finished();
       throw new RuntimeException(e);
     }
   }

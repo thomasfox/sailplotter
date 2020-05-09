@@ -2,6 +2,7 @@ package com.github.thomasfox.sailplotter.analyze;
 
 import java.util.List;
 
+import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
@@ -51,8 +52,9 @@ public class DeviceOrientationAnalyzer
 
   private static final int MAX_ACCELERATION_DISTANCE_MILLIS = 1000;
 
-  public Data analyze(Data data)
+  public Data analyze(Data data, LoadProgress loadProgress)
   {
+    loadProgress.startAnalyzeOrientationCalculateHorizontalCoordinateSystem();
     CoordinateSystem approximateHorizontalCoordinateSystem
         = getHorizontalCoordinateSystemFromAverageAcceleration(data.getAllPoints());
 
@@ -61,15 +63,19 @@ public class DeviceOrientationAnalyzer
       return data;
     }
 
+    loadProgress.startAnalyzeOrientationSetCompassBearings();
     setCompassBearings(data.getAllPoints(), approximateHorizontalCoordinateSystem);
 
+    loadProgress.startAnalyzeOrientationGetCompassToGpsAngle();
     Double maxOccurenceOfRelativeBearingInArcs
         = getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(data.getAllPoints());
 
     if (maxOccurenceOfRelativeBearingInArcs != null)
     {
       approximateHorizontalCoordinateSystem = approximateHorizontalCoordinateSystem.getRotatedAroundZ(maxOccurenceOfRelativeBearingInArcs);
+      loadProgress.startAnalyzeOrientationSetCompassBearings();
       setCompassBearings(data.getAllPoints(), approximateHorizontalCoordinateSystem);
+      loadProgress.startAnalyzeOrientationSetHeelAndRoll();
       setHeelAndRoll(data.getAllPoints(), approximateHorizontalCoordinateSystem);
     }
     return data;
