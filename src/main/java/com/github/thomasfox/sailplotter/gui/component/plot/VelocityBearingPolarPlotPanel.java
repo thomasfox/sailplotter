@@ -47,7 +47,8 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
       {
         if (point.location.bearingFromLatLong != null && point.location.velocityFromLatLong != null)
         {
-          int bucket = new Double(point.getRelativeBearingInArcs() * Constants.NUMBER_OF_BEARING_BINS / 2 / Math.PI).intValue();
+          int bucket = Double.valueOf(
+              point.getRelativeBearingInArcs() * Constants.NUMBER_OF_BEARING_BINS / 2 / Math.PI).intValue();
           velocityBuckets.get(bucket).add(point.location.velocityFromLatLong);
         }
       }

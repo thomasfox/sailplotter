@@ -222,7 +222,7 @@ public class TackListByCorrelationAnalyzer
   {
     if (Math.abs(lastTack.getBeforeEndManeuver().location.getY() - lastTack.getAfterStartManeuver().location.getY()) > 1d)
     {
-      lastTack.tackStraightLineIntersectionEnd.time = new Double(lastTack.getBeforeEndManeuver().time
+      lastTack.tackStraightLineIntersectionEnd.time = Double.valueOf(lastTack.getBeforeEndManeuver().time
           + (lastTack.getBeforeEndManeuver().time - lastTack.getAfterStartManeuver().time)
             * (lastTack.tackStraightLineIntersectionEnd.location.getY()- lastTack.getBeforeEndManeuver().location.getY())
             / (lastTack.getBeforeEndManeuver().location.getY() - lastTack.getAfterStartManeuver().location.getY()))
@@ -230,7 +230,7 @@ public class TackListByCorrelationAnalyzer
     }
     else if (Math.abs(lastTack.getBeforeEndManeuver().location.getX() - lastTack.getAfterStartManeuver().location.getX()) > 1d)
     {
-      lastTack.tackStraightLineIntersectionEnd.time = new Double(lastTack.getBeforeEndManeuver().time
+      lastTack.tackStraightLineIntersectionEnd.time = Double.valueOf(lastTack.getBeforeEndManeuver().time
             + (lastTack.getBeforeEndManeuver().time - lastTack.getAfterStartManeuver().time)
               * (lastTack.tackStraightLineIntersectionEnd.location.getX() - lastTack.getBeforeEndManeuver().location.getX())
               / (lastTack.getBeforeEndManeuver().location.getX() - lastTack.getAfterStartManeuver().location.getX()))
@@ -239,7 +239,7 @@ public class TackListByCorrelationAnalyzer
 
     if (Math.abs(nextTack.getBeforeEndManeuver().location.getY() - nextTack.getAfterStartManeuver().location.getY()) > 1d)
     {
-      nextTack.tackStraightLineIntersectionStart.time = new Double(nextTack.getAfterStartManeuver().time
+      nextTack.tackStraightLineIntersectionStart.time = Double.valueOf(nextTack.getAfterStartManeuver().time
           + (nextTack.getBeforeEndManeuver().time - nextTack.getAfterStartManeuver().time)
             * (nextTack.tackStraightLineIntersectionStart.location.getY() - nextTack.getAfterStartManeuver().location.getY())
             / (nextTack.getBeforeEndManeuver().location.getY() - nextTack.getAfterStartManeuver().location.getY()))
@@ -247,7 +247,7 @@ public class TackListByCorrelationAnalyzer
     }
     else if (Math.abs(nextTack.getBeforeEndManeuver().location.getX() - nextTack.getAfterStartManeuver().location.getX()) > 1d)
     {
-      nextTack.tackStraightLineIntersectionStart.time = new Double(nextTack.getAfterStartManeuver().time
+      nextTack.tackStraightLineIntersectionStart.time = Double.valueOf(nextTack.getAfterStartManeuver().time
             + (nextTack.getBeforeEndManeuver().time - nextTack.getAfterStartManeuver().time)
               * (nextTack.tackStraightLineIntersectionStart.location.getX()- nextTack.getAfterStartManeuver().location.getX())
               / (nextTack.getBeforeEndManeuver().location.getX() - nextTack.getAfterStartManeuver().location.getX()))
