@@ -39,7 +39,7 @@ public class ZoomedVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
     velocityAxis.setLabelPaint(Color.RED);
     velocityAxis.setTickLabelPaint(Color.RED);
     plot.setRangeAxis(0, velocityAxis);
-    NumberAxis bearingAxis = new NumberAxis("Bearing [°]");
+    NumberAxis bearingAxis = new NumberAxis("Bearing [Â°]");
     bearingAxis.setAutoRangeIncludesZero(false);
     plot.setRangeAxis(1, bearingAxis);
 

@@ -39,7 +39,7 @@ public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
 
     JFreeChart chart = ChartFactory.createHistogram(
         "Relative Bearing",
-        "Relative Bearing [°]",
+        "Relative Bearing [Â°]",
         "Occurances",
         dataset,
         PlotOrientation.VERTICAL,

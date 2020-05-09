@@ -41,7 +41,7 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
     NumberAxis velocityAxis = new NumberAxis("Velocity [kts]");
     velocityAxis.setAutoRangeIncludesZero(false);
     plot.setRangeAxis(0, velocityAxis);
-    NumberAxis bearingAxis = new NumberAxis("Bearing [°]");
+    NumberAxis bearingAxis = new NumberAxis("Bearing [Â°]");
     bearingAxis.setAutoRangeIncludesZero(false);
     plot.setRangeAxis(1, bearingAxis);
 

@@ -26,8 +26,8 @@ public class TackSeriesTablePanel extends JScrollPane
         new String[] {
             "Tacks",
             "Type",
-            "Wind direction [°]",
-            "Angle to Wind [°]",
+            "Wind direction [Â°]",
+            "Angle to Wind [Â°]",
             "Velocity Main Parts Starboard [knots]",
             "Velocity Main Parts Port [knots]"},
         0);
