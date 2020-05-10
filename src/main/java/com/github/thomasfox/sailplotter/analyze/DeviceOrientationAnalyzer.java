@@ -290,6 +290,11 @@ public class DeviceOrientationAnalyzer
         throw new IllegalArgumentException("points are not ordered, point " + index + " has time " + time
             + " while point " + i + " has time " + dataPoint.time);
       }
+      if (dataPoint.time < time - MAX_ACCELERATION_DISTANCE_MILLIS)
+      {
+        // point is too far away
+        break;
+      }
       nearestBelowTime = dataPoint.time;
       nearestBelow = dataPoint.acceleration;
       break;
@@ -313,31 +318,16 @@ public class DeviceOrientationAnalyzer
         throw new IllegalArgumentException("points are not ordered, point " + index + " has time " + time
             + " while point " + i + " has time " + dataPoint.time);
       }
+      if (dataPoint.time > time + MAX_ACCELERATION_DISTANCE_MILLIS)
+      {
+        // point is too far away
+        break;
+      }
       nearestAboveTime = dataPoint.time;
       nearestAbove = dataPoint.acceleration;
       break;
     }
-    for (DataPoint dataPoint : dataPoints)
-    {
-      if (!dataPoint.hasAcceleration())
-      {
-        continue;
-      }
-      if (dataPoint.time == time)
-      {
-        return dataPoint.acceleration;
-      }
-      if (dataPoint.time < time && (nearestBelow == null || nearestBelowTime < dataPoint.time))
-      {
-        nearestBelowTime = dataPoint.time;
-        nearestBelow = dataPoint.acceleration;
-      }
-      else if (dataPoint.time > time && (nearestAbove == null || nearestAboveTime > dataPoint.time))
-      {
-        nearestAboveTime = dataPoint.time;
-        nearestAbove = dataPoint.acceleration;
-      }
-    }
+
     if (nearestBelowTime == null || nearestAboveTime == null)
     {
       // we did not find two enclosing data points with acceleration
