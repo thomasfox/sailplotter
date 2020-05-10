@@ -18,7 +18,7 @@ public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Roll",
         "Time",
-        "Roll [°]",
+        "Roll [Â°]",
         dataset,
         false,
         false,

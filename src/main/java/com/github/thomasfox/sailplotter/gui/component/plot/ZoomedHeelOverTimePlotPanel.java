@@ -18,7 +18,7 @@ public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Heel",
         "Time",
-        "Heel [°]",
+        "Heel [Â°]",
         dataset,
         false,
         false,
