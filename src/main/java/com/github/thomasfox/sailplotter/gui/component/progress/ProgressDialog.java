@@ -13,6 +13,7 @@ import javax.swing.JProgressBar;
  */
 public class ProgressDialog extends JDialog implements ProgressChanged
 {
+  private final static int WIDTH = 400;
   private static final long serialVersionUID = 1L;
 
   private final JProgressBar progressBar = new JProgressBar();
@@ -24,9 +25,9 @@ public class ProgressDialog extends JDialog implements ProgressChanged
     super(parentFrame, false);
     add(progressBar, BorderLayout.CENTER);
     add(label, BorderLayout.NORTH);
-    label.setPreferredSize(new Dimension(300, 20));
+    label.setPreferredSize(new Dimension(WIDTH, 20));
     setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-    setSize(300, 70);
+    setSize(WIDTH, 70);
     setLocationRelativeTo(parentFrame);
   }
 
