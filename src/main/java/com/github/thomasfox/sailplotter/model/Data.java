@@ -17,6 +17,10 @@ public class Data
 
   private transient List<DataPoint> locationPoints;
 
+  private transient List<DataPoint> magneticFieldPoints;
+
+  private transient List<DataPoint> accelerationPoints;
+
   private transient List<Tack> tackList = new ArrayList<Tack>();
 
   private transient List<TackSeries> tackSeriesList = new ArrayList<TackSeries>();
@@ -49,39 +53,6 @@ public class Data
     return locationPoints;
   }
 
-  @JsonIgnore
-  public List<DataPoint> getPointsWithMagneticField()
-  {
-    List<DataPoint> magneticFieldPoints = new ArrayList<>();
-    for (DataPoint point : points)
-    {
-      if (point.hasMagneticField())
-      {
-        magneticFieldPoints.add(point);
-      }
-    }
-    return magneticFieldPoints;
-  }
-
-  @JsonIgnore
-  public List<DataPoint> getPointsWithAcceleration()
-  {
-    List<DataPoint> accelerationPoints = new ArrayList<>();
-    for (DataPoint point : points)
-    {
-      if (point.hasAcceleration())
-      {
-        accelerationPoints.add(point);
-      }
-    }
-    return accelerationPoints;
-  }
-
-  public List<DataPoint> getAllPoints()
-  {
-    return new ArrayList<>(points);
-  }
-
   private void fillLocationPoints()
   {
     List<DataPoint> locationPoints = new ArrayList<>();
@@ -95,9 +66,62 @@ public class Data
     this.locationPoints = locationPoints;
   }
 
+  @JsonIgnore
+  public List<DataPoint> getPointsWithMagneticField()
+  {
+    if (magneticFieldPoints == null)
+    {
+      fillMagneticFieldPoints();
+    }
+    return magneticFieldPoints;
+  }
+
+  private void fillMagneticFieldPoints()
+  {
+    List<DataPoint> magneticFieldPoints = new ArrayList<>();
+    for (DataPoint point : points)
+    {
+      if (point.hasMagneticField())
+      {
+        magneticFieldPoints.add(point);
+      }
+    }
+    this.magneticFieldPoints = magneticFieldPoints;
+  }
+
+  @JsonIgnore
+  public List<DataPoint> getPointsWithAcceleration()
+  {
+    if (accelerationPoints == null)
+    {
+      fillAccelerationPoints();
+    }
+    return accelerationPoints;
+  }
+
+  public void fillAccelerationPoints()
+  {
+    List<DataPoint> accelerationPoints = new ArrayList<>();
+    for (DataPoint point : points)
+    {
+      if (point.hasAcceleration())
+      {
+        accelerationPoints.add(point);
+      }
+    }
+    this.accelerationPoints = accelerationPoints;
+  }
+
+  public List<DataPoint> getAllPoints()
+  {
+    return new ArrayList<>(points);
+  }
+
   private void resetCache()
   {
     locationPoints = null;
+    magneticFieldPoints = null;
+    accelerationPoints = null;
   }
 
   public void setComment(String comment)
