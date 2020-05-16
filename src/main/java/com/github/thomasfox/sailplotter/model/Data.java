@@ -148,4 +148,118 @@ public class Data
   {
     this.file = file;
   }
+
+  public Long getStartTime()
+  {
+    if (points.isEmpty())
+    {
+      return null;
+    }
+    return points.get(0).time;
+  }
+
+  public Long getEndTime()
+  {
+    if (points.isEmpty())
+    {
+      return null;
+    }
+    return points.get(points.size() - 1).time;
+  }
+
+  public Long getLocationStartTime()
+  {
+    if (getPointsWithLocation().isEmpty())
+    {
+      return null;
+    }
+    return locationPoints.get(0).time;
+  }
+
+  public Long getLocationEndTime()
+  {
+    if (getPointsWithLocation().isEmpty())
+    {
+      return null;
+    }
+    return locationPoints.get(locationPoints.size() - 1).time;
+  }
+
+  public Long getMagneticFieldStartTime()
+  {
+    if (getPointsWithMagneticField().isEmpty())
+    {
+      return null;
+    }
+    return magneticFieldPoints.get(0).time;
+  }
+
+  public Long getMagneticFieldEndTime()
+  {
+    if (getPointsWithMagneticField().isEmpty())
+    {
+      return null;
+    }
+    return magneticFieldPoints.get(magneticFieldPoints.size() - 1).time;
+  }
+
+  public Long getAccelerationStartTime()
+  {
+    if (getPointsWithAcceleration().isEmpty())
+    {
+      return null;
+    }
+    return accelerationPoints.get(0).time;
+  }
+
+  public Long getAccelerationEndTime()
+  {
+    if (getPointsWithAcceleration().isEmpty())
+    {
+      return null;
+    }
+    return accelerationPoints.get(accelerationPoints.size() - 1).time;
+  }
+
+  public double getAverageLocationPointFrequency()
+  {
+    if (getPointsWithLocation().isEmpty())
+    {
+      return 0;
+    }
+    long timespan = getLocationEndTime() - getLocationStartTime();
+    if (timespan == 0)
+    {
+      return Double.NaN;
+    }
+    return 1000d * getPointsWithLocation().size() / timespan;
+  }
+
+  public double getAverageMagneticFieldPointFrequency()
+  {
+    if (getPointsWithMagneticField().isEmpty())
+    {
+      return 0;
+    }
+    long timespan = getMagneticFieldEndTime() - getMagneticFieldStartTime();
+    if (timespan == 0)
+    {
+      return Double.NaN;
+    }
+    return 1000d * getPointsWithMagneticField().size() / timespan;
+  }
+
+  public double getAverageAccelerationPointFrequency()
+  {
+    if (getPointsWithAcceleration().isEmpty())
+    {
+      return 0;
+    }
+    long timespan = getAccelerationEndTime() - getAccelerationStartTime();
+    if (timespan == 0)
+    {
+      return Double.NaN;
+    }
+    return 1000d * getPointsWithAcceleration().size() / timespan;
+  }
 }

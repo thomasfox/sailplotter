@@ -1,8 +1,10 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 import javax.swing.JLabel;
+import javax.swing.border.EmptyBorder;
 
 import com.github.thomasfox.sailplotter.gui.CommentPanel;
 import com.github.thomasfox.sailplotter.gui.SwingGui;
@@ -16,6 +18,8 @@ public class InfoView extends AbstractView
   private final JLabel filenameLabel = new JLabel();
 
   private final JLabel dataSizeLabel = new JLabel();
+
+  private final JLabel dataFrequencyLabel = new JLabel();
 
   private final JLabel startTimeLabel = new JLabel();
 
@@ -33,22 +37,32 @@ public class InfoView extends AbstractView
     createLayout()
         .withWeighty(0.01)
         .add(filenameLabel);
+    filenameLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
     createLayout()
         .withGridy(1)
         .withWeighty(0.01)
         .add(dataSizeLabel);
+    dataSizeLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
     createLayout()
-        .withGridy(2)
-        .withWeighty(0.01)
-        .add(startTimeLabel);
+    .withGridy(2)
+    .withWeighty(0.01)
+    .add(dataFrequencyLabel);
+    dataFrequencyLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
     createLayout()
         .withGridy(3)
         .withWeighty(0.01)
-        .add(endTimeLabel);
+        .add(startTimeLabel);
+    startTimeLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
     createLayout()
         .withGridy(4)
+        .withWeighty(0.01)
+        .add(endTimeLabel);
+    endTimeLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
+    createLayout()
+        .withGridy(5)
         .withWeighty(0.96)
         .add(commentPanel);
+    commentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
   }
 
   public void redisplay()
@@ -67,24 +81,39 @@ public class InfoView extends AbstractView
   {
     this.data = data;
     filenameLabel.setText("File: " + data.getFile().getAbsolutePath());
-    dataSizeLabel.setText("Data size: " + data.getAllPoints().size()
-        + " (location data size: "+ data.getPointsWithLocation().size()
-        + ", magnetic field data size: " + data.getPointsWithMagneticField().size()
-        + ", acceleration data size: " + data.getPointsWithAcceleration().size()
-        + ")");
+    setDataSizeLabelText(data);
+    setDataFrequencyLabelText(data);
     setStartTimeLabelText(data);
     setEndTimeLabelText(data);
     commentPanel.setTextConsumer(data::setComment);
   }
 
+  private void setDataSizeLabelText(Data data)
+  {
+    dataSizeLabel.setText("Data size: " + data.getAllPoints().size()
+        + " (location data size: "+ data.getPointsWithLocation().size()
+        + ", magnetic field data size: " + data.getPointsWithMagneticField().size()
+        + ", acceleration data size: " + data.getPointsWithAcceleration().size()
+        + ")");
+  }
+
+  private void setDataFrequencyLabelText(Data data)
+  {
+    dataFrequencyLabel.setText("location frequency: "
+         + new DecimalFormat("#.###").format(data.getAverageLocationPointFrequency())
+         + " magnetic field frequency: "
+             + new DecimalFormat("#.###").format(data.getAverageMagneticFieldPointFrequency())
+         + " acceleration frequency: "
+             + new DecimalFormat("#.###").format(data.getAverageAccelerationPointFrequency()));
+  }
+
   private void setStartTimeLabelText(Data data)
   {
-    String startTime = "Start time: " + dateTimeFormat.format(data.getAllPoints().get(0).time) + " (";
+    String startTime = "Start time: " + dateTimeFormat.format(data.getStartTime()) + " (";
     boolean comma = false;
     if (data.getPointsWithLocation().size() > 0)
     {
-      startTime += "location data start: "
-          + dateTimeFormat.format(data.getPointsWithLocation().get(0).time);
+      startTime += "location data start: " + dateTimeFormat.format(data.getLocationStartTime());
       comma = true;
     }
     if (data.getPointsWithMagneticField().size() > 0)
@@ -93,8 +122,7 @@ public class InfoView extends AbstractView
       {
         startTime += ", ";
       }
-      startTime += "magnetic field data start: "
-          + dateTimeFormat.format(data.getPointsWithMagneticField().get(0).time);
+      startTime += "magnetic field data start: " + dateTimeFormat.format(data.getMagneticFieldStartTime());
       comma = true;
     }
     if (data.getPointsWithAcceleration().size() > 0)
@@ -112,12 +140,11 @@ public class InfoView extends AbstractView
 
   private void setEndTimeLabelText(Data data)
   {
-    String endTime = "End time: " + dateTimeFormat.format(data.getAllPoints().get(data.getAllPoints().size() - 1).time) + " (";
+    String endTime = "End time: " + dateTimeFormat.format(data.getEndTime()) + " (";
     boolean comma = false;
     if (data.getPointsWithLocation().size() > 0)
     {
-      endTime += "location data end: "
-          + dateTimeFormat.format(data.getPointsWithLocation().get(data.getPointsWithLocation().size() - 1).time);
+      endTime += "location data end: " + dateTimeFormat.format(data.getLocationEndTime());
       comma = true;
     }
     if (data.getPointsWithMagneticField().size() > 0)
@@ -126,8 +153,7 @@ public class InfoView extends AbstractView
       {
         endTime += ", ";
       }
-      endTime += "magnetic field data end: "
-          + dateTimeFormat.format(data.getPointsWithMagneticField().get(data.getPointsWithMagneticField().size() - 1).time);
+      endTime += "magnetic field data end: " + dateTimeFormat.format(data.getMagneticFieldEndTime());
       comma = true;
     }
     if (data.getPointsWithAcceleration().size() > 0)
