@@ -1,5 +1,6 @@
 package com.github.thomasfox.sailplotter.model;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,8 @@ import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
 public class Data
 {
   private final List<DataPoint> points = new ArrayList<>();
+
+  private File file;
 
   private transient List<DataPoint> locationPoints;
 
@@ -82,5 +85,15 @@ public class Data
   public List<TackSeries> getTackSeriesList()
   {
     return tackSeriesList;
+  }
+
+  public File getFile()
+  {
+    return file;
+  }
+
+  public void setFile(File file)
+  {
+    this.file = file;
   }
 }

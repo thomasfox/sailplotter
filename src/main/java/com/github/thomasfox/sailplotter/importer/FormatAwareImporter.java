@@ -38,6 +38,7 @@ public class FormatAwareImporter implements Importer
     if (data.getPointsWithLocation().size() < 2) {
       throw new RuntimeException("Track contains lesss than 2 locations");
     }
+    data.setFile(file);
     return data;
   }
 }

@@ -2,10 +2,15 @@ package com.github.thomasfox.sailplotter.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -22,6 +27,8 @@ import com.github.thomasfox.sailplotter.model.Data;
 
 public class SwingGui
 {
+  private static final String FRAME_NAME = "SailPlotter";
+
   private static final String OVERVIEW_VIEW_NAME = "Overview";
 
   private static final String ANGLES_VIEW_NAME = "Angles";
@@ -66,7 +73,7 @@ public class SwingGui
     views.add(directionsView, ANGLES_VIEW_NAME);
     views.add(commentsView, COMMENTS_VIEW_NAME);
 
-    frame = new JFrame("SailPlotter");
+    frame = new JFrame(FRAME_NAME);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     File currentFile = Optional.ofNullable(filePath).map(File::new).orElse(null);
@@ -80,6 +87,15 @@ public class SwingGui
     frame.setJMenuBar(menubar);
 
     frame.getContentPane().add(views, BorderLayout.CENTER);
+
+    List<Image> iconImages = new ArrayList<>();
+    URL iconURL = getClass().getResource("/icon/ic_sailplotter_128.png");
+    iconImages.add(new ImageIcon(iconURL).getImage());
+    iconURL = getClass().getResource("/icon/ic_sailplotter_64.png");
+    iconImages.add(new ImageIcon(iconURL).getImage());
+    iconURL = getClass().getResource("/icon/ic_sailplotter_32.png");
+    iconImages.add(new ImageIcon(iconURL).getImage());
+    frame.setIconImages(iconImages);
 
     frame.setVisible(true);
     frame.pack();
@@ -214,10 +230,6 @@ public class SwingGui
           "Error loading File",
           JOptionPane.ERROR_MESSAGE);
     }
-    finally
-    {
-      loadProgress.finished();
-    }
   }
 
   public void setData(Data data)
@@ -225,6 +237,17 @@ public class SwingGui
     this.data = data;
     dataChanged();
     redisplay(true);
+    setTitleFromData();
+  }
+
+  private void setTitleFromData()
+  {
+    String framePortion = "";
+    if (data != null && data.getFile() != null)
+    {
+      framePortion = data.getFile().getName() + " - ";
+    }
+    frame.setTitle(framePortion + FRAME_NAME);
   }
 
   public void dataChanged()
