@@ -1,22 +1,16 @@
 package com.github.thomasfox.sailplotter.gui;
 
-import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.github.thomasfox.sailplotter.analyze.Analyzer;
 import com.github.thomasfox.sailplotter.exporter.Exporter;
+import com.github.thomasfox.sailplotter.gui.component.SailplotterFrame;
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.gui.component.progress.ProgressDialog;
 import com.github.thomasfox.sailplotter.gui.component.view.CommentsView;
@@ -27,15 +21,13 @@ import com.github.thomasfox.sailplotter.model.Data;
 
 public class SwingGui
 {
-  private static final String FRAME_NAME = "SailPlotter";
-
   private static final String OVERVIEW_VIEW_NAME = "Overview";
 
   private static final String ANGLES_VIEW_NAME = "Angles";
 
   private static final String COMMENTS_VIEW_NAME = "Comments";
 
-  private final JFrame frame;
+  private final SailplotterFrame frame;
 
   private final Menubar menubar;
 
@@ -73,8 +65,7 @@ public class SwingGui
     views.add(directionsView, ANGLES_VIEW_NAME);
     views.add(commentsView, COMMENTS_VIEW_NAME);
 
-    frame = new JFrame(FRAME_NAME);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame = new SailplotterFrame();
 
     File currentFile = Optional.ofNullable(filePath).map(File::new).orElse(null);
     menubar = new Menubar(frame)
@@ -86,16 +77,7 @@ public class SwingGui
             COMMENTS_VIEW_NAME);
     frame.setJMenuBar(menubar);
 
-    frame.getContentPane().add(views, BorderLayout.CENTER);
-
-    List<Image> iconImages = new ArrayList<>();
-    URL iconURL = getClass().getResource("/icon/ic_sailplotter_128.png");
-    iconImages.add(new ImageIcon(iconURL).getImage());
-    iconURL = getClass().getResource("/icon/ic_sailplotter_64.png");
-    iconImages.add(new ImageIcon(iconURL).getImage());
-    iconURL = getClass().getResource("/icon/ic_sailplotter_32.png");
-    iconImages.add(new ImageIcon(iconURL).getImage());
-    frame.setIconImages(iconImages);
+    frame.setViews(views);
 
     frame.setVisible(true);
     frame.pack();
@@ -237,17 +219,7 @@ public class SwingGui
     this.data = data;
     dataChanged();
     redisplay(true);
-    setTitleFromData();
-  }
-
-  private void setTitleFromData()
-  {
-    String framePortion = "";
-    if (data != null && data.getFile() != null)
-    {
-      framePortion = data.getFile().getName() + " - ";
-    }
-    frame.setTitle(framePortion + FRAME_NAME);
+    frame.setTitleFromData(data);
   }
 
   public void dataChanged()
