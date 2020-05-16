@@ -13,7 +13,7 @@ import com.github.thomasfox.sailplotter.exporter.Exporter;
 import com.github.thomasfox.sailplotter.gui.component.SailplotterFrame;
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.gui.component.progress.ProgressDialog;
-import com.github.thomasfox.sailplotter.gui.component.view.CommentsView;
+import com.github.thomasfox.sailplotter.gui.component.view.InfoView;
 import com.github.thomasfox.sailplotter.gui.component.view.DirectionsView;
 import com.github.thomasfox.sailplotter.gui.component.view.Overview;
 import com.github.thomasfox.sailplotter.gui.component.worker.LoadFileWorker;
@@ -25,7 +25,7 @@ public class SwingGui
 
   private static final String ANGLES_VIEW_NAME = "Angles";
 
-  private static final String COMMENTS_VIEW_NAME = "Comments";
+  private static final String INFO_VIEW_NAME = "Info";
 
   private final SailplotterFrame frame;
 
@@ -35,7 +35,7 @@ public class SwingGui
 
   private final DirectionsView directionsView;
 
-  private final CommentsView commentsView;
+  private final InfoView commentsView;
 
   private final ProgressDialog progressDialog;
 
@@ -51,7 +51,7 @@ public class SwingGui
   {
     overview = new Overview(this);
     directionsView = new DirectionsView(this);
-    commentsView = new CommentsView(this);
+    commentsView = new InfoView(this);
 
     if (windDirectionInDegrees == null)
     {
@@ -63,7 +63,7 @@ public class SwingGui
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
     views.add(directionsView, ANGLES_VIEW_NAME);
-    views.add(commentsView, COMMENTS_VIEW_NAME);
+    views.add(commentsView, INFO_VIEW_NAME);
 
     frame = new SailplotterFrame();
 
@@ -74,7 +74,7 @@ public class SwingGui
         .addViews(this::changeView,
             OVERVIEW_VIEW_NAME,
             ANGLES_VIEW_NAME,
-            COMMENTS_VIEW_NAME);
+            INFO_VIEW_NAME);
     frame.setJMenuBar(menubar);
 
     frame.setViews(views);

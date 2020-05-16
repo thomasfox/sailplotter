@@ -49,6 +49,34 @@ public class Data
     return locationPoints;
   }
 
+  @JsonIgnore
+  public List<DataPoint> getPointsWithMagneticField()
+  {
+    List<DataPoint> magneticFieldPoints = new ArrayList<>();
+    for (DataPoint point : points)
+    {
+      if (point.hasMagneticField())
+      {
+        magneticFieldPoints.add(point);
+      }
+    }
+    return magneticFieldPoints;
+  }
+
+  @JsonIgnore
+  public List<DataPoint> getPointsWithAcceleration()
+  {
+    List<DataPoint> accelerationPoints = new ArrayList<>();
+    for (DataPoint point : points)
+    {
+      if (point.hasAcceleration())
+      {
+        accelerationPoints.add(point);
+      }
+    }
+    return accelerationPoints;
+  }
+
   public List<DataPoint> getAllPoints()
   {
     return new ArrayList<>(points);

@@ -33,6 +33,10 @@ public abstract class AbstractView extends JPanel
     {
       this.panel = panel;
       gridBagConstraints.fill = GridBagConstraints.BOTH;
+      gridBagConstraints.gridx = 0;
+      gridBagConstraints.gridy = 0;
+      gridBagConstraints.weightx = 1;
+      gridBagConstraints.weighty = 1;
     }
 
     public Layout withGridx(int x)
