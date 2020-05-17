@@ -90,7 +90,7 @@ public class InfoView extends AbstractView
 
   private void setDataSizeLabelText(Data data)
   {
-    dataSizeLabel.setText("Data size: " + data.getAllPoints().size()
+    dataSizeLabel.setText("Data size: " + data.size()
         + " (location data size: "+ data.getPointsWithLocation().size()
         + ", magnetic field data size: " + data.getPointsWithMagneticField().size()
         + ", acceleration data size: " + data.getPointsWithAcceleration().size()

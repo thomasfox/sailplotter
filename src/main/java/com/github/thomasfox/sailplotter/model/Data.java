@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
+import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
 public class Data
 {
@@ -39,8 +40,62 @@ public class Data
 
   public void add(DataPoint point)
   {
+    if (size() > 0 && point.time != null && getLast().time != null && getLast().time > point.time)
+    {
+      throw new IllegalArgumentException(" points must be ordered in time. "
+          + "Newly added point has time " + point.time
+          + " while last point in list has time " + getLast().time);
+    }
     points.add(new DataPoint(point));
     resetCache();
+  }
+
+  public void add(int position, DataPoint point)
+  {
+    points.add(position, new DataPoint(point));
+    resetCache();
+  }
+
+  /**
+   * Returns the data point at a certain index.
+   * If the data point is modified, resetCache() should be called on this object.
+   *
+   * @param index the data point index
+   * @return the data point at the index
+   * @throws IndexOutOfBoundsException if the index is out of range
+   *         ({@code index < 0 || index >= size()})
+   */
+  public DataPoint get(int index)
+  {
+    return points.get(index);
+  }
+
+  /**
+   * Returns the last data point.
+   *
+   * @return the last data point.
+   * @throws IndexOutOfBoundsException if no data points are available.
+   */
+  public DataPoint getLast()
+  {
+    return points.get(points.size() - 1);
+  }
+
+  public int size()
+  {
+    return points.size();
+  }
+
+  /**
+   * Returns all data points.
+   * The points are expected to be ordered in time, though this is not fully enforced.
+   * If a data point is modified, resetCache() should be called on this object.
+   *
+   * @return all data points, never null, may be empty.
+   */
+  public List<DataPoint> getAllPoints()
+  {
+    return new ArrayList<>(points);
   }
 
   @JsonIgnore
@@ -112,12 +167,7 @@ public class Data
     this.accelerationPoints = accelerationPoints;
   }
 
-  public List<DataPoint> getAllPoints()
-  {
-    return new ArrayList<>(points);
-  }
-
-  private void resetCache()
+  public void resetCache()
   {
     locationPoints = null;
     magneticFieldPoints = null;
@@ -262,4 +312,23 @@ public class Data
     }
     return 1000d * getPointsWithAcceleration().size() / timespan;
   }
+
+  public ThreeDimVector getAverageAcceleration()
+  {
+    ThreeDimVector averageAcceleration = new ThreeDimVector(0d, 0d, 0d);
+    int accelerationCount = 0;
+
+    for (DataPoint point : getPointsWithAcceleration())
+    {
+      averageAcceleration.add(point.acceleration);
+      accelerationCount++;
+    }
+    if (accelerationCount == 0)
+    {
+      return null;
+    }
+    averageAcceleration = averageAcceleration.multiplyBy(1d / accelerationCount);
+    return averageAcceleration;
+  }
+
 }

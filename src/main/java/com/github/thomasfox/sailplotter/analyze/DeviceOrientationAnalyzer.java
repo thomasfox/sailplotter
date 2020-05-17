@@ -56,7 +56,7 @@ public class DeviceOrientationAnalyzer
   {
     loadProgress.startAnalyzeOrientationCalculateHorizontalCoordinateSystem();
     CoordinateSystem approximateHorizontalCoordinateSystem
-        = getHorizontalCoordinateSystemFromAverageAcceleration(data.getAllPoints());
+        = getHorizontalCoordinateSystemFromAverageAcceleration(data);
 
     if (approximateHorizontalCoordinateSystem == null)
     {
@@ -64,7 +64,7 @@ public class DeviceOrientationAnalyzer
     }
 
     loadProgress.startAnalyzeOrientationSetCompassBearings();
-    setCompassBearings(data.getAllPoints(), approximateHorizontalCoordinateSystem);
+    setCompassBearings(data, approximateHorizontalCoordinateSystem);
 
     loadProgress.startAnalyzeOrientationGetCompassToGpsAngle();
     Double maxOccurenceOfRelativeBearingInArcs
@@ -74,7 +74,7 @@ public class DeviceOrientationAnalyzer
     {
       approximateHorizontalCoordinateSystem = approximateHorizontalCoordinateSystem.getRotatedAroundZ(maxOccurenceOfRelativeBearingInArcs);
       loadProgress.startAnalyzeOrientationSetCompassBearings();
-      setCompassBearings(data.getAllPoints(), approximateHorizontalCoordinateSystem);
+      setCompassBearings(data, approximateHorizontalCoordinateSystem);
       loadProgress.startAnalyzeOrientationSetHeelAndRoll();
       setHeelAndRoll(data.getAllPoints(), approximateHorizontalCoordinateSystem);
     }
@@ -87,16 +87,16 @@ public class DeviceOrientationAnalyzer
    * coordinate system y is approximately device y,
    * and coordinate system z is up, determined from mean device acceleration.
    *
-   * @param data the data points to analyze, not null.
+   * @param data the data to analyze, not null.
    *
    * @return a horizontal coordinate system, or null, if no up direction could be determined.
    */
-  CoordinateSystem getHorizontalCoordinateSystemFromAverageAcceleration(List<DataPoint> points)
+  CoordinateSystem getHorizontalCoordinateSystemFromAverageAcceleration(Data data)
   {
     CoordinateSystem horizontalCoordinateSystem = new CoordinateSystem();
 
     // assuming average is upright position of boat
-    ThreeDimVector uprightAcceleration = getAverageAcceleration(points);
+    ThreeDimVector uprightAcceleration = data.getAverageAcceleration();
 
     if (uprightAcceleration == null || uprightAcceleration.length() < 1)
     {
@@ -118,47 +118,25 @@ public class DeviceOrientationAnalyzer
     return horizontalCoordinateSystem;
   }
 
-  ThreeDimVector getAverageAcceleration(List<DataPoint> points)
-  {
-    ThreeDimVector averageAcceleration = new ThreeDimVector(0d, 0d, 0d);
-    int accelerationCount = 0;
-
-    for (int i = 0; i < points.size(); ++i)
-    {
-      DataPoint point = points.get(i);
-      if (point.hasAcceleration())
-      {
-        averageAcceleration.add(point.acceleration);
-        accelerationCount++;
-      }
-    }
-    if (accelerationCount == 0)
-    {
-      return null;
-    }
-    averageAcceleration = averageAcceleration.multiplyBy(1d / accelerationCount);
-    return averageAcceleration;
-  }
-
   /**
    * Sets the compass bearings for the points with magnetic field measurements.
    *
-   * @param points the points to set compass bearings for, non null.
+   * @param data the data to set compass bearings for, non null.
    * @param approximateHorizontalCoordinateSystem A coordinate systems which is fixed at the device
    *        and which z axis is approximately up in neutral position of the ship, not null.
    */
   private void setCompassBearings(
-      List<DataPoint> points,
+      Data data,
       CoordinateSystem approximateHorizontalCoordinateSystem)
   {
-    for (int i = 1; i < points.size() - 1; ++i)
+    for (int i = 1; i < data.size() - 1; ++i)
     {
-      DataPoint point = points.get(i);
+      DataPoint point = data.get(i);
       if (point.hasMagneticField())
       {
         // get the projection of the device-fixed coordinate system on a coordinate system which is truly
         // horizontal.
-        ThreeDimVector up = getAccelerationAt(i, points);
+        ThreeDimVector up = getAccelerationAt(i, data);
         if (up == null)
         {
           continue;
@@ -269,14 +247,14 @@ public class DeviceOrientationAnalyzer
    * @return the approximate acceleration reading at point <code>index</code>,
    *         or null if it cannot be determined.
    */
-  ThreeDimVector getAccelerationAt(int index, List<DataPoint> dataPoints)
+  ThreeDimVector getAccelerationAt(int index, Data data)
   {
-    long time = dataPoints.get(index).time;
+    long time = data.get(index).time;
     ThreeDimVector nearestBelow = null;
     Long nearestBelowTime = null;
     for (int i = index; i >=0 ; i--)
     {
-      DataPoint dataPoint = dataPoints.get(i);
+      DataPoint dataPoint = data.get(i);
       if (!dataPoint.hasAcceleration())
       {
         continue;
@@ -302,9 +280,9 @@ public class DeviceOrientationAnalyzer
 
     ThreeDimVector nearestAbove = null;
     Long nearestAboveTime = null;
-    for (int i = index; i < dataPoints.size(); i++)
+    for (int i = index; i < data.size(); i++)
     {
-      DataPoint dataPoint = dataPoints.get(i);
+      DataPoint dataPoint = data.get(i);
       if (!dataPoint.hasAcceleration())
       {
         continue;

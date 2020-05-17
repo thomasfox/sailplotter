@@ -17,9 +17,8 @@ public class UseGpsTimeDataCorrector
     long timeDistanceSum = 0;
     int count = 0;
     List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
-    for (int i = 1; i < pointsWithLocation.size(); ++i)
+    for (DataPoint point : pointsWithLocation)
     {
-      DataPoint point = pointsWithLocation.get(i);
       if (point.location.satelliteTime != null)
       {
         timeDistanceSum += point.location.satelliteTime - point.time;
@@ -29,10 +28,8 @@ public class UseGpsTimeDataCorrector
     if (count > 0 && timeDistanceSum > 0)
     {
       long timeDistance = timeDistanceSum / count;
-      List<DataPoint> allPoints = data.getAllPoints();
-      for (int i = 1; i < allPoints.size(); ++i)
+      for (DataPoint point : data.getAllPoints())
       {
-        DataPoint point = allPoints.get(i);
         point.time = point.time + timeDistance;
       }
     }

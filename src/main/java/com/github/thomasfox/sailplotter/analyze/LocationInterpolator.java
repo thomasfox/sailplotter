@@ -19,9 +19,9 @@ public class LocationInterpolator
     Long lastLocationTime = null;
     Location nextLocation = null;
     Long nextLocationTime = null;
-    for (int i = 1; i < allPoints.size() - 1; ++i)
+    for (int i = 1; i < data.size() - 1; ++i)
     {
-      DataPoint point = allPoints.get(i);
+      DataPoint point = data.get(i);
       if (point.hasLocation())
       {
         lastLocation = point.location;
