@@ -17,15 +17,12 @@ public class LoadFileWorker extends SwingWorker<Data, Void>
 
   private final File file;
 
-  private final double windBearing;
-
   private final Consumer<Data> dataConsumer;
 
-  public LoadFileWorker(LoadProgress loadProgress, File file, double windBearing, Consumer<Data> dataConsumer)
+  public LoadFileWorker(LoadProgress loadProgress, File file, Consumer<Data> dataConsumer)
   {
     this.loadProgress = loadProgress;
     this.file = file;
-    this.windBearing = windBearing;
     this.dataConsumer = dataConsumer;
   }
 
@@ -35,7 +32,7 @@ public class LoadFileWorker extends SwingWorker<Data, Void>
     loadProgress.start();
     Data data = new FormatAwareImporter(loadProgress).read(file);
     loadProgress.analyzingStarted();
-    Analyzer.analyze(data, windBearing, loadProgress);
+    Analyzer.analyze(data, loadProgress);
     return data;
   }
 

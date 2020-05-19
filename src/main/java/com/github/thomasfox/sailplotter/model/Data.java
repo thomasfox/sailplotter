@@ -14,7 +14,20 @@ public class Data
 {
   private final List<DataPoint> points = new ArrayList<>();
 
+  /** The file where the data was loaded from.
+   */
   private File file;
+
+  /**
+   * The direction in arcs where the wind, on average, came from
+   * within the time range of the recorded data.
+   */
+  private double averageWindBearing;
+
+  /**
+   * The coordinate system of the boat (front, right, up) in device coordinate system.
+   */
+  private CoordinateSystem BoatCoordinatesInDeviceCoordinates;
 
   private transient List<DataPoint> locationPoints;
 
@@ -197,6 +210,21 @@ public class Data
   public void setFile(File file)
   {
     this.file = file;
+  }
+
+  public double getAverageWindBearing()
+  {
+    return averageWindBearing;
+  }
+
+  public void setAverageWindBearing(double averageWindBearing)
+  {
+    this.averageWindBearing = averageWindBearing;
+  }
+
+  public int getAverageWindDirectionInDegrees()
+  {
+    return (int) (this.averageWindBearing / 2d / Math.PI * 360d);
   }
 
   public Long getStartTime()

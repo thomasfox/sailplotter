@@ -50,6 +50,8 @@ public class Overview extends AbstractView
 
   private final AbstractPlotPanel tackVelocityBearingPolarPlotPanel;
 
+  private final JTextField windDirectionTextField;
+
   TackTablePanel tackTablePanel;
 
   TackSeriesTablePanel tackSeriesTablePanel;
@@ -85,11 +87,18 @@ public class Overview extends AbstractView
     JPanel windDirectionPanel = new JPanel();
     JLabel windDirectionLabel = new JLabel("Wind direction");
     windDirectionPanel.add(windDirectionLabel);
-    JTextField windDirectionTextField = new JTextField();
+    windDirectionTextField = new JTextField();
     Dimension windDirectionTextFieldSize = windDirectionTextField.getPreferredSize();
     windDirectionTextFieldSize.width=30;
     windDirectionTextField.setPreferredSize(windDirectionTextFieldSize);
-    windDirectionTextField.setText(Integer.toString(gui.getWindDirectionInDegrees()));
+    if (data == null)
+    {
+      windDirectionTextField.setText("0");
+    }
+    else
+    {
+      windDirectionTextField.setText(Integer.toString(data.getAverageWindDirectionInDegrees()));
+    }
     windDirectionTextField.addActionListener(gui::windDirectionChanged);
     windDirectionPanel.add(windDirectionTextField);
     topRightPanel.add(windDirectionPanel);
@@ -138,7 +147,6 @@ public class Overview extends AbstractView
         .withWeightx(0.666).withWeighty(0.25)
         .withColumnSpan(2)
         .add(tackSeriesTablePanel);
-
   }
 
   public void redisplay(boolean updateTableContent)
@@ -152,6 +160,7 @@ public class Overview extends AbstractView
     zoomedMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     tackVelocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+    windDirectionTextField.setText(Integer.toString(data.getAverageWindDirectionInDegrees()));
 
     if (updateTableContent)
     {

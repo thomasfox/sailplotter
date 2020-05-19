@@ -13,8 +13,8 @@ import com.github.thomasfox.sailplotter.exporter.Exporter;
 import com.github.thomasfox.sailplotter.gui.component.SailplotterFrame;
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.gui.component.progress.ProgressDialog;
-import com.github.thomasfox.sailplotter.gui.component.view.InfoView;
 import com.github.thomasfox.sailplotter.gui.component.view.DirectionsView;
+import com.github.thomasfox.sailplotter.gui.component.view.InfoView;
 import com.github.thomasfox.sailplotter.gui.component.view.Overview;
 import com.github.thomasfox.sailplotter.gui.component.worker.LoadFileWorker;
 import com.github.thomasfox.sailplotter.model.Data;
@@ -43,22 +43,13 @@ public class SwingGui
 
   private final JPanel views;
 
-  double windBearing;
-
   public boolean inUpdate = false;
 
-  public SwingGui(String filePath, Integer windDirectionInDegrees)
+  public SwingGui(String filePath)
   {
     overview = new Overview(this);
     directionsView = new DirectionsView(this);
     commentsView = new InfoView(this);
-
-    if (windDirectionInDegrees == null)
-    {
-      windDirectionInDegrees = 0;
-    }
-    this.windBearing = 2 * Math.PI * windDirectionInDegrees / 360d;
-
 
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
@@ -121,34 +112,20 @@ public class SwingGui
         return;
       }
     }
-    Integer windDirectionInDegrees = null;
-    if (args.length > 1)
-    {
-      try
-      {
-        windDirectionInDegrees = Integer.parseInt(args[1]);
-      }
-      catch (Exception e)
-      {
-        printUsage();
-        return;
-      }
-    }
     final String filenameToPass = filename;
-    final Integer windDirectionInDegreesToPass = windDirectionInDegrees;
     javax.swing.SwingUtilities.invokeLater(new Runnable()
     {
       @Override
       public void run()
       {
-        new SwingGui(filenameToPass, windDirectionInDegreesToPass);
+        new SwingGui(filenameToPass);
       }
     });
   }
 
   private static void printUsage()
   {
-    System.out.println("Usage: ${startcommand} ${file} ${windDirectionInDegreees}");
+    System.out.println("Usage: ${startcommand} [${file}]");
   }
 
   public void redisplay(boolean updateTableContent)
@@ -180,8 +157,8 @@ public class SwingGui
     try
     {
       int newWindDirection = Integer.parseInt(inputValue);
-      this.windBearing = newWindDirection * Math.PI / 180d;
-      Analyzer.analyze(data, windBearing, new LoadProgress(null));
+      data.setAverageWindBearing(newWindDirection * Math.PI / 180d);
+      Analyzer.analyze(data, new LoadProgress(null));
       dataChanged();
       redisplay(true);
     }
@@ -200,7 +177,7 @@ public class SwingGui
     LoadProgress loadProgress = new LoadProgress(progressDialog);
     try
     {
-      LoadFileWorker worker = new LoadFileWorker(loadProgress, file, windBearing, this::setData);
+      LoadFileWorker worker = new LoadFileWorker(loadProgress, file, this::setData);
       worker.execute();
     }
     catch (Exception e)
@@ -265,11 +242,5 @@ public class SwingGui
   {
     CardLayout cl = (CardLayout)(views.getLayout());
     cl.show(views, viewName);
-  }
-
-  public int getWindDirectionInDegrees()
-  {
-    return (int) (this.windBearing / 2d / Math.PI * 360d);
-
   }
 }

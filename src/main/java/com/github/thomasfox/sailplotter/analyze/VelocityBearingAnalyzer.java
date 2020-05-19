@@ -9,7 +9,7 @@ import com.github.thomasfox.sailplotter.model.Wind;
 
 public class VelocityBearingAnalyzer
 {
-  public void analyze(Data data, double windBearing)
+  public void analyze(Data data)
   {
     List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
     for (int i = 1; i < pointsWithLocation.size() - 1; ++i)
@@ -25,7 +25,7 @@ public class VelocityBearingAnalyzer
       {
         point.wind = new Wind();
       }
-      point.wind.direction = windBearing;
+      point.wind.direction = data.getAverageWindBearing();
     }
   }
 }
