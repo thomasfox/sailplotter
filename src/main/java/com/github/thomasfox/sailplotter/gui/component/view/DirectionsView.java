@@ -1,8 +1,8 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
 import com.github.thomasfox.sailplotter.gui.SwingGui;
-import com.github.thomasfox.sailplotter.gui.ZoomPanel;
-import com.github.thomasfox.sailplotter.gui.ZoomPanelChangeEvent;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanel;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedHeelOverTimePlotPanel;

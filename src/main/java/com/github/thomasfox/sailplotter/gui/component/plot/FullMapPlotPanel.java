@@ -11,7 +11,7 @@ import org.jfree.data.Range;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
-import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class FullMapPlotPanel extends AbstractPlotPanel

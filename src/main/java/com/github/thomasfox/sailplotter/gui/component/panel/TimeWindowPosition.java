@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui;
+package com.github.thomasfox.sailplotter.gui.component.panel;
 
 /**
  * The position of a point relative to a selected time window.

@@ -14,7 +14,7 @@ import org.jfree.data.Range;
 import org.jfree.data.time.DateRange;
 import org.jfree.data.time.TimeSeriesCollection;
 
-import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel

@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui;
+package com.github.thomasfox.sailplotter.gui.component.panel;
 
 import java.awt.Dimension;
 import java.awt.Label;

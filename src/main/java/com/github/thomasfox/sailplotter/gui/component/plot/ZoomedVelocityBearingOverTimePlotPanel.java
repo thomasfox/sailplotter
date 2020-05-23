@@ -11,7 +11,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.TimeSeriesCollection;
 
-import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 
 public class ZoomedVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
 {

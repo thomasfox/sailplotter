@@ -6,9 +6,9 @@ import java.text.SimpleDateFormat;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import com.github.thomasfox.sailplotter.gui.CommentPanel;
 import com.github.thomasfox.sailplotter.gui.SwingGui;
-import com.github.thomasfox.sailplotter.gui.ZoomPanelChangeEvent;
+import com.github.thomasfox.sailplotter.gui.component.panel.CommentPanel;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.model.Data;
 
 public class InfoView extends AbstractView

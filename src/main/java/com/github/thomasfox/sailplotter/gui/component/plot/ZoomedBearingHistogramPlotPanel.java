@@ -10,7 +10,7 @@ import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.statistics.SimpleHistogramDataset;
 
 import com.github.thomasfox.sailplotter.Constants;
-import com.github.thomasfox.sailplotter.gui.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
 public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
