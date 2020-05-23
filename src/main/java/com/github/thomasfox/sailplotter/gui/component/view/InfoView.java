@@ -10,6 +10,7 @@ import com.github.thomasfox.sailplotter.gui.SwingGui;
 import com.github.thomasfox.sailplotter.gui.component.panel.CommentPanel;
 import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.model.Data;
+import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
 
 public class InfoView extends AbstractView
 {
@@ -24,6 +25,8 @@ public class InfoView extends AbstractView
   private final JLabel startTimeLabel = new JLabel();
 
   private final JLabel endTimeLabel = new JLabel();
+
+  private final JLabel coordinateSystemLabel = new JLabel();
 
   private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
@@ -60,6 +63,11 @@ public class InfoView extends AbstractView
     endTimeLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
     createLayout()
         .withGridy(5)
+        .withWeighty(0.01)
+        .add(coordinateSystemLabel);
+    coordinateSystemLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
+    createLayout()
+        .withGridy(6)
         .withWeighty(0.96)
         .add(commentPanel);
     commentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -85,6 +93,7 @@ public class InfoView extends AbstractView
     setDataFrequencyLabelText(data);
     setStartTimeLabelText(data);
     setEndTimeLabelText(data);
+    setCoordinateSystemText(data);
     commentPanel.setTextConsumer(data::setComment);
   }
 
@@ -167,6 +176,19 @@ public class InfoView extends AbstractView
     }
     endTime += ")";
     endTimeLabel.setText(endTime);
+  }
+
+  private void setCoordinateSystemText(Data data)
+  {
+    StringBuilder text = new StringBuilder("Boat coordinate system in device coordinates:");
+    CoordinateSystem boatCoordinates = data.getBoatCoordinatesInDeviceCoordinates();
+    if (boatCoordinates != null)
+    {
+      text.append(" front: ").append(boatCoordinates.x.toString(3));
+      text.append(" left: ").append(boatCoordinates.y.toString(3));
+      text.append(" up:").append(boatCoordinates.z.toString(3));
+    }
+    coordinateSystemLabel.setText(text.toString());
   }
 
   @Override

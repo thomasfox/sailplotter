@@ -27,7 +27,7 @@ public class Data
   /**
    * The coordinate system of the boat (front, right, up) in device coordinate system.
    */
-  private CoordinateSystem BoatCoordinatesInDeviceCoordinates;
+  private CoordinateSystem boatCoordinatesInDeviceCoordinates;
 
   private transient List<DataPoint> locationPoints;
 
@@ -210,6 +210,17 @@ public class Data
   public void setFile(File file)
   {
     this.file = file;
+  }
+
+  public CoordinateSystem getBoatCoordinatesInDeviceCoordinates()
+  {
+    return boatCoordinatesInDeviceCoordinates;
+  }
+
+  public void setBoatCoordinatesInDeviceCoordinates(
+      CoordinateSystem boatCoordinatesInDeviceCoordinates)
+  {
+    this.boatCoordinatesInDeviceCoordinates = boatCoordinatesInDeviceCoordinates;
   }
 
   public double getAverageWindBearing()

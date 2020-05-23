@@ -55,6 +55,7 @@ public class DeviceOrientationAnalyzer
   public Data analyze(Data data, LoadProgress loadProgress)
   {
     loadProgress.startAnalyzeOrientationCalculateHorizontalCoordinateSystem();
+    // calculate a horizontal Coordinate system in device coordinates from average acceleration
     CoordinateSystem approximateHorizontalCoordinateSystem
         = getHorizontalCoordinateSystemFromAverageAcceleration(data);
 
@@ -63,16 +64,23 @@ public class DeviceOrientationAnalyzer
       return data;
     }
 
+    // in the horizontal plane, calculate the compass direction with respect to the horizontal
+    // coordinate system, and save angle as compass bearing
     loadProgress.startAnalyzeOrientationSetCompassBearings();
     setCompassBearings(data, approximateHorizontalCoordinateSystem);
 
+    // To find where front is in the horizontal coordinate system in boat coordinates:
+    // Create a histogram for the angle betweeen gps direction and "compass north" direction
+    // and take the bucket with the most occurences as angle between x direction and boat front
     loadProgress.startAnalyzeOrientationGetCompassToGpsAngle();
     Double maxOccurenceOfRelativeBearingInArcs
         = getMaximumOccurenceOfRelativeBearingOfCompassToGpsInArcs(data.getAllPoints());
 
     if (maxOccurenceOfRelativeBearingInArcs != null)
     {
-      approximateHorizontalCoordinateSystem = approximateHorizontalCoordinateSystem.getRotatedAroundZ(maxOccurenceOfRelativeBearingInArcs);
+      approximateHorizontalCoordinateSystem
+          = approximateHorizontalCoordinateSystem.getRotatedAroundZ(maxOccurenceOfRelativeBearingInArcs);
+      data.setBoatCoordinatesInDeviceCoordinates(approximateHorizontalCoordinateSystem);
       loadProgress.startAnalyzeOrientationSetCompassBearings();
       setCompassBearings(data, approximateHorizontalCoordinateSystem);
       loadProgress.startAnalyzeOrientationSetHeelAndRoll();

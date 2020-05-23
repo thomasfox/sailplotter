@@ -119,6 +119,18 @@ public class ThreeDimVector
     return "(" + x + ", " + y + ", " + z + ")";
   }
 
+  public String toString(int decimalPlaces)
+  {
+    return "(" + formatNumber(x, decimalPlaces) + ", "
+        + formatNumber(y, decimalPlaces) + ", "
+        + formatNumber(z, decimalPlaces) + ")";
+  }
+
+  private String formatNumber(double number, int decimalPlaces)
+  {
+    return String.format("%." + decimalPlaces + "f", number);
+  }
+
   @Override
   public int hashCode()
   {
@@ -167,5 +179,4 @@ public class ThreeDimVector
     }
     return true;
   }
-
 }

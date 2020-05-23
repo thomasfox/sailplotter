@@ -50,6 +50,14 @@ public class CoordinateSystem
     return "[" + x + ", " + y + ", " + z + "]";
   }
 
+  public String toString(int decimalPlaces)
+  {
+    return "[" + x.toString(decimalPlaces) + ", "
+        + y.toString(decimalPlaces) + ", "
+        + z.toString(decimalPlaces) + "]";
+  }
+
+
   public CoordinateSystem getRotatedAroundZ(double arcs)
   {
     ThreeDimVector rotatedX = x.multiplyBy(Math.cos(arcs));
