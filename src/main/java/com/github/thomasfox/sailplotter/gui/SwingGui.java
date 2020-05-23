@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 
 import com.github.thomasfox.sailplotter.analyze.Analyzer;
 import com.github.thomasfox.sailplotter.exporter.Exporter;
+import com.github.thomasfox.sailplotter.gui.component.Menubar;
 import com.github.thomasfox.sailplotter.gui.component.SailplotterFrame;
-import com.github.thomasfox.sailplotter.gui.component.panel.Menubar;
 import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.gui.component.progress.ProgressDialog;

@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui.component.panel;
+package com.github.thomasfox.sailplotter.gui.component;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
