@@ -17,6 +17,7 @@ import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.gui.component.progress.ProgressDialog;
 import com.github.thomasfox.sailplotter.gui.component.view.DirectionsView;
 import com.github.thomasfox.sailplotter.gui.component.view.InfoView;
+import com.github.thomasfox.sailplotter.gui.component.view.MagneticFieldAccelerationView;
 import com.github.thomasfox.sailplotter.gui.component.view.Overview;
 import com.github.thomasfox.sailplotter.gui.component.worker.LoadFileWorker;
 import com.github.thomasfox.sailplotter.model.Data;
@@ -29,6 +30,8 @@ public class SwingGui
 
   private static final String INFO_VIEW_NAME = "Info";
 
+  private static final String RAW_DATA_VIEW_NAME = "Magnetic Field / Acceleration";
+
   private final SailplotterFrame frame;
 
   private final Menubar menubar;
@@ -38,6 +41,8 @@ public class SwingGui
   private final DirectionsView directionsView;
 
   private final InfoView commentsView;
+
+  private final MagneticFieldAccelerationView rawDataView;
 
   private final ProgressDialog progressDialog;
 
@@ -52,11 +57,13 @@ public class SwingGui
     overview = new Overview(this);
     directionsView = new DirectionsView(this);
     commentsView = new InfoView(this);
+    rawDataView = new MagneticFieldAccelerationView(this);
 
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
     views.add(directionsView, ANGLES_VIEW_NAME);
     views.add(commentsView, INFO_VIEW_NAME);
+    views.add(rawDataView, RAW_DATA_VIEW_NAME);
 
     frame = new SailplotterFrame();
 
@@ -67,7 +74,8 @@ public class SwingGui
         .addViews(this::changeView,
             OVERVIEW_VIEW_NAME,
             ANGLES_VIEW_NAME,
-            INFO_VIEW_NAME);
+            INFO_VIEW_NAME,
+            RAW_DATA_VIEW_NAME);
     frame.setJMenuBar(menubar);
 
     frame.setViews(views);
@@ -138,6 +146,7 @@ public class SwingGui
       overview.redisplay(updateTableContent);
       directionsView.redisplay();
       commentsView.redisplay();
+      rawDataView.redisplay();
     }
     finally
     {
@@ -150,6 +159,7 @@ public class SwingGui
     overview.alignZoomPanelToChangeEvent(e);
     directionsView.alignZoomPanelToChangeEvent(e);
     commentsView.alignZoomPanelToChangeEvent(e);
+    rawDataView.alignZoomPanelToChangeEvent(e);
     redisplay(false);
   }
 
@@ -206,6 +216,7 @@ public class SwingGui
     overview.dataChanged(data);
     directionsView.dataChanged(data);
     commentsView.dataChanged(data);
+    rawDataView.dataChanged(data);
   }
 
   public void saveFile(File file)

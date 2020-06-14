@@ -176,6 +176,41 @@ public abstract class AbstractPlotPanel extends JPanel
     return series;
   }
 
+  public TimeSeries getMagneticFieldTimeSeries(int coordinateIndex, TimeWindowPosition position)
+  {
+    TimeSeries series = new TimeSeries("magnetic Field");
+    if (data == null)
+    {
+      return series;
+    }
+    for (DataPoint point : data.getPointsWithMagneticField())
+    {
+      if (isInSelectedPosition(point, position))
+      {
+        series.addOrUpdate(point.getMillisecond(), point.magneticField.getByIndex(coordinateIndex));
+      }
+    }
+    return series;
+  }
+
+  public TimeSeries getAccelerationTimeSeries(int coordinateIndex, TimeWindowPosition position)
+  {
+    TimeSeries series = new TimeSeries("acceleration");
+    if (data == null)
+    {
+      return series;
+    }
+    for (DataPoint point : data.getPointsWithAcceleration())
+    {
+      if (isInSelectedPosition(point, position))
+      {
+        series.addOrUpdate(point.getMillisecond(), point.acceleration.getByIndex(coordinateIndex));
+      }
+    }
+    return series;
+  }
+
+
   public TimeSeries getZoomDisplaySeries(List<DataPoint> data)
   {
     TimeSeries series = new TimeSeries("velocity");

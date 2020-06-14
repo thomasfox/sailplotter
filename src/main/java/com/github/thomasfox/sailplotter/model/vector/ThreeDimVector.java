@@ -179,4 +179,41 @@ public class ThreeDimVector
     }
     return true;
   }
+
+  /**
+   *
+   * @param index
+   * @return
+   */
+  public double getByIndex(int index)
+  {
+    switch (index) {
+    case 0:
+      return length();
+    case 1:
+      return x;
+    case 2:
+      return y;
+    case 3:
+      return z;
+    default:
+      throw new IndexOutOfBoundsException("index must be 0, 1, 2 or 3, but is " + index);
+    }
+  }
+
+  public static String getCoordinateNameByIndex(int index)
+  {
+    switch (index) {
+    case 0:
+      return "";
+    case 1:
+      return "x";
+    case 2:
+      return "y";
+    case 3:
+      return "z";
+    default:
+      throw new IndexOutOfBoundsException("index must be 0, 1, 2 or 3, but is " + index);
+    }
+  }
 }
