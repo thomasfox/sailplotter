@@ -3,6 +3,7 @@ package com.github.thomasfox.sailplotter.importer;
 import java.io.File;
 
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
+import com.github.thomasfox.sailplotter.importer.saillogger.SailLoggerImporter;
 import com.github.thomasfox.sailplotter.model.Data;
 
 public class FormatAwareImporter implements Importer

@@ -1,12 +1,12 @@
-package com.github.thomasfox.sailplotter.importer;
+package com.github.thomasfox.sailplotter.importer.saillogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
+import com.github.thomasfox.sailplotter.importer.Importer;
 import com.github.thomasfox.sailplotter.model.Acceleration;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
@@ -77,62 +77,5 @@ public class SailLoggerImporter implements Importer
       loadProgress.finished();
       throw new RuntimeException(e);
     }
-  }
-
-  public static final class SailLoggerData
-  {
-    public SailLoggerStart start;
-    public ArrayList<SailLoggerTrackPoint> track;
-    public SailLoggerEnd end;
-  }
-
-  public static final class SailLoggerTrackPoint
-  {
-    public Long locT;
-    public Float locAcc;
-    public Double locLat;
-    public Double locLong;
-    public Float locBear;
-    public Float locVel;
-    public float locAlt;
-    public Long locDevT;
-    public Long magT;
-    public Double magX;
-    public Double magY;
-    public Double magZ;
-    public Long accT;
-    public Double accX;
-    public Double accY;
-    public Double accZ;
-
-    public boolean hasGpsData()
-    {
-      return (locT != null);
-    }
-
-    public boolean hasCompassData()
-    {
-      return (magX != null && magY != null && magZ != null && magT != null);
-    }
-
-    public boolean hasAccelerationData()
-    {
-      return (accX != null && accY != null && accZ != null && accT != null);
-    }
-  }
-
-  public static final class SailLoggerStart
-  {
-    public String format;
-    public String loggedBy;
-    public String loggedByVersion;
-    public long startT;
-    public String startTFormatted;
-  }
-
-  public static final class SailLoggerEnd
-  {
-    public long endT;
-    public String endTFormatted;
   }
 }

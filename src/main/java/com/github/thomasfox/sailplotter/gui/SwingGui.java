@@ -189,15 +189,15 @@ public class SwingGui
     LoadProgress loadProgress = new LoadProgress(progressDialog);
     try
     {
-      LoadFileWorker worker = new LoadFileWorker(loadProgress, file, this::setData);
+      LoadFileWorker worker = new LoadFileWorker(loadProgress, file, this::setData, frame);
       worker.execute();
     }
-    catch (Exception e)
+    catch (Throwable t)
     {
-      e.printStackTrace();
+      t.printStackTrace();
       JOptionPane.showMessageDialog(
           frame,
-          "Could not load File: " + e.getClass().getName() + ":" + e.getMessage(),
+          "Could not load File: " + t.getClass().getName() + ":" + t.getMessage(),
           "Error loading File",
           JOptionPane.ERROR_MESSAGE);
     }
