@@ -26,6 +26,8 @@ public class ZoomPanel extends JPanel implements ChangeListener
 
   private boolean notifyOff = false;
 
+  private int currentDataSize;
+
   public ZoomPanel()
   {
     this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -50,8 +52,13 @@ public class ZoomPanel extends JPanel implements ChangeListener
 
   public void setDataSize(int dataSize)
   {
-    startSlider.setValue(0);
-    startSlider.setMaximum(dataSize- 1);
+    if (dataSize != currentDataSize)
+    {
+      startSlider.setValue(0);
+      startSlider.setMaximum(dataSize- 1);
+      zoomSlider.setValue(Constants.NUMER_OF_ZOOM_TICKS);
+      currentDataSize = dataSize;
+    }
   }
 
   @Override
