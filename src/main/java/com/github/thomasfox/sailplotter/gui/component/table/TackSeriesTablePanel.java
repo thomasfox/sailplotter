@@ -20,7 +20,7 @@ public class TackSeriesTablePanel extends JScrollPane
 
   private final JTable tackSeriesTable;
 
-  public TackSeriesTablePanel(List<TackSeries> tackSeriesList, ListSelectionListener listener)
+  public TackSeriesTablePanel(ListSelectionListener listener)
   {
     tackSeriesTableModel = new DefaultTableModel(
         new String[] {
@@ -32,7 +32,6 @@ public class TackSeriesTablePanel extends JScrollPane
             "Velocity Main Parts Port [knots]"},
         0);
 
-    updateContent(tackSeriesList);
     tackSeriesTable = new JTable(tackSeriesTableModel);
     tackSeriesTable.setFillsViewportHeight(true);
     tackSeriesTable.getSelectionModel().addListSelectionListener(listener);

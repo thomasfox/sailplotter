@@ -221,7 +221,7 @@ public class DataPoint
 
   public double getVelocityInKnotsBetween(DataPoint other)
   {
-    return location.distance(other.location) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;
+    return location.approximateDistance(other.location) / timeDistanceMillis(other) * 1000 / Constants.NAUTICAL_MILE * 3600d;
   }
 
   @Override
@@ -249,13 +249,13 @@ public class DataPoint
     if (location !=null && location.bearingFromLatLong != null)
     {
       result.append(new DecimalFormat("0.0").format(location.getBearingFromLatLongAs360Degrees()))
-          .append("°Abs ");
+          .append("ï¿½Abs ");
     }
     if (location !=null && location.bearingFromLatLong != null
         && wind != null && wind.direction != null)
     {
       result.append(new DecimalFormat("0.0").format(getRelativeBearingAs360Degrees()))
-          .append("°Rel");
+          .append("ï¿½Rel");
     }
     return result.toString();
   }
@@ -273,14 +273,14 @@ public class DataPoint
     if (location != null && location.bearingFromLatLong != null)
     {
       result.append(new DecimalFormat("0.0").format(location.getBearingFromLatLongAs360Degrees()))
-          .append("°Abs ");
+          .append("ï¿½Abs ");
     }
     if (location != null && location.bearingFromLatLong != null
         && wind != null && wind.direction != null)
     {
       result.append(new DecimalFormat("0.0").format(getRelativeBearingAs360Degrees()))
-          .append("°Rel");
+          .append("ï¿½Rel");
     }
     return result.toString();
   }
-}
+  }

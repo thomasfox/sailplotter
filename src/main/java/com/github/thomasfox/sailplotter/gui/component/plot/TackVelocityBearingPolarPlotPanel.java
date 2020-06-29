@@ -51,7 +51,8 @@ public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
         }
       }
     }
-    dataset.addSeries(tackVelocity);  }
+    dataset.addSeries(tackVelocity);
+  }
 
   @Override
   protected void onDataChanged()

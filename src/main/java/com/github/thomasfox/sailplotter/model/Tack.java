@@ -39,7 +39,7 @@ public class Tack
    */
   public double getLength()
   {
-    return end.location.distance(start.location);
+    return end.location.approximateDistance(start.location);
   }
 
   /**
@@ -68,7 +68,7 @@ public class Tack
   /**
    * Returns the absolute bearing of the tack, i.e. the bearing from tack start to tack end.
    *
-   * @return the absolute bearing in degrees, in the range [0°, 360°[,
+   * @return the absolute bearing in degrees, in the range [0ï¿½, 360ï¿½[,
    *         or null if the tack direction cannot be determined.
    */
   public Double getAbsoluteBearingInDegrees()
@@ -171,14 +171,14 @@ public class Tack
       {
         continue;
       }
-      if (candidate.location.distance(start.location) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
+      if (candidate.location.approximateDistance(start.location) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
       {
         result = candidate;
         break;
       }
     }
     // sanity check: must not be too close to end
-    if (result != null && result.location.distance(end.location) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
+    if (result != null && result.location.approximateDistance(end.location) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
     {
       return result;
     }
@@ -199,14 +199,14 @@ public class Tack
     for (int i = pointsWithinTack.size() - 1; i >= 0; --i)
     {
       DataPoint candidate = pointsWithinTack.get(i);
-      if (candidate.location.distance(end.location) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
+      if (candidate.location.approximateDistance(end.location) > MAIN_SECTION_END_BEFORE_TACK_END_METRES)
       {
         result = candidate;
         break;
       }
     }
     // sanity check: must not be too close to start
-    if (result != null && result.location.distance(start.location) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
+    if (result != null && result.location.approximateDistance(start.location) > MAIN_SECTION_START_AFTER_TACK_START_METRES)
     {
       return result;
     }
@@ -229,7 +229,7 @@ public class Tack
     {
       return false;
     }
-    return (afterStartManeuver.location.distance(beforeEndManeuver.location) > 10d);
+    return (afterStartManeuver.location.approximateDistance(beforeEndManeuver.location) > 10d);
   }
 
   /**
@@ -331,13 +331,13 @@ public class Tack
     if (relativeBearingInDegrees != null)
     {
       result.append(new DecimalFormat("0").format(relativeBearingInDegrees))
-          .append("° ");
+          .append("ï¿½ ");
     }
     Double velocityInKnots = getVelocityInKnots();
     if (velocityInKnots != null)
     {
       result.append(new DecimalFormat("0.0").format(velocityInKnots))
-          .append("°kts");
+          .append("ï¿½kts");
     }
     return result.toString().trim();
   }

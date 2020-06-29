@@ -35,6 +35,7 @@ public class Exporter
   {
     try
     {
+      data.resetCache();
       new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValue(file, data);
     }
     catch (IOException e)

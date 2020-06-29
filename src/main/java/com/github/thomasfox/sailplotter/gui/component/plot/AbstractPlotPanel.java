@@ -22,6 +22,7 @@ import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
+import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
 public abstract class AbstractPlotPanel extends JPanel
 {
@@ -225,7 +226,9 @@ public abstract class AbstractPlotPanel extends JPanel
     return series;
   }
 
-  public XYSeries getXySeries(TimeWindowPosition position, double xOffset, double yOffset)
+  public XYSeries getXySeries(
+      TimeWindowPosition position,
+      Function<DataPoint, TwoDimVector> xyProvider)
   {
     XYSeries series = new XYSeries("XY" + position, false, true);
     if (data == null)
@@ -246,7 +249,8 @@ public abstract class AbstractPlotPanel extends JPanel
         ++tackIndex;
         containingTack = data.getTackList().get(tackIndex);
       }
-      XYSailDataItem item = new XYSailDataItem(point.location.getX() - xOffset, point.location.getY() - yOffset, point.getXYLabel());
+      TwoDimVector xy = xyProvider.apply(point);
+      XYSailDataItem item = new XYSailDataItem(xy.x, xy.y, point.getXYLabel());
       if (containingTack.startOfTackDataPointIndex == point.index)
       {
         item.setStartOfTack(tackIndex);

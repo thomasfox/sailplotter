@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.thomasfox.sailplotter.Constants;
+import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
 /**
  * Location of boat at specific point in time, typically from GPS.
@@ -84,12 +85,20 @@ public class Location
     return result;
   }
 
+  /**
+   * Returns the distance from the aequator in north direction in meters.
+   * @return the north coordinate in meters.
+   */
   @JsonIgnore
   public double getY()
   {
     return latitude * Constants.EARTH_RADIUS;
   }
 
+  /**
+   * Returns the distance from the Greenwich meridian in west direction in meters.
+   * @return the west coordinate in meters.
+   */
   @JsonIgnore
   public double getX()
   {
@@ -145,21 +154,56 @@ public class Location
     return result;
   }
 
-  public Double distance(Location other)
+  /**
+   * Calculates the distance between two locations.
+   * This uses an approximation which is only valid if the distance between the two points is small
+   * as compared to the earth radius.
+   *
+   * @param other the location to compute the distance to, not null.
+   *
+   * @return the distance in meters.
+   */
+  public double approximateDistance(Location other)
   {
     double xDist = getX() - other.getX();
     double yDist = getY() - other.getY();
     return Math.sqrt(xDist * xDist + yDist * yDist);
   }
 
+  /**
+   * Returns the x coordinate of the difference vector relative to a reference location. 
+   * 
+   * @param reference the offset to calculate the x difference from, not null.
+   * 
+   * @return the difference in x coordinates between the two locations.
+   */
   public Double xRelativeTo(Location reference)
   {
     return getX() - reference.getX();
   }
 
+  /**
+   * Returns the y coordinate of the difference vector relative to a reference location.
+   *  
+   * @param reference the offset to calculate the y difference from, not null.
+   * 
+   * @return the difference in y coordinates between the two locations.
+   */
   public Double yRelativeTo(Location reference)
   {
     return getY() - reference.getY();
+  }
+
+  /**
+   * Returns difference vector between this vector and a reference location. 
+   * 
+   * @param reference the offset to calculate the difference vector from, not null.
+   * 
+   * @return the difference in x and y coordinates between the two locations.
+   */
+  public TwoDimVector xyRelativeTo(Location reference)
+  {
+    return new TwoDimVector(xRelativeTo(reference), yRelativeTo(reference));
   }
 
   public static Location interpolate(Location loc1, long weight1, Location loc2, long weight2)

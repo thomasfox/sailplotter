@@ -53,7 +53,9 @@ public class ZoomedMapPlotPanel extends AbstractPlotPanel
       return;
     }
     DataPoint startPoint = pointsWithLocation.get(0);
-    dataset.addSeries(getXySeries(TimeWindowPosition.IN, startPoint.location.getX(), startPoint.location.getY()));
+    dataset.addSeries(getXySeries(
+        TimeWindowPosition.IN,
+        p -> (p.location.xyRelativeTo(startPoint.location))));
     dataset.addSeries(getTackIntersectionSeries(data.getTackList(), TimeWindowPosition.IN, startPoint.location.getX(), startPoint.location.getY()));
 
     updateMapZoomRange();

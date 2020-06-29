@@ -1,8 +1,6 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -57,8 +55,6 @@ public class Overview extends AbstractView
   TackSeriesTablePanel tackSeriesTablePanel;
 
   private Data data;
-
-  public List<TackSeries> tackSeriesList;
 
   public Overview(SwingGui gui)
   {
@@ -141,7 +137,8 @@ public class Overview extends AbstractView
         .withColumnSpan(2)
         .add(tackTablePanel);
 
-    tackSeriesTablePanel = new TackSeriesTablePanel(tackSeriesList, this::tackSeriesSelected);
+
+    tackSeriesTablePanel = new TackSeriesTablePanel(this::tackSeriesSelected);
     createLayout()
         .withGridxy(2, 2)
         .withWeightx(0.666).withWeighty(0.25)
@@ -160,12 +157,15 @@ public class Overview extends AbstractView
     zoomedMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     tackVelocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    windDirectionTextField.setText(Integer.toString(data.getAverageWindDirectionInDegrees()));
-
-    if (updateTableContent)
+    if (data != null)
     {
-      tackTablePanel.updateContent(data.getTackList());
-      tackSeriesTablePanel.updateContent(tackSeriesList);
+      windDirectionTextField.setText(Integer.toString(data.getAverageWindDirectionInDegrees()));
+
+      if (updateTableContent)
+      {
+        tackTablePanel.updateContent(data.getTackList());
+        tackSeriesTablePanel.updateContent(data.getTackSeriesList());
+      }
     }
   }
 
@@ -193,7 +193,7 @@ public class Overview extends AbstractView
       return;
     }
     int index = tackSeriesTablePanel.getSelectedTackSeriesIndex();
-    TackSeries tackSeries = tackSeriesList.get(index);
+    TackSeries tackSeries = data.getTackSeriesList().get(index);
     try
     {
       gui.inUpdate = true;
@@ -224,7 +224,6 @@ public class Overview extends AbstractView
     zoomedMapPlotPanel.dataChanged(data);
     tackVelocityBearingPolarPlotPanel.dataChanged(data);
     velocityBearingPolarPlotPanel.dataChanged(data);
-    tackSeriesList = new ArrayList<>(data.getTackSeriesList());
   }
 
   @Override

@@ -17,7 +17,7 @@ public class VelocityBearingAnalyzer
       DataPoint point = pointsWithLocation.get(i);
       DataPoint pointBefore = pointsWithLocation.get(i - 1);
       DataPoint pointAfter = pointsWithLocation.get(i + 1);
-      double distance = pointAfter.location.distance(pointBefore.location);
+      double distance = pointAfter.location.approximateDistance(pointBefore.location);
       point.location.velocityFromLatLong = distance / pointAfter.timeDistanceMillis(pointBefore) * 1000 / Constants.NAUTICAL_MILE * 3600d;
       point.location.bearingFromLatLong = pointBefore.getBearingTo(pointAfter);
       point.location.velocityBearingAveragedOverDistance = distance;

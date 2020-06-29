@@ -31,6 +31,15 @@ public class TwoDimVector
     return new TwoDimVector(toCopy);
   }
 
+  public TwoDimVector rotate(double angleInArcs)
+  {
+    double oldX = x;
+    double oldY = y;
+    x = oldX * Math.cos(angleInArcs) + oldY * Math.sin(angleInArcs);
+    y = oldY * Math.cos(angleInArcs) - oldX * Math.sin(angleInArcs);
+    return this;
+  }
+
   /**
    * Gets the bearing of this point to the Y direction.
    *
