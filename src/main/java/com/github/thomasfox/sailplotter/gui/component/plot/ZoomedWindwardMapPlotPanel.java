@@ -8,13 +8,13 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.Range;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.MapArea;
 import com.github.thomasfox.sailplotter.model.Tack;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
@@ -44,11 +44,11 @@ public class ZoomedWindwardMapPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    if (data == null)
+    if (zoomedData.getData() == null)
     {
       return;
     }
-    List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
+    List<DataPoint> pointsWithLocation = zoomedData.getPointsWithLocation();
     if (pointsWithLocation.size() == 0)
     {
       return;
@@ -59,9 +59,9 @@ public class ZoomedWindwardMapPlotPanel extends AbstractPlotPanel
         p ->  new TwoDimVector(
                 p.location.getX() - startPoint.location.getX(),
                 p.location.getY() - startPoint.location.getY())
-            .rotate(data.getAverageWindBearing())));
+            .rotate(-zoomedData.getData().getAverageWindBearing())));
     dataset.addSeries(getTackIntersectionSeries(
-        data.getTackList(),
+        zoomedData.getData().getTackList(),
         TimeWindowPosition.IN,
         startPoint.location.getX(),
         startPoint.location.getY()));
@@ -71,33 +71,13 @@ public class ZoomedWindwardMapPlotPanel extends AbstractPlotPanel
 
   private void updateMapZoomRange()
   {
-    List<DataPoint> dataSubset = getLocationSubset(TimeWindowPosition.IN);
-    double startX = data.getPointsWithLocation().get(0).location.getX();
-    double minimumX = getMinimum(dataSubset, d->d.location.getX());
-    double maximumX = getMaximum(dataSubset, d->d.location.getX());
-    if (maximumX - minimumX < 1)
-    {
-      minimumX = -1 + startX;
-      maximumX = 1 + startX;
-    }
-    Range zoomXRange = new Range(
-        minimumX - startX - (maximumX - minimumX) * 0.1,
-        maximumX - startX + (maximumX - minimumX) * 0.1);
-
-    double startY = data.getPointsWithLocation().get(0).location.getY();
-    double minimumY = getMinimum(dataSubset, d->d.location.getY());
-    double maximumY = getMaximum(dataSubset, d->d.location.getY());
-    if (maximumY - minimumY < 1)
-    {
-      minimumY = -1 + startY;
-      maximumY = 1 + startY;
-    }
-    Range zoomYRange = new Range(
-        minimumY - startY - (maximumY - minimumY) * 0.1,
-        maximumY - startY + (maximumY - minimumY) * 0.1);
-
-    plot.getDomainAxis().setRange(zoomXRange);
-    plot.getRangeAxis().setRange(zoomYRange);
+    TwoDimVector offset = zoomedData.getPointsWithLocation().get(0).location.getXY();
+    MapArea mapArea = MapArea.calculateFrom(
+        zoomedData,
+        TimeWindowPosition.IN,
+        MapArea.transformLocation(p -> p.subtract(offset).rotate(-zoomedData.getData().getAverageWindBearing())));
+    plot.getDomainAxis().setRange(mapArea.getXRangeWithMargin(0.05));
+    plot.getRangeAxis().setRange(mapArea.getYRangeWithMargin(0.05));
     expandRangesToAspectRatio(plot, Constants.MAP_ASPECT_RATIO);
   }
 
@@ -111,7 +91,8 @@ public class ZoomedWindwardMapPlotPanel extends AbstractPlotPanel
     XYSeries series = new XYSeries("XY", false, true);
     for (Tack tack : tacks)
     {
-      if (!isInSelectedPosition(tack.start, position) && !isInSelectedPosition(tack.end, position))
+      if (!zoomedData.isInSelectedPosition(tack.start, position)
+          && !zoomedData.isInSelectedPosition(tack.end, position))
       {
         continue;
       }

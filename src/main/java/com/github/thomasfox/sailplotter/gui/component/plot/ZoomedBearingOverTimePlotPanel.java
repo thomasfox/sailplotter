@@ -46,9 +46,9 @@ public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    dataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(getGpsBearingInDegreesTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(getCompassBearingInDegreesTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(zoomedData.getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(zoomedData.getGpsBearingInDegreesTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(zoomedData.getCompassBearingInDegreesTimeSeries(TimeWindowPosition.IN));
   }
 
   @Override

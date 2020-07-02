@@ -19,6 +19,7 @@ import com.github.thomasfox.sailplotter.gui.component.view.DirectionsView;
 import com.github.thomasfox.sailplotter.gui.component.view.InfoView;
 import com.github.thomasfox.sailplotter.gui.component.view.MagneticFieldAccelerationView;
 import com.github.thomasfox.sailplotter.gui.component.view.Overview;
+import com.github.thomasfox.sailplotter.gui.component.view.RelativeToWindView;
 import com.github.thomasfox.sailplotter.gui.component.worker.LoadFileWorker;
 import com.github.thomasfox.sailplotter.model.Data;
 
@@ -32,6 +33,8 @@ public class SwingGui
 
   private static final String RAW_DATA_VIEW_NAME = "Magnetic Field / Acceleration";
 
+  private static final String RELATIVE_TO_WIND_VIEW_NAME = "Relative To Wind";
+
   private final SailplotterFrame frame;
 
   private final Menubar menubar;
@@ -42,7 +45,9 @@ public class SwingGui
 
   private final InfoView commentsView;
 
-  private final MagneticFieldAccelerationView rawDataView;
+  private final MagneticFieldAccelerationView magneticFieldAccelerationView;
+
+  private final RelativeToWindView relativeToWindView;
 
   private final ProgressDialog progressDialog;
 
@@ -57,13 +62,15 @@ public class SwingGui
     overview = new Overview(this);
     directionsView = new DirectionsView(this);
     commentsView = new InfoView(this);
-    rawDataView = new MagneticFieldAccelerationView(this);
+    magneticFieldAccelerationView = new MagneticFieldAccelerationView(this);
+    relativeToWindView = new RelativeToWindView(this);
 
     views = new JPanel(new CardLayout());
     views.add(overview, OVERVIEW_VIEW_NAME);
     views.add(directionsView, ANGLES_VIEW_NAME);
     views.add(commentsView, INFO_VIEW_NAME);
-    views.add(rawDataView, RAW_DATA_VIEW_NAME);
+    views.add(magneticFieldAccelerationView, RAW_DATA_VIEW_NAME);
+    views.add(relativeToWindView, RELATIVE_TO_WIND_VIEW_NAME);
 
     frame = new SailplotterFrame();
 
@@ -75,7 +82,8 @@ public class SwingGui
             OVERVIEW_VIEW_NAME,
             ANGLES_VIEW_NAME,
             INFO_VIEW_NAME,
-            RAW_DATA_VIEW_NAME);
+            RAW_DATA_VIEW_NAME,
+            RELATIVE_TO_WIND_VIEW_NAME);
     frame.setJMenuBar(menubar);
 
     frame.setViews(views);
@@ -146,7 +154,8 @@ public class SwingGui
       overview.redisplay(updateTableContent);
       directionsView.redisplay();
       commentsView.redisplay();
-      rawDataView.redisplay();
+      magneticFieldAccelerationView.redisplay();
+      relativeToWindView.redisplay(updateTableContent);
     }
     finally
     {
@@ -159,7 +168,8 @@ public class SwingGui
     overview.alignZoomPanelToChangeEvent(e);
     directionsView.alignZoomPanelToChangeEvent(e);
     commentsView.alignZoomPanelToChangeEvent(e);
-    rawDataView.alignZoomPanelToChangeEvent(e);
+    magneticFieldAccelerationView.alignZoomPanelToChangeEvent(e);
+    relativeToWindView.alignZoomPanelToChangeEvent(e);
     redisplay(false);
   }
 
@@ -216,7 +226,8 @@ public class SwingGui
     overview.dataChanged(data);
     directionsView.dataChanged(data);
     commentsView.dataChanged(data);
-    rawDataView.dataChanged(data);
+    magneticFieldAccelerationView.dataChanged(data);
+    relativeToWindView.dataChanged(data);
   }
 
   public void saveFile(File file)

@@ -39,7 +39,7 @@ public class ZoomedMagneticFieldPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    dataset.addSeries(getMagneticFieldTimeSeries(coordinateIndex, TimeWindowPosition.IN));
+    dataset.addSeries(zoomedData.getMagneticFieldTimeSeries(coordinateIndex, TimeWindowPosition.IN));
   }
 
   @Override

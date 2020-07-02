@@ -8,13 +8,13 @@ import org.junit.Test;
 public class LocationTest
 {
   @Test
-  public void testSetXAndY()
+  public void testSetXY()
   {
     // prepare
     Location location = new Location();
 
     // execute
-    location.setXAndY(137345, 2500000);
+    location.setXY(137345, 2500000);
 
     // verify
     assertThat(location.getX()).isCloseTo(137345d, within(0.00001d));

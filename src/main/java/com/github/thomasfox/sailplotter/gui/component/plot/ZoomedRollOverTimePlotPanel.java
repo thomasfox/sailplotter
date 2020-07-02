@@ -32,7 +32,7 @@ public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    dataset.addSeries(getAccelerationRollTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(zoomedData.getAccelerationRollTimeSeries(TimeWindowPosition.IN));
   }
 
   @Override

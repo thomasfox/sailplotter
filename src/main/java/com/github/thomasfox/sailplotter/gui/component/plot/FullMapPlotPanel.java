@@ -7,12 +7,12 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.Range;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.DataPoint;
+import com.github.thomasfox.sailplotter.model.MapArea;
 
 public class FullMapPlotPanel extends AbstractPlotPanel
 {
@@ -36,11 +36,11 @@ public class FullMapPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    if (data == null)
+    if (zoomedData.getData() == null)
     {
       return;
     }
-    List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
+    List<DataPoint> pointsWithLocation = zoomedData.getPointsWithLocation();
     if (pointsWithLocation.size() == 0)
     {
       return;
@@ -57,20 +57,9 @@ public class FullMapPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
-    List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
-    if (pointsWithLocation.size() == 0)
-    {
-      return;
-    }
-    DataPoint startPoint = pointsWithLocation.get(0);
-    Range xRange = new Range(
-        getMinimum(data.getPointsWithLocation(), d->d.location.getX()) - startPoint.location.getX(),
-        getMaximum(data.getPointsWithLocation(), d->d.location.getX()) - startPoint.location.getX());
-    plot.getDomainAxis().setRange(xRange);
-    Range yRange = new Range(
-        getMinimum(data.getPointsWithLocation(), d->d.location.getY()) - startPoint.location.getY(),
-        getMaximum(data.getPointsWithLocation(), d->d.location.getY()) - startPoint.location.getY());
-    plot.getRangeAxis().setRange(yRange);
+    MapArea mapArea = MapArea.calculateFrom(zoomedData, null);
+    plot.getDomainAxis().setRange(mapArea.getXRangeWithMargin(0.05));
+    plot.getRangeAxis().setRange(mapArea.getYRangeWithMargin(0.05));
     expandRangesToAspectRatio(plot, Constants.MAP_ASPECT_RATIO);
     plot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     plot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));

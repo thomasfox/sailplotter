@@ -58,7 +58,7 @@ public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
     {
       bin.setItemCount(0);
     }
-    for (DataPoint point : getLocationSubset(TimeWindowPosition.IN))
+    for (DataPoint point : zoomedData.getLocationSubset(TimeWindowPosition.IN))
     {
       if (point.location.bearingFromLatLong != null)
       {

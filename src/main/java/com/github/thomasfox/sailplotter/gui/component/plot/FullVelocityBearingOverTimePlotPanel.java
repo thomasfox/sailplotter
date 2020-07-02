@@ -14,6 +14,7 @@ import org.jfree.data.Range;
 import org.jfree.data.time.DateRange;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import com.github.thomasfox.sailplotter.analyze.MinMax;
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 
@@ -73,18 +74,18 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
   {
     velocityDataset.removeAllSeries();
     bearingDataset.removeAllSeries();
-    velocityDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.BEFORE));
-    velocityDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
-    velocityDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.AFTER));
-    bearingDataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
-    bearingDataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
-    bearingDataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.AFTER));
+    velocityDataset.addSeries(zoomedData.getVelocityTimeSeries(TimeWindowPosition.BEFORE));
+    velocityDataset.addSeries(zoomedData.getVelocityTimeSeries(TimeWindowPosition.IN));
+    velocityDataset.addSeries(zoomedData.getVelocityTimeSeries(TimeWindowPosition.AFTER));
+    bearingDataset.addSeries(zoomedData.getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.BEFORE));
+    bearingDataset.addSeries(zoomedData.getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
+    bearingDataset.addSeries(zoomedData.getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.AFTER));
   }
 
   @Override
   protected void onDataChanged()
   {
-    List<DataPoint> pointsWithLocation = data.getPointsWithLocation();
+    List<DataPoint> pointsWithLocation = zoomedData.getPointsWithLocation();
     if (pointsWithLocation.size() == 0)
     {
       return;
@@ -93,7 +94,9 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
         pointsWithLocation.get(0).time,
         pointsWithLocation.get(pointsWithLocation.size() -1).time);
     plot.getDomainAxis().setRange(dataRange);
-    Range valueRange = new DateRange(0, getMaximum(pointsWithLocation, d->d.location.velocityFromLatLong));
+    Range valueRange = new DateRange(
+        0,
+        MinMax.getMaximum(pointsWithLocation, d->d.location.velocityFromLatLong));
     plot.getRangeAxis().setRange(valueRange);
     plot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     plot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));

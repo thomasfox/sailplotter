@@ -32,7 +32,7 @@ public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    dataset.addSeries(getAccelerationHeelTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(zoomedData.getAccelerationHeelTimeSeries(TimeWindowPosition.IN));
   }
 
   @Override

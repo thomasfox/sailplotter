@@ -421,14 +421,10 @@ public class DataPointTest
   public void testIntersection1()
   {
     // prepare
-    Location line1Point1 = new Location();
-    line1Point1.setXAndY(-2, 0);
-    Location line1Point2 = new Location();
-    line1Point2.setXAndY(-1, 0.5);
-    Location line2Point1 = new Location();
-    line2Point1.setXAndY(2, 0);
-    Location line2Point2 = new Location();
-    line2Point2.setXAndY(3, -0.5);
+    Location line1Point1 = Location.fromXY(-2, 0);
+    Location line1Point2 = Location.fromXY(-1, 0.5);
+    Location line2Point1 = Location.fromXY(2, 0);
+    Location line2Point2 = Location.fromXY(3, -0.5);
 
     // execute
     Location intersection = Location.intersection(line1Point1, line1Point2, line2Point1, line2Point2);
@@ -442,14 +438,10 @@ public class DataPointTest
   public void testIntersection2()
   {
     // prepare
-    Location line1Point1 = new Location();
-    line1Point1.setXAndY(-1, -1);
-    Location line1Point2 = new Location();
-    line1Point2.setXAndY(0, -0.5);
-    Location line2Point1 = new Location();
-    line2Point1.setXAndY(0, 3);
-    Location line2Point2 = new Location();
-    line2Point2.setXAndY(0.5, 1.5);
+    Location line1Point1 = Location.fromXY(-1, -1);
+    Location line1Point2 = Location.fromXY(0, -0.5);
+    Location line2Point1 = Location.fromXY(0, 3);
+    Location line2Point2 = Location.fromXY(0.5, 1.5);
 
     // execute
     Location intersection = Location.intersection(line1Point1, line1Point2, line2Point1, line2Point2);
@@ -465,7 +457,7 @@ public class DataPointTest
     // prepare
     DataPoint dataPoint = new DataPoint(-1);
     dataPoint.time = 315576000000l;
-    dataPoint.location = Location.fromXAndY(2d, 7d);
+    dataPoint.location = Location.fromXY(2d, 7d);
     dataPoint.location.velocityFromLatLong = 12d;
     dataPoint.location.bearingFromLatLong = Math.PI / 2;
     dataPoint.wind = new Wind();
@@ -475,7 +467,7 @@ public class DataPointTest
     String result = dataPoint.toString();
 
     // verify
-    assertThat(result).isEqualTo("DataPoint: 1980-01-01T13:00 (2m,7m) 12,0kts 90,0°Abs -90,0°Rel");
+    assertThat(result).isEqualTo("DataPoint: 1980-01-01T13:00 (2m,7m) 12,0kts 90,0ï¿½Abs -90,0ï¿½Rel");
   }
 
   @Test

@@ -39,7 +39,7 @@ public class ZoomedAccelerationPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    dataset.addSeries(getAccelerationTimeSeries(coordinateIndex, TimeWindowPosition.IN));
+    dataset.addSeries(zoomedData.getAccelerationTimeSeries(coordinateIndex, TimeWindowPosition.IN));
   }
 
   @Override

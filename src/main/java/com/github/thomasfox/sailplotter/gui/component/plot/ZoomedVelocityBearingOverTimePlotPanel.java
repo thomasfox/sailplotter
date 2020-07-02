@@ -78,8 +78,8 @@ public class ZoomedVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
   {
     velocityDataset.removeAllSeries();
     bearingDataset.removeAllSeries();
-    velocityDataset.addSeries(getVelocityTimeSeries(TimeWindowPosition.IN));
-    bearingDataset.addSeries(getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
+    velocityDataset.addSeries(zoomedData.getVelocityTimeSeries(TimeWindowPosition.IN));
+    bearingDataset.addSeries(zoomedData.getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
   }
 
   @Override

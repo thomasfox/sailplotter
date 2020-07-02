@@ -78,15 +78,23 @@ public class Location
     return new Location(toCopy);
   }
 
-  public static Location fromXAndY(double x, double y)
+  public static Location fromXY(double x, double y)
   {
     Location result = new Location();
-    result.setXAndY(x, y);
+    result.setXY(x, y);
+    return result;
+  }
+
+  public static Location fromXY(TwoDimVector xy)
+  {
+    Location result = new Location();
+    result.setXY(xy);
     return result;
   }
 
   /**
    * Returns the distance from the aequator in north direction in meters.
+   *
    * @return the north coordinate in meters.
    */
   @JsonIgnore
@@ -97,6 +105,7 @@ public class Location
 
   /**
    * Returns the distance from the Greenwich meridian in west direction in meters.
+   *
    * @return the west coordinate in meters.
    */
   @JsonIgnore
@@ -105,11 +114,29 @@ public class Location
     return longitude * Math.cos(latitude) * Constants.EARTH_RADIUS;
   }
 
-  public void setXAndY(double x, double y)
+  /**
+   * Returns a TwoDimVector with the distance from the aequator in north direction in meters as x coordinate
+   * and the distance from the Greenwich meridian in west direction in meters as y coordinate.
+   *
+   * @return the north and west coordinates in meters.
+   */
+  @JsonIgnore
+  public TwoDimVector getXY()
+  {
+    return new TwoDimVector(getX(), getY());
+  }
+
+  public void setXY(double x, double y)
   {
     this.latitude = y / Constants.EARTH_RADIUS;
     this.longitude = x / Constants.EARTH_RADIUS / Math.cos(latitude);
   }
+
+  public void setXY(TwoDimVector xy)
+  {
+    setXY(xy.x, xy.y);
+  }
+
 
   @JsonIgnore
   public Double getBearingFromLatLongAs360Degrees()
@@ -150,7 +177,7 @@ public class Location
             - deltaYLine1*deltaYLine2*line2Point1.getX())
         / (deltaXLine2*deltaYLine1 - deltaXLine1*deltaYLine2);
     Location result = new Location();
-    result.setXAndY(newX, newY);
+    result.setXY(newX, newY);
     return result;
   }
 
@@ -171,10 +198,10 @@ public class Location
   }
 
   /**
-   * Returns the x coordinate of the difference vector relative to a reference location. 
-   * 
+   * Returns the x coordinate of the difference vector relative to a reference location.
+   *
    * @param reference the offset to calculate the x difference from, not null.
-   * 
+   *
    * @return the difference in x coordinates between the two locations.
    */
   public Double xRelativeTo(Location reference)
@@ -184,9 +211,9 @@ public class Location
 
   /**
    * Returns the y coordinate of the difference vector relative to a reference location.
-   *  
+   *
    * @param reference the offset to calculate the y difference from, not null.
-   * 
+   *
    * @return the difference in y coordinates between the two locations.
    */
   public Double yRelativeTo(Location reference)
@@ -195,10 +222,10 @@ public class Location
   }
 
   /**
-   * Returns difference vector between this vector and a reference location. 
-   * 
+   * Returns difference vector between this vector and a reference location.
+   *
    * @param reference the offset to calculate the difference vector from, not null.
-   * 
+   *
    * @return the difference in x and y coordinates between the two locations.
    */
   public TwoDimVector xyRelativeTo(Location reference)

@@ -31,15 +31,15 @@ public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    if (data == null)
+    if (zoomedData.getData() == null)
     {
       return;
     }
     XYSeries tackVelocity = new XYSeries("tackVelocity", false, true);
-    for (Tack tack : data.getTackList())
+    for (Tack tack : zoomedData.getData().getTackList())
     {
-      if (tack.end.getLocalDateTime().isAfter(getLocationDataStartTime())
-          && tack.start.getLocalDateTime().isBefore(getLocationDataEndTime())
+      if (tack.end.getLocalDateTime().isAfter(zoomedData.getLocationDataStartTime())
+          && tack.start.getLocalDateTime().isBefore(zoomedData.getLocationDataEndTime())
           && tack.hasMainPoints())
       {
         if (tack.getRelativeBearingInDegrees() != null && tack.getVelocityInKnots() != null)

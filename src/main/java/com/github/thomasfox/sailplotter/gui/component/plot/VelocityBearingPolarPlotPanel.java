@@ -31,7 +31,7 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    if (data == null)
+    if (zoomedData.getData() == null)
     {
       return;
     }
@@ -40,10 +40,10 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
     {
       velocityBuckets.add(new ArrayList<Double>());
     }
-    for (DataPoint point : data.getPointsWithLocation())
+    for (DataPoint point : zoomedData.getPointsWithLocation())
     {
-      if (point.getLocalDateTime().isAfter(getLocationDataStartTime())
-          && point.getLocalDateTime().isBefore(getLocationDataEndTime()))
+      if (point.getLocalDateTime().isAfter(zoomedData.getLocationDataStartTime())
+          && point.getLocalDateTime().isBefore(zoomedData.getLocationDataEndTime()))
       {
         if (point.location.bearingFromLatLong != null && point.location.velocityFromLatLong != null)
         {

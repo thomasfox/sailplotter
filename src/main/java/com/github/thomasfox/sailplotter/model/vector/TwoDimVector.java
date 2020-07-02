@@ -40,6 +40,13 @@ public class TwoDimVector
     return this;
   }
 
+  public TwoDimVector subtract(TwoDimVector toAdd)
+  {
+    this.x -= toAdd.x;
+    this.y -= toAdd.y;
+    return this;
+  }
+
   /**
    * Gets the bearing of this point to the Y direction.
    *
