@@ -6,9 +6,11 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.model.Data;
 
 public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
 {
@@ -47,9 +49,28 @@ public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
   {
     dataset.removeAllSeries();
     dataset.addSeries(zoomedData.getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(zoomedData.getGpsBearingInDegreesTimeSeries(TimeWindowPosition.IN));
-    dataset.addSeries(zoomedData.getCompassBearingInDegreesTimeSeries(TimeWindowPosition.IN));
+    dataset.addSeries(getGpsBearingInDegreesTimeSeries());
+    dataset.addSeries(getCompassBearingInDegreesTimeSeries());
   }
+
+  private TimeSeries getCompassBearingInDegreesTimeSeries()
+  {
+    return zoomedData.getTimeSeries(
+        "compass bearing",
+        Data::getPointsWithMagneticField,
+        point -> zoomedData.isInSelectedPosition(point, TimeWindowPosition.IN) && point.hasCompassBearing(),
+        point -> point.magneticField.getCompassBearingAs360Degrees());
+  }
+
+  public TimeSeries getGpsBearingInDegreesTimeSeries()
+  {
+    return zoomedData.getLocationTimeSeries(
+        "gps bearing",
+        TimeWindowPosition.IN,
+        point -> point.location.getGpsBearingAs360Degrees());
+  }
+
+
 
   @Override
   protected void onDataChanged()

@@ -8,14 +8,12 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.MapArea;
-import com.github.thomasfox.sailplotter.model.Tack;
 
 public class ZoomedMapPlotPanel extends AbstractPlotPanel
 {
@@ -55,8 +53,10 @@ public class ZoomedMapPlotPanel extends AbstractPlotPanel
     DataPoint startPoint = pointsWithLocation.get(0);
     dataset.addSeries(getXySeries(
         TimeWindowPosition.IN,
-        p -> (p.location.xyRelativeTo(startPoint.location))));
-    dataset.addSeries(getTackIntersectionSeries(zoomedData.getData().getTackList(), TimeWindowPosition.IN, startPoint.location.getX(), startPoint.location.getY()));
+        p -> p.location.xyRelativeTo(startPoint.location)));
+    dataset.addSeries(zoomedData.getTackIntersectionSeries(
+        TimeWindowPosition.IN,
+        l -> l.xyRelativeTo(startPoint.location)));
 
     updateMapZoomRange();
   }
@@ -72,28 +72,5 @@ public class ZoomedMapPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
-  }
-
-  public XYSeries getTackIntersectionSeries(List<Tack> tacks, TimeWindowPosition position, double xOffset, double yOffset)
-  {
-    XYSeries series = new XYSeries("XY", false, true);
-    for (Tack tack : tacks)
-    {
-      if (!zoomedData.isInSelectedPosition(tack.start, position)
-          && !zoomedData.isInSelectedPosition(tack.end, position))
-      {
-        continue;
-      }
-      if (tack.tackStraightLineIntersectionStart != null && tack.tackStraightLineIntersectionEnd != null)
-      {
-        series.add(
-            tack.tackStraightLineIntersectionStart.location.getX() - xOffset,
-            tack.tackStraightLineIntersectionStart.location.getY() - yOffset);
-        series.add(
-            tack.tackStraightLineIntersectionEnd.location.getX() - xOffset,
-            tack.tackStraightLineIntersectionEnd.location.getY() - yOffset);
-      }
-    }
-    return series;
   }
 }

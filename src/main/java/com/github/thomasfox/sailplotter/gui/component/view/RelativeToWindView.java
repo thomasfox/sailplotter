@@ -14,20 +14,23 @@ import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanel;
 import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
-import com.github.thomasfox.sailplotter.gui.component.plot.TackVelocityBearingPolarPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.VelocityBearingPolarPlotPanel;
+import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedVelocityMadeGoodPlotPanel;
+import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedVelocityPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedWindwardMapPlotPanel;
-import com.github.thomasfox.sailplotter.gui.component.table.TackSeriesTablePanel;
 import com.github.thomasfox.sailplotter.gui.component.table.TackTablePanel;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.Tack;
-import com.github.thomasfox.sailplotter.model.TackSeries;
 
 public class RelativeToWindView extends AbstractView
 {
   private static final long serialVersionUID = 1L;
 
   private final SwingGui gui;
+
+  private final ZoomedVelocityMadeGoodPlotPanel zoomedVelocityMadeGoodPlotPanel;
+
+  private final ZoomedVelocityPlotPanel zoomedVelocityPlotPanel;
 
   private final ZoomPanel zoomPanel;
 
@@ -37,13 +40,9 @@ public class RelativeToWindView extends AbstractView
 
   private final AbstractPlotPanel velocityBearingPolarPlotPanel;
 
-  private final AbstractPlotPanel tackVelocityBearingPolarPlotPanel;
-
   private final JTextField windDirectionTextField;
 
   TackTablePanel tackTablePanel;
-
-  TackSeriesTablePanel tackSeriesTablePanel;
 
   private Data data;
 
@@ -79,64 +78,67 @@ public class RelativeToWindView extends AbstractView
     topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
     createLayout()
         .withGridxy(2, 0)
-        .withWeightx(0.333).withWeighty(0.25)
-        .withColumnSpan(2)
+        .withWeightx(0.25).withWeighty(0.25)
         .add(topRightPanel);
+
+    zoomedVelocityMadeGoodPlotPanel = new ZoomedVelocityMadeGoodPlotPanel(
+        zoomPanel.getStartIndex(),
+        zoomPanel.getZoomIndex());
+    createLayout()
+        .withGridxy(0, 0)
+        .withWeightx(0.375).withWeighty(0.25)
+        .add(zoomedVelocityMadeGoodPlotPanel);
+
+    zoomedVelocityPlotPanel = new ZoomedVelocityPlotPanel(
+        zoomPanel.getStartIndex(),
+        zoomPanel.getZoomIndex());
+
+    createLayout()
+        .withGridxy(1, 0)
+        .withWeightx(0.375).withWeighty(0.25)
+        .add(zoomedVelocityPlotPanel);
 
     fullMapPlotPanel = new FullMapPlotPanel(zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
     createLayout()
         .withGridxy(0, 1)
-        .withWeightx(0.333).withWeighty(0.5)
+        .withWeightx(0.375).withWeighty(0.5)
         .add(fullMapPlotPanel);
 
     zoomedWindwardMapPlotPanel = new ZoomedWindwardMapPlotPanel(zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
     createLayout()
         .withGridxy(1, 1)
-        .withWeightx(0.333).withWeighty(0.5)
+        .withWeightx(0.375).withWeighty(0.5)
         .add(zoomedWindwardMapPlotPanel);
-
-    tackVelocityBearingPolarPlotPanel = new TackVelocityBearingPolarPlotPanel(zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
-    createLayout()
-        .withGridxy(2, 1)
-        .withWeightx(0.166).withWeighty(0.5)
-        .add(tackVelocityBearingPolarPlotPanel);
 
     velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel(zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
     createLayout()
-        .withGridxy(3, 1)
-        .withWeightx(0.166).withWeighty(0.5)
+        .withGridxy(2, 1)
+        .withWeightx(0.25).withWeighty(0.5)
         .add(velocityBearingPolarPlotPanel);
 
     tackTablePanel = new TackTablePanel(this::tackSelected);
     createLayout()
         .withGridxy(0, 2)
-        .withWeightx(0.666).withWeighty(0.25)
-        .withColumnSpan(2)
+        .withWeightx(1).withWeighty(0.25)
+        .withColumnSpan(3)
         .add(tackTablePanel);
-
-    tackSeriesTablePanel = new TackSeriesTablePanel(this::tackSeriesSelected);
-    createLayout()
-        .withGridxy(2, 2)
-        .withWeightx(0.666).withWeighty(0.25)
-        .withColumnSpan(2)
-        .add(tackSeriesTablePanel);
   }
 
   public void redisplay(boolean updateTableContent)
   {
     int zoomWindowStartIndex = zoomPanel.getStartIndex();
     int zoomWindowZoomIndex = zoomPanel.getZoomIndex();
+    zoomedVelocityMadeGoodPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+    zoomedVelocityPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     fullMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     zoomedWindwardMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    tackVelocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
     if (data != null)
     {
       windDirectionTextField.setText(Integer.toString(data.getAverageWindDirectionInDegrees()));
       if (updateTableContent)
       {
         tackTablePanel.updateContent(data.getTackList());
-        tackSeriesTablePanel.updateContent(data.getTackSeriesList());
       }
     }
   }
@@ -158,40 +160,15 @@ public class RelativeToWindView extends AbstractView
         true);
   }
 
-  public void tackSeriesSelected(ListSelectionEvent e)
-  {
-    if (e.getValueIsAdjusting() || gui.inUpdate)
-    {
-      return;
-    }
-    int index = tackSeriesTablePanel.getSelectedTackSeriesIndex();
-    TackSeries tackSeries = data.getTackSeriesList().get(index);
-    try
-    {
-      gui.inUpdate = true;
-      tackTablePanel.selectInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
-      zoomPanel.setStartIndex(Math.max(data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0), true);
-      zoomPanel.setZoomIndex(Math.min(
-          Math.max(
-              Constants.NUMER_OF_ZOOM_TICKS * (data.getTackList().get(tackSeries.endTackIndex).endOfTackDataPointIndex - data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.getPointsWithLocation().size()),
-              3),
-          Constants.NUMER_OF_ZOOM_TICKS),
-          true);
-    }
-    finally
-    {
-      gui.inUpdate = false;
-    }
-    redisplay(false);
-  }
-
+  @Override
   public void dataChanged(Data data)
   {
     this.data = data;
     zoomPanel.setDataSize(data.getPointsWithLocation().size());
+    zoomedVelocityMadeGoodPlotPanel.dataChanged(data);
+    zoomedVelocityPlotPanel.dataChanged(data);
     fullMapPlotPanel.dataChanged(data);
     zoomedWindwardMapPlotPanel.dataChanged(data);
-    tackVelocityBearingPolarPlotPanel.dataChanged(data);
     velocityBearingPolarPlotPanel.dataChanged(data);
   }
 

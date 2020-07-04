@@ -3,13 +3,17 @@ package com.github.thomasfox.sailplotter.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
+import org.jfree.data.xy.XYSeries;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
 import com.github.thomasfox.sailplotter.listener.ZoomChangeListener;
+import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
 public class ZoomedData implements ZoomChangeListener
 {
@@ -86,6 +90,10 @@ public class ZoomedData implements ZoomChangeListener
 
   public boolean isInSelectedPosition(DataPoint point, TimeWindowPosition position)
   {
+    if (position == null)
+    {
+      return true;
+    }
     if (position == TimeWindowPosition.BEFORE && point.getLocalDateTime().isAfter(getLocationDataStartTime()))
     {
       return false;
@@ -110,11 +118,6 @@ public class ZoomedData implements ZoomChangeListener
       return new ArrayList<>();
     }
 
-    if (position == null)
-    {
-      return new ArrayList<>(data.getPointsWithLocation());
-    }
-
     List<DataPoint> result = new ArrayList<>();
     for (DataPoint point : data.getPointsWithLocation())
     {
@@ -127,116 +130,71 @@ public class ZoomedData implements ZoomChangeListener
     return result;
   }
 
-  public TimeSeries getAccelerationTimeSeries(int coordinateIndex, TimeWindowPosition position)
+  public TimeSeries getTimeSeries(
+      String name,
+      Function<Data, List<DataPoint>> pointProvider,
+      Predicate<DataPoint> filter,
+      Function<DataPoint, Double> mapper)
   {
-    TimeSeries series = new TimeSeries("acceleration");
+    TimeSeries series = new TimeSeries(name);
     if (data == null)
     {
       return series;
     }
-    for (DataPoint point : data.getPointsWithAcceleration())
+    for (DataPoint point : pointProvider.apply(data))
     {
-      if (isInSelectedPosition(point, position))
+      if (filter.test(point))
       {
-        series.addOrUpdate(point.getMillisecond(), point.acceleration.getByIndex(coordinateIndex));
+        series.addOrUpdate(point.getMillisecond(), mapper.apply(point));
       }
     }
     return series;
   }
 
-  public TimeSeries getMagneticFieldTimeSeries(int coordinateIndex, TimeWindowPosition position)
+  public TimeSeries getLocationTimeSeries(
+      String name,
+      TimeWindowPosition position,
+      Function<DataPoint, Double> mapper)
   {
-    TimeSeries series = new TimeSeries("magnetic Field");
-    if (data == null)
+    TimeSeries series = new TimeSeries("velocity");
+    for (DataPoint point : getLocationSubset(position))
     {
-      return series;
-    }
-    for (DataPoint point : data.getPointsWithMagneticField())
-    {
-      if (isInSelectedPosition(point, position))
-      {
-        series.addOrUpdate(point.getMillisecond(), point.magneticField.getByIndex(coordinateIndex));
-      }
-    }
-    return series;
-  }
-
-  public TimeSeries getAccelerationRollTimeSeries(TimeWindowPosition position)
-  {
-    TimeSeries series = new TimeSeries("roll");
-    if (data == null)
-    {
-      return series;
-    }
-    for (DataPoint point : data.getAllPoints())
-    {
-      if (isInSelectedPosition(point, position) && point.hasAcceleration() && point.acceleration.roll != null)
-      {
-        series.addOrUpdate(point.getMillisecond(), point.acceleration.roll * 180d / Math.PI);
-      }
+      series.addOrUpdate(point.getMillisecond(), mapper.apply(point));
     }
     return series;
   }
 
   public TimeSeries getVelocityTimeSeries(TimeWindowPosition position)
   {
-    TimeSeries series = new TimeSeries("velocity");
-    for (DataPoint point : getLocationSubset(position))
-    {
-      series.addOrUpdate(point.getMillisecond(), point.location.velocityFromLatLong);
-    }
-    return series;
+    return getLocationTimeSeries("velocity", position, point -> point.location.velocityFromLatLong);
   }
 
   public TimeSeries getBearingInDegreesFromLatLongTimeSeries(TimeWindowPosition position)
   {
-    TimeSeries series = new TimeSeries("bearing from pos");
-    for (DataPoint point : getLocationSubset(position))
-    {
-      series.addOrUpdate(point.getMillisecond(), point.location.getBearingFromLatLongAs360Degrees());
-    }
-    return series;
+    return getLocationTimeSeries(
+        "bearing from pos",
+        position,
+        point -> point.location.getBearingFromLatLongAs360Degrees());
   }
 
-  public TimeSeries getGpsBearingInDegreesTimeSeries(TimeWindowPosition position)
+  public XYSeries getTackIntersectionSeries(
+      TimeWindowPosition position,
+      Function<Location, TwoDimVector> xyProvider)
   {
-    TimeSeries series = new TimeSeries("gps bearing");
-    for (DataPoint point : getLocationSubset(position))
+    XYSeries series = new XYSeries("XY", false, true);
+    for (Tack tack : data.getTackList())
     {
-      series.addOrUpdate(point.getMillisecond(), point.location.getGpsBearingAs360Degrees());
-    }
-    return series;
-  }
-
-  public TimeSeries getCompassBearingInDegreesTimeSeries(TimeWindowPosition position)
-  {
-    TimeSeries series = new TimeSeries("compass bearing");
-    if (data == null)
-    {
-      return series;
-    }
-    for (DataPoint point : data.getAllPoints())
-    {
-      if (isInSelectedPosition(point, position) && point.hasMagneticField() && point.magneticField.compassBearing != null)
+      if (!isInSelectedPosition(tack.start, position)
+          && !isInSelectedPosition(tack.end, position))
       {
-        series.addOrUpdate(point.getMillisecond(), point.magneticField.getCompassBearingAs360Degrees());
+        continue;
       }
-    }
-    return series;
-  }
-
-  public TimeSeries getAccelerationHeelTimeSeries(TimeWindowPosition position)
-  {
-    TimeSeries series = new TimeSeries("heel");
-    if (data == null)
-    {
-      return series;
-    }
-    for (DataPoint point : data.getAllPoints())
-    {
-      if (isInSelectedPosition(point, position) && point.hasAcceleration() && point.acceleration.heel != null)
+      if (tack.tackStraightLineIntersectionStart != null && tack.tackStraightLineIntersectionEnd != null)
       {
-        series.addOrUpdate(point.getMillisecond(), point.acceleration.heel * 180d / Math.PI);
+        TwoDimVector start = xyProvider.apply(tack.tackStraightLineIntersectionStart.location);
+        TwoDimVector end = xyProvider.apply(tack.tackStraightLineIntersectionEnd.location);
+        series.add(start.x, start.y);
+        series.add(end.x, end.y);
       }
     }
     return series;

@@ -2,9 +2,11 @@ package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.vector.ThreeDimVector;
 
 public class ZoomedAccelerationPlotPanel extends AbstractPlotPanel
@@ -39,7 +41,16 @@ public class ZoomedAccelerationPlotPanel extends AbstractPlotPanel
   protected void onZoomChanged()
   {
     dataset.removeAllSeries();
-    dataset.addSeries(zoomedData.getAccelerationTimeSeries(coordinateIndex, TimeWindowPosition.IN));
+    dataset.addSeries(getAccelerationTimeSeries());
+  }
+
+  private TimeSeries getAccelerationTimeSeries()
+  {
+    return zoomedData.getTimeSeries(
+        "acceleration",
+        Data::getPointsWithAcceleration,
+        point -> zoomedData.isInSelectedPosition(point, TimeWindowPosition.IN),
+        point -> point.acceleration.getByIndex(coordinateIndex));
   }
 
   @Override

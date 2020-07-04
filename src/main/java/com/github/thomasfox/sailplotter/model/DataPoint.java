@@ -100,9 +100,26 @@ public class DataPoint
     return acceleration != null;
   }
 
+  public boolean hasRoll()
+  {
+    return acceleration != null && acceleration.roll != null;
+  }
+
+
+  public boolean hasHeel()
+  {
+    return acceleration != null && acceleration.heel != null;
+  }
+
+
   public boolean hasMagneticField()
   {
     return magneticField != null;
+  }
+
+  public boolean hasCompassBearing()
+  {
+    return magneticField != null && magneticField.compassBearing != null;
   }
 
   public long averageTime(DataPoint other)
