@@ -45,7 +45,7 @@ public class ZoomPanel extends JPanel implements ChangeListener
     label.setAlignment(Label.CENTER);
     this.add(label);
 
-    zoomSlider = new JSlider(JSlider.HORIZONTAL, 0, Constants.NUMER_OF_ZOOM_TICKS, Constants.NUMER_OF_ZOOM_TICKS);
+    zoomSlider = new JSlider(JSlider.HORIZONTAL, 0, Constants.NUMBER_OF_ZOOM_TICKS, Constants.NUMBER_OF_ZOOM_TICKS);
     zoomSlider.addChangeListener(this);
     this.add(zoomSlider);
   }
@@ -56,7 +56,7 @@ public class ZoomPanel extends JPanel implements ChangeListener
     {
       startSlider.setValue(0);
       startSlider.setMaximum(dataSize- 1);
-      zoomSlider.setValue(Constants.NUMER_OF_ZOOM_TICKS);
+      zoomSlider.setValue(Constants.NUMBER_OF_ZOOM_TICKS);
       currentDataSize = dataSize;
     }
   }
@@ -126,6 +126,27 @@ public class ZoomPanel extends JPanel implements ChangeListener
       {
         this.notifyOff = true;
       }
+      zoomSlider.setValue(zoomIndex);
+    }
+    finally
+    {
+      this.notifyOff = false;
+    }
+  }
+
+  public synchronized void setEndIndex(int endIndex, boolean notify)
+  {
+    try
+    {
+      if (!notify)
+      {
+        this.notifyOff = true;
+      }
+      int zoomIndex = Math.min(
+          Math.max(
+              Constants.NUMBER_OF_ZOOM_TICKS * (endIndex - startSlider.getValue()) / (currentDataSize),
+              3),
+          Constants.NUMBER_OF_ZOOM_TICKS);
       zoomSlider.setValue(zoomIndex);
     }
     finally

@@ -60,7 +60,7 @@ public class ZoomedData implements ZoomChangeListener
   {
     int startIndex = getLocationDataStartIndex();
     int result = startIndex
-        + zoomWindowLocationSize * (data.getPointsWithLocation().size() - 1) / Constants.NUMER_OF_ZOOM_TICKS;
+        + zoomWindowLocationSize * (data.getPointsWithLocation().size() - 1) / Constants.NUMBER_OF_ZOOM_TICKS;
     result = Math.min(result, (data.getPointsWithLocation().size() - 1));
     return result;
   }

@@ -1,4 +1,4 @@
-package com.github.thomasfox.sailplotter.gui.component.plot;
+package com.github.thomasfox.sailplotter.gui.component.panel;
 
 import java.awt.Dimension;
 
@@ -8,13 +8,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.github.thomasfox.sailplotter.gui.SwingGui;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanel;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.listener.DataChangeListener;
 import com.github.thomasfox.sailplotter.model.Data;
 
 public class ControlPanel extends JPanel implements DataChangeListener
 {
+  /** SerialVersionUID. */
+  private static final long serialVersionUID = 1L;
+
   private final ZoomPanel zoomPanel;
 
   private final JTextField windDirectionTextField;
@@ -57,6 +58,11 @@ public class ControlPanel extends JPanel implements DataChangeListener
   public void setZoomIndex(int zoomIndex)
   {
     zoomPanel.setZoomIndex(zoomIndex, true);
+  }
+
+  public void setZoomEndIndex(int endIndex)
+  {
+    zoomPanel.setEndIndex(endIndex, true);
   }
 
   @Override

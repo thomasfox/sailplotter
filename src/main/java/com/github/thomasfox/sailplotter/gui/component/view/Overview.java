@@ -4,9 +4,9 @@ import javax.swing.event.ListSelectionEvent;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.SwingGui;
+import com.github.thomasfox.sailplotter.gui.component.panel.ControlPanel;
 import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
-import com.github.thomasfox.sailplotter.gui.component.plot.ControlPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullVelocityBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.TackVelocityBearingPolarPlotPanel;
@@ -143,11 +143,7 @@ public class Overview extends AbstractView
     int index = tackTablePanel.getSelectedTackIndex();
     Tack tack = data.getTackList().get(index);
     controlPanel.setZoomStartIndex(Math.max(tack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
-    controlPanel.setZoomIndex(Math.min(
-        Math.max(
-            Constants.NUMER_OF_ZOOM_TICKS * (tack.endOfTackDataPointIndex - tack.startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.getPointsWithLocation().size()),
-            3),
-        Constants.NUMER_OF_ZOOM_TICKS));
+    controlPanel.setZoomEndIndex(tack.endOfTackDataPointIndex + Constants.NUM_DATAPOINTS_TACK_EXTENSION);
   }
 
   public void tackSeriesSelected(ListSelectionEvent e)
@@ -163,11 +159,7 @@ public class Overview extends AbstractView
       gui.inUpdate = true;
       tackTablePanel.selectInterval(tackSeries.startTackIndex, tackSeries.endTackIndex);
       controlPanel.setZoomStartIndex(Math.max(data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
-      controlPanel.setZoomIndex(Math.min(
-          Math.max(
-              Constants.NUMER_OF_ZOOM_TICKS * (data.getTackList().get(tackSeries.endTackIndex).endOfTackDataPointIndex - data.getTackList().get(tackSeries.startTackIndex).startOfTackDataPointIndex + 2 * Constants.NUM_DATAPOINTS_TACK_EXTENSION) / (data.getPointsWithLocation().size()),
-              3),
-          Constants.NUMER_OF_ZOOM_TICKS));
+      controlPanel.setZoomEndIndex(data.getTackList().get(tackSeries.endTackIndex).endOfTackDataPointIndex +  Constants.NUM_DATAPOINTS_TACK_EXTENSION);
     }
     finally
     {
