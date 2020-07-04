@@ -66,7 +66,7 @@ public class DirectionsView extends AbstractView
   }
 
   @Override
-  public void alignZoomPanelToChangeEvent(ZoomPanelChangeEvent e)
+  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
   {
     if (!e.isSource(zoomPanel))
     {

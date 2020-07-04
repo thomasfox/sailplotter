@@ -192,7 +192,7 @@ public class InfoView extends AbstractView
   }
 
   @Override
-  public void alignZoomPanelToChangeEvent(ZoomPanelChangeEvent e)
+  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
   {
     // no action needed as we have no zoom panel
   }

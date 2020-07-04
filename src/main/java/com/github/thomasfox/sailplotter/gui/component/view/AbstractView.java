@@ -18,7 +18,7 @@ public abstract class AbstractView extends JPanel implements DataChangeListener
     setLayout(new GridBagLayout());
   }
 
-  public abstract void alignZoomPanelToChangeEvent(ZoomPanelChangeEvent e);
+  public abstract void processZoomPanelChangeEvent(ZoomPanelChangeEvent e);
 
   public Layout createLayout()
   {

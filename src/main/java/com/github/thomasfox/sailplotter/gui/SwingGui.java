@@ -165,11 +165,11 @@ public class SwingGui
 
   public void zoomPanelStateChanged(ZoomPanelChangeEvent e)
   {
-    overview.alignZoomPanelToChangeEvent(e);
-    directionsView.alignZoomPanelToChangeEvent(e);
-    commentsView.alignZoomPanelToChangeEvent(e);
-    magneticFieldAccelerationView.alignZoomPanelToChangeEvent(e);
-    relativeToWindView.alignZoomPanelToChangeEvent(e);
+    overview.processZoomPanelChangeEvent(e);
+    directionsView.processZoomPanelChangeEvent(e);
+    commentsView.processZoomPanelChangeEvent(e);
+    magneticFieldAccelerationView.processZoomPanelChangeEvent(e);
+    relativeToWindView.processZoomPanelChangeEvent(e);
     redisplay(false);
   }
 
