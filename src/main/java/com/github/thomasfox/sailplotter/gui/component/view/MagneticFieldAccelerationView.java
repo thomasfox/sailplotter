@@ -116,6 +116,7 @@ public class MagneticFieldAccelerationView extends AbstractView
     zoomedAccelerationZPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
   }
 
+  @Override
   public void dataChanged(Data data)
   {
     zoomPanel.setDataSize(data.getPointsWithLocation().size());
@@ -131,10 +132,6 @@ public class MagneticFieldAccelerationView extends AbstractView
   @Override
   public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
   {
-    if (!e.isSource(zoomPanel))
-    {
-      zoomPanel.setStartIndex(e.getStartIndex(), false);
-      zoomPanel.setZoomIndex(e.getZoomPosition(), false);
-    }
+    zoomPanel.processZoomPanelChangeEvent(e);
   }
 }

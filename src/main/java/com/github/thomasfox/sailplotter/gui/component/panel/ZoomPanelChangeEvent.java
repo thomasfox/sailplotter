@@ -4,14 +4,14 @@ public class ZoomPanelChangeEvent
 {
   private final int startIndex;
 
-  private final int zoomPosition;
+  private final int endIndex;
 
   private final ZoomPanel source;
 
-  ZoomPanelChangeEvent(int startIndex, int zoomPosition, ZoomPanel source)
+  ZoomPanelChangeEvent(int startIndex, int endIndex, ZoomPanel source)
   {
     this.startIndex = startIndex;
-    this.zoomPosition = zoomPosition;
+    this.endIndex = endIndex;
     this.source = source;
   }
 
@@ -20,9 +20,9 @@ public class ZoomPanelChangeEvent
     return startIndex;
   }
 
-  public int getZoomPosition()
+  public int getEndIndex()
   {
-    return zoomPosition;
+    return endIndex;
   }
 
   public boolean isSource(ZoomPanel panel)

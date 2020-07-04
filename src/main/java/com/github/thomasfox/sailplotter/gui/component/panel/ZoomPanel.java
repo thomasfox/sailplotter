@@ -20,6 +20,8 @@ public class ZoomPanel extends JPanel implements ChangeListener
 
   private final JSlider startSlider;
 
+  private final JSlider endSlider;
+
   private final JSlider zoomSlider;
 
   private final List<ZoomPanelChangeListener> listeners = new ArrayList<>();
@@ -32,6 +34,7 @@ public class ZoomPanel extends JPanel implements ChangeListener
   {
     this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
     setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
     Label label = new Label("Start time");
     label.setAlignment(Label.CENTER);
     label.setPreferredSize(new Dimension(0, 15));
@@ -40,6 +43,15 @@ public class ZoomPanel extends JPanel implements ChangeListener
     startSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
     startSlider.addChangeListener(this);
     this.add(startSlider);
+
+    label = new Label("End time");
+    label.setAlignment(Label.CENTER);
+    label.setPreferredSize(new Dimension(0, 15));
+    this.add(label);
+
+    endSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
+    endSlider.addChangeListener(this);
+    this.add(endSlider);
 
     label = new Label("Zoom");
     label.setAlignment(Label.CENTER);
@@ -55,7 +67,9 @@ public class ZoomPanel extends JPanel implements ChangeListener
     if (dataSize != currentDataSize)
     {
       startSlider.setValue(0);
-      startSlider.setMaximum(dataSize- 1);
+      startSlider.setMaximum(dataSize - 1);
+      endSlider.setMaximum(dataSize - 1);
+      endSlider.setValue(dataSize - 1);
       zoomSlider.setValue(Constants.NUMBER_OF_ZOOM_TICKS);
       currentDataSize = dataSize;
     }
@@ -64,7 +78,7 @@ public class ZoomPanel extends JPanel implements ChangeListener
   @Override
   public void stateChanged(ChangeEvent e)
   {
-    notifyListeners();
+    notifyListeners(e);
   }
 
   public void addListener(ZoomPanelChangeListener listener)
@@ -82,13 +96,50 @@ public class ZoomPanel extends JPanel implements ChangeListener
     listeners.clear();
   }
 
-  public void notifyListeners()
+  private synchronized void notifyListeners(ChangeEvent e)
   {
     if (notifyOff)
     {
       return;
     }
-    ZoomPanelChangeEvent event = new ZoomPanelChangeEvent(startSlider.getValue(), zoomSlider.getValue(), this);
+    if (e.getSource() == startSlider)
+    {
+      try
+      {
+        this.notifyOff = true;
+        adjustOtherSlidersToStartSliderChange(startSlider.getValue());
+      }
+      finally
+      {
+        this.notifyOff = false;
+      }
+    }
+    if (e.getSource() == zoomSlider)
+    {
+      try
+      {
+        this.notifyOff = true;
+        adjustOtherSlidersToZoomSliderChange(zoomSlider.getValue());
+      }
+      finally
+      {
+        this.notifyOff = false;
+      }
+    }
+    if (e.getSource() == endSlider)
+    {
+      try
+      {
+        this.notifyOff = true;
+        ajustOtherSlidersToEndSliderChange(endSlider.getValue());
+      }
+      finally
+      {
+        this.notifyOff = false;
+      }
+    }
+
+    ZoomPanelChangeEvent event = new ZoomPanelChangeEvent(startSlider.getValue(), endSlider.getValue(), this);
     listeners.stream().forEach(l -> l.stateChanged(event));
   }
 
@@ -106,6 +157,8 @@ public class ZoomPanel extends JPanel implements ChangeListener
         this.notifyOff = true;
       }
       startSlider.setValue(startIndex);
+      this.notifyOff = true;
+      adjustOtherSlidersToStartSliderChange(startIndex);
     }
     finally
     {
@@ -118,20 +171,9 @@ public class ZoomPanel extends JPanel implements ChangeListener
     return zoomSlider.getValue();
   }
 
-  public synchronized void setZoomIndex(int zoomIndex, boolean notify)
+  public int getEndIndex()
   {
-    try
-    {
-      if (!notify)
-      {
-        this.notifyOff = true;
-      }
-      zoomSlider.setValue(zoomIndex);
-    }
-    finally
-    {
-      this.notifyOff = false;
-    }
+    return endSlider.getValue();
   }
 
   public synchronized void setEndIndex(int endIndex, boolean notify)
@@ -142,16 +184,68 @@ public class ZoomPanel extends JPanel implements ChangeListener
       {
         this.notifyOff = true;
       }
-      int zoomIndex = Math.min(
-          Math.max(
-              Constants.NUMBER_OF_ZOOM_TICKS * (endIndex - startSlider.getValue()) / (currentDataSize),
-              3),
-          Constants.NUMBER_OF_ZOOM_TICKS);
-      zoomSlider.setValue(zoomIndex);
+      endSlider.setValue(endIndex);
+      this.notifyOff = true;
+      ajustOtherSlidersToEndSliderChange(endIndex);
     }
     finally
     {
       this.notifyOff = false;
+    }
+  }
+
+  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
+  {
+    if (!e.isSource(this))
+    {
+      setStartIndex(e.getStartIndex(), false);
+      setEndIndex(e.getEndIndex(), false);
+    }
+  }
+
+  private int getZoomIndexFromOtherSliders()
+  {
+    if (currentDataSize == 0)
+    {
+      return Constants.NUMBER_OF_ZOOM_TICKS;
+    }
+    int zoomIndex = Math.min(
+        Math.max(
+            Constants.NUMBER_OF_ZOOM_TICKS * (endSlider.getValue() - startSlider.getValue()) / (currentDataSize),
+            3),
+        Constants.NUMBER_OF_ZOOM_TICKS);
+    return zoomIndex;
+  }
+
+  private int getEndIndexFromOtherSliders()
+  {
+    int endIndex = Math.min(
+        (zoomSlider.getValue() * currentDataSize / Constants.NUMBER_OF_ZOOM_TICKS) + startSlider.getValue(),
+        currentDataSize);
+    return endIndex;
+  }
+
+
+  private void adjustOtherSlidersToStartSliderChange(int newStartIndex)
+  {
+    if (startSlider.getValue() > endSlider.getValue())
+    {
+      endSlider.setValue(newStartIndex);
+    }
+    zoomSlider.setValue(getZoomIndexFromOtherSliders());
+  }
+
+  private void adjustOtherSlidersToZoomSliderChange(int newZoomIndex)
+  {
+    endSlider.setValue(getEndIndexFromOtherSliders());
+  }
+
+  private void ajustOtherSlidersToEndSliderChange(int newEndIndex)
+  {
+    zoomSlider.setValue(getZoomIndexFromOtherSliders());
+    if (startSlider.getValue() > newEndIndex)
+    {
+      startSlider.setValue(newEndIndex);
     }
   }
 }

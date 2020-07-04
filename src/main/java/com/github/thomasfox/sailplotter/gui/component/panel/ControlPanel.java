@@ -55,11 +55,6 @@ public class ControlPanel extends JPanel implements DataChangeListener
     zoomPanel.setStartIndex(startIndex, true);
   }
 
-  public void setZoomIndex(int zoomIndex)
-  {
-    zoomPanel.setZoomIndex(zoomIndex, true);
-  }
-
   public void setZoomEndIndex(int endIndex)
   {
     zoomPanel.setEndIndex(endIndex, true);
@@ -77,10 +72,6 @@ public class ControlPanel extends JPanel implements DataChangeListener
 
   public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
   {
-    if (!e.isSource(zoomPanel))
-    {
-      zoomPanel.setStartIndex(e.getStartIndex(), false);
-      zoomPanel.setZoomIndex(e.getZoomPosition(), false);
-    }
+    zoomPanel.processZoomPanelChangeEvent(e);
   }
 }

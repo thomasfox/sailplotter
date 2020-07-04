@@ -57,6 +57,7 @@ public class DirectionsView extends AbstractView
     zoomedRollOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
   }
 
+  @Override
   public void dataChanged(Data data)
   {
     zoomPanel.setDataSize(data.getPointsWithLocation().size());
@@ -68,11 +69,7 @@ public class DirectionsView extends AbstractView
   @Override
   public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
   {
-    if (!e.isSource(zoomPanel))
-    {
-      zoomPanel.setStartIndex(e.getStartIndex(), false);
-      zoomPanel.setZoomIndex(e.getZoomPosition(), false);
-    }
+    zoomPanel.processZoomPanelChangeEvent(e);
   }
 
 }
