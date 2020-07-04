@@ -21,7 +21,7 @@ public class MinMax
 
   public static <T> double getMaximum(List<T> data, Function<T, Double> pointFunction)
   {
-    double maxValue = Double.MIN_VALUE;
+    double maxValue = -Double.MAX_VALUE;
     for (T dataPoint : data)
     {
       Double pointValue = pointFunction.apply(dataPoint);
