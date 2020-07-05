@@ -5,7 +5,7 @@ import javax.swing.event.ListSelectionEvent;
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.SwingGui;
 import com.github.thomasfox.sailplotter.gui.component.panel.ControlPanel;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.VelocityBearingPolarPlotPanel;
@@ -90,7 +90,7 @@ public class RelativeToWindView extends AbstractView
 
   public void redisplay(boolean updateTableContent)
   {
-    ZoomPanelChangeEvent zoomChangeEvent = controlPanel.getChangeEventFromCurrentData();
+    ZoomChangeEvent zoomChangeEvent = controlPanel.getChangeEventFromCurrentData();
     zoomedVelocityMadeGoodPlotPanel.zoomChanged(zoomChangeEvent);
     zoomedVelocityPlotPanel.zoomChanged(zoomChangeEvent);
     fullMapPlotPanel.zoomChanged(zoomChangeEvent);
@@ -122,16 +122,23 @@ public class RelativeToWindView extends AbstractView
   {
     this.data = data;
     controlPanel.dataChanged(data);
-    zoomedVelocityMadeGoodPlotPanel.dataChanged(data);
-    zoomedVelocityPlotPanel.dataChanged(data);
-    fullMapPlotPanel.dataChanged(data);
-    zoomedWindwardMapPlotPanel.dataChanged(data);
-    velocityBearingPolarPlotPanel.dataChanged(data);
+    ZoomChangeEvent zoomChangeEvent = controlPanel.getChangeEventFromCurrentData();
+    zoomedVelocityMadeGoodPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedVelocityPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    fullMapPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedWindwardMapPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    velocityBearingPolarPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    tackTablePanel.updateContent(data.getTackList());
   }
 
   @Override
-  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent zoomChangeEvent)
   {
-    controlPanel.processZoomPanelChangeEvent(e);
+    controlPanel.zoomChanged(zoomChangeEvent);
+    zoomedVelocityMadeGoodPlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedVelocityPlotPanel.zoomChanged(zoomChangeEvent);
+    fullMapPlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedWindwardMapPlotPanel.zoomChanged(zoomChangeEvent);
+    velocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
   }
 }

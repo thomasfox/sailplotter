@@ -32,6 +32,11 @@ public class ZoomedVelocityMadeGoodPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
+  {
     velocityDataset.removeAllSeries();
     velocityDataset.addSeries(getVelocityMadeGoodTimeSeries());
   }
@@ -53,5 +58,6 @@ public class ZoomedVelocityMadeGoodPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

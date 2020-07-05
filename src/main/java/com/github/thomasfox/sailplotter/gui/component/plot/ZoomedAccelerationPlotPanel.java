@@ -36,6 +36,11 @@ public class ZoomedAccelerationPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
+  {
     dataset.removeAllSeries();
     dataset.addSeries(getAccelerationTimeSeries());
   }
@@ -52,5 +57,6 @@ public class ZoomedAccelerationPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

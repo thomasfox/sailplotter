@@ -74,6 +74,11 @@ public class ZoomedVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
+  {
     velocityDataset.removeAllSeries();
     bearingDataset.removeAllSeries();
     velocityDataset.addSeries(zoomedData.getVelocityTimeSeries(TimeWindowPosition.IN));
@@ -83,5 +88,6 @@ public class ZoomedVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

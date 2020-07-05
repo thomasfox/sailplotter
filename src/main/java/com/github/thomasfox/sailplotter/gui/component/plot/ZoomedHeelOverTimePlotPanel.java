@@ -32,6 +32,11 @@ public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
+  {
     dataset.removeAllSeries();
     dataset.addSeries(getAccelerationHeelTimeSeries());
   }
@@ -45,10 +50,9 @@ public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
         point -> point.acceleration.heel * 180d / Math.PI);
   }
 
-
-
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

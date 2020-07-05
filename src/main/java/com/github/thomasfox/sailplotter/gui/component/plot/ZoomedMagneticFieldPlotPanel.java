@@ -36,6 +36,11 @@ public class ZoomedMagneticFieldPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
+  {
     dataset.removeAllSeries();
     dataset.addSeries(getMagneticFieldTimeSeries());
   }
@@ -53,5 +58,6 @@ public class ZoomedMagneticFieldPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

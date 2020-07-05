@@ -53,6 +53,11 @@ public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetHistogram();
+  }
+
+  private void resetHistogram()
+  {
     for (SimpleHistogramBin bin : bearingHistogramBins)
     {
       bin.setItemCount(0);
@@ -70,5 +75,6 @@ public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetHistogram();
   }
 }

@@ -16,8 +16,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.xy.XYSeries;
 
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
-import com.github.thomasfox.sailplotter.listener.DataChangeListener;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.listener.ZoomChangeListener;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
@@ -25,7 +24,7 @@ import com.github.thomasfox.sailplotter.model.Tack;
 import com.github.thomasfox.sailplotter.model.ZoomedData;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
-public abstract class AbstractPlotPanel extends JPanel implements DataChangeListener, ZoomChangeListener
+public abstract class AbstractPlotPanel extends JPanel implements ZoomChangeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -33,7 +32,7 @@ public abstract class AbstractPlotPanel extends JPanel implements DataChangeList
 
   protected AbstractPlotPanel()
   {
-    zoomedData = new ZoomedData(null, 0, 1);
+    zoomedData = new ZoomedData();
   }
 
   protected void addPanelFor(JFreeChart chart)
@@ -47,17 +46,17 @@ public abstract class AbstractPlotPanel extends JPanel implements DataChangeList
     add(chartPanel, gridBagConstraints);
   }
 
-  @Override
-  public void dataChanged(Data data)
+  public void dataAndZoomChanged(Data data, ZoomChangeEvent zoomChangeEvent)
   {
     this.zoomedData.setData(data);
+    this.zoomedData.zoomChanged(zoomChangeEvent);
     onDataChanged();
   }
 
   protected abstract void onDataChanged();
 
   @Override
-  public void zoomChanged(ZoomPanelChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent e)
   {
     this.zoomedData.zoomChanged(e);
     onZoomChanged();

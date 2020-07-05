@@ -8,7 +8,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.github.thomasfox.sailplotter.gui.SwingGui;
 import com.github.thomasfox.sailplotter.gui.component.panel.CommentPanel;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.vector.CoordinateSystem;
 
@@ -85,6 +85,7 @@ public class InfoView extends AbstractView
     }
   }
 
+  @Override
   public void dataChanged(Data data)
   {
     this.data = data;
@@ -94,6 +95,7 @@ public class InfoView extends AbstractView
     setStartTimeLabelText(data);
     setEndTimeLabelText(data);
     setCoordinateSystemText(data);
+    commentPanel.setText(data.comment);
     commentPanel.setTextConsumer(data::setComment);
   }
 
@@ -192,7 +194,7 @@ public class InfoView extends AbstractView
   }
 
   @Override
-  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent e)
   {
     // no action needed as we have no zoom panel
   }

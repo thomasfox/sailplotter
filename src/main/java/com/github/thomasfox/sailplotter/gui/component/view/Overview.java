@@ -5,7 +5,7 @@ import javax.swing.event.ListSelectionEvent;
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.SwingGui;
 import com.github.thomasfox.sailplotter.gui.component.panel.ControlPanel;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullVelocityBearingOverTimePlotPanel;
@@ -113,26 +113,6 @@ public class Overview extends AbstractView
         .add(tackSeriesTablePanel);
   }
 
-  public void redisplay(boolean updateTableContent)
-  {
-    ZoomPanelChangeEvent zoomChangeEvent = controlPanel.getChangeEventFromCurrentData();
-    fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
-    zoomedVelocityBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
-    zoomedBearingHistogramPlotPanel.zoomChanged(zoomChangeEvent);
-    fullMapPlotPanel.zoomChanged(zoomChangeEvent);
-    zoomedMapPlotPanel.zoomChanged(zoomChangeEvent);
-    velocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
-    tackVelocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
-    if (data != null)
-    {
-      if (updateTableContent)
-      {
-        tackTablePanel.updateContent(data.getTackList());
-        tackSeriesTablePanel.updateContent(data.getTackSeriesList());
-      }
-    }
-  }
-
   public void tackSelected(ListSelectionEvent e)
   {
     if (e.getValueIsAdjusting() || gui.inUpdate)
@@ -164,7 +144,6 @@ public class Overview extends AbstractView
     {
       gui.inUpdate = false;
     }
-    redisplay(false);
   }
 
   @Override
@@ -172,18 +151,28 @@ public class Overview extends AbstractView
   {
     this.data = data;
     controlPanel.dataChanged(data);
-    fullVelocityBearingOverTimePlotPanel.dataChanged(data);
-    zoomedVelocityBearingOverTimePlotPanel.dataChanged(data);
-    zoomedBearingHistogramPlotPanel.dataChanged(data);
-    fullMapPlotPanel.dataChanged(data);
-    zoomedMapPlotPanel.dataChanged(data);
-    tackVelocityBearingPolarPlotPanel.dataChanged(data);
-    velocityBearingPolarPlotPanel.dataChanged(data);
+    ZoomChangeEvent zoomChangeEvent = controlPanel.getChangeEventFromCurrentData();
+    fullVelocityBearingOverTimePlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedVelocityBearingOverTimePlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedBearingHistogramPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    fullMapPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedMapPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    tackVelocityBearingPolarPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    velocityBearingPolarPlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    tackTablePanel.updateContent(data.getTackList());
+    tackSeriesTablePanel.updateContent(data.getTackSeriesList());
   }
 
   @Override
-  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent zoomChangeEvent)
   {
-    controlPanel.processZoomPanelChangeEvent(e);
+    controlPanel.zoomChanged(zoomChangeEvent);
+    fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedVelocityBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedBearingHistogramPlotPanel.zoomChanged(zoomChangeEvent);
+    fullMapPlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedMapPlotPanel.zoomChanged(zoomChangeEvent);
+    tackVelocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
+    velocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
   }
 }

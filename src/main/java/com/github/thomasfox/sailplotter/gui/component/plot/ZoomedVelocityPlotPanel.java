@@ -23,12 +23,17 @@ public class ZoomedVelocityPlotPanel extends AbstractPlotPanel
         false,
         false);
 
-    onZoomChanged();
+    resetDataSeries();
     addPanelFor(chart);
   }
 
   @Override
   protected void onZoomChanged()
+  {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
   {
     velocityDataset.removeAllSeries();
     velocityDataset.addSeries(zoomedData.getVelocityTimeSeries(TimeWindowPosition.IN));
@@ -38,5 +43,6 @@ public class ZoomedVelocityPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

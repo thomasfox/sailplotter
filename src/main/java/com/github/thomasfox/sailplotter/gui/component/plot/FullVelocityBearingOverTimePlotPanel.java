@@ -102,5 +102,6 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
     plot.getRenderer().setSeriesPaint(3, new Color(0x00, 0x00, 0x00));
     plot.getRenderer().setSeriesPaint(4, new Color(0x00, 0xFF, 0x00));
     plot.getRenderer().setSeriesPaint(5, new Color(0x00, 0x00, 0x00));
+    resetDataSeries();
   }
 }

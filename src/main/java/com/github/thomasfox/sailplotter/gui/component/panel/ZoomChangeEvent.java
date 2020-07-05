@@ -1,6 +1,6 @@
 package com.github.thomasfox.sailplotter.gui.component.panel;
 
-public class ZoomPanelChangeEvent
+public class ZoomChangeEvent
 {
   private final int startIndex;
 
@@ -8,7 +8,7 @@ public class ZoomPanelChangeEvent
 
   private final ZoomPanel source;
 
-  ZoomPanelChangeEvent(int startIndex, int endIndex, ZoomPanel source)
+  ZoomChangeEvent(int startIndex, int endIndex, ZoomPanel source)
   {
     this.startIndex = startIndex;
     this.endIndex = endIndex;

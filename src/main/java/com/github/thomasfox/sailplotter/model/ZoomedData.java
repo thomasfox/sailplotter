@@ -11,7 +11,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.xy.XYSeries;
 
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.listener.ZoomChangeListener;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
@@ -19,16 +19,9 @@ public class ZoomedData implements ZoomChangeListener
 {
   private Data data;
 
-  private int zoomWindowLocationStartIndex;
+  private int zoomWindowLocationStartIndex = 0;
 
-  private int zoomWindowLocationEndIndex;
-
-  public ZoomedData(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationEndIndex)
-  {
-    this.data = data;
-    this.zoomWindowLocationStartIndex = zoomWindowLocationStartIndex;
-    this.zoomWindowLocationEndIndex = zoomWindowLocationEndIndex;
-  }
+  private int zoomWindowLocationEndIndex = 1;
 
   public Data getData()
   {
@@ -52,7 +45,7 @@ public class ZoomedData implements ZoomChangeListener
 
 
   @Override
-  public void zoomChanged(ZoomPanelChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent e)
   {
     this.zoomWindowLocationStartIndex = e.getStartIndex();
     this.zoomWindowLocationEndIndex = e.getEndIndex();

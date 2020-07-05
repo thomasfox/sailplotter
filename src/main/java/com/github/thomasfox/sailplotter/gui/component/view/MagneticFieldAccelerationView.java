@@ -1,8 +1,8 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
 import com.github.thomasfox.sailplotter.gui.SwingGui;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanel;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedAccelerationPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedMagneticFieldPlotPanel;
@@ -31,7 +31,7 @@ public class MagneticFieldAccelerationView extends AbstractView
   public MagneticFieldAccelerationView(SwingGui gui)
   {
     zoomPanel = new ZoomPanel();
-    zoomPanel.addListener(gui::zoomPanelStateChanged);
+    zoomPanel.addListener(gui::zoomChanged);
 
     zoomedMagneticFieldAbsValuePanel = new ZoomedMagneticFieldPlotPanel(0);
     createLayout()
@@ -84,7 +84,7 @@ public class MagneticFieldAccelerationView extends AbstractView
 
   public void redisplay()
   {
-    ZoomPanelChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
+    ZoomChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
     zoomedMagneticFieldAbsValuePanel.zoomChanged(zoomChangeEvent);
     zoomedMagneticFieldXPanel.zoomChanged(zoomChangeEvent);
     zoomedMagneticFieldYPanel.zoomChanged(zoomChangeEvent);
@@ -97,19 +97,27 @@ public class MagneticFieldAccelerationView extends AbstractView
   @Override
   public void dataChanged(Data data)
   {
-    zoomPanel.setDataSize(data.getPointsWithLocation().size());
-    zoomedMagneticFieldAbsValuePanel.dataChanged(data);
-    zoomedMagneticFieldXPanel.dataChanged(data);
-    zoomedMagneticFieldYPanel.dataChanged(data);
-    zoomedMagneticFieldZPanel.dataChanged(data);
-    zoomedAccelerationXPanel.dataChanged(data);
-    zoomedAccelerationYPanel.dataChanged(data);
-    zoomedAccelerationZPanel.dataChanged(data);
+    zoomPanel.dataChanged(data);
+    ZoomChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
+    zoomedMagneticFieldAbsValuePanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedMagneticFieldXPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedMagneticFieldYPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedMagneticFieldZPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedAccelerationXPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedAccelerationYPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedAccelerationZPanel.dataAndZoomChanged(data, zoomChangeEvent);
   }
 
   @Override
-  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent zoomChangeEvent)
   {
-    zoomPanel.processZoomPanelChangeEvent(e);
+    zoomPanel.zoomChanged(zoomChangeEvent);
+    zoomedMagneticFieldAbsValuePanel.zoomChanged(zoomChangeEvent);
+    zoomedMagneticFieldXPanel.zoomChanged(zoomChangeEvent);
+    zoomedMagneticFieldYPanel.zoomChanged(zoomChangeEvent);
+    zoomedMagneticFieldZPanel.zoomChanged(zoomChangeEvent);
+    zoomedAccelerationXPanel.zoomChanged(zoomChangeEvent);
+    zoomedAccelerationYPanel.zoomChanged(zoomChangeEvent);
+    zoomedAccelerationZPanel.zoomChanged(zoomChangeEvent);
   }
 }

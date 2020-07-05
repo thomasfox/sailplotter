@@ -6,10 +6,10 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JPanel;
 
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.listener.DataChangeListener;
+import com.github.thomasfox.sailplotter.listener.ZoomChangeListener;
 
-public abstract class AbstractView extends JPanel implements DataChangeListener
+public abstract class AbstractView extends JPanel implements DataChangeListener, ZoomChangeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -17,8 +17,6 @@ public abstract class AbstractView extends JPanel implements DataChangeListener
   {
     setLayout(new GridBagLayout());
   }
-
-  public abstract void processZoomPanelChangeEvent(ZoomPanelChangeEvent e);
 
   public Layout createLayout()
   {

@@ -11,7 +11,7 @@ import com.github.thomasfox.sailplotter.gui.SwingGui;
 import com.github.thomasfox.sailplotter.listener.DataChangeListener;
 import com.github.thomasfox.sailplotter.model.Data;
 
-public class ControlPanel extends JPanel implements DataChangeListener
+public class ControlPanel extends JPanel implements DataChangeListener, ZoomChangeListener
 {
   /** SerialVersionUID. */
   private static final long serialVersionUID = 1L;
@@ -23,7 +23,7 @@ public class ControlPanel extends JPanel implements DataChangeListener
   public ControlPanel(SwingGui gui)
   {
     zoomPanel = new ZoomPanel();
-    zoomPanel.addListener(gui::zoomPanelStateChanged);
+    zoomPanel.addListener(gui::zoomChanged);
     add(zoomPanel);
 
     JPanel windDirectionPanel = new JPanel();
@@ -63,20 +63,21 @@ public class ControlPanel extends JPanel implements DataChangeListener
   @Override
   public void dataChanged(Data data)
   {
-    zoomPanel.setDataSize(data.getPointsWithLocation().size());
+    zoomPanel.dataChanged(data);
     if (data != null)
     {
       windDirectionTextField.setText(Integer.toString(data.getAverageWindDirectionInDegrees()));
     }
   }
 
-  public ZoomPanelChangeEvent getChangeEventFromCurrentData()
+  public ZoomChangeEvent getChangeEventFromCurrentData()
   {
     return zoomPanel.getChangeEventFromCurrentData();
   }
 
-  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
+  @Override
+  public void zoomChanged(ZoomChangeEvent e)
   {
-    zoomPanel.processZoomPanelChangeEvent(e);
+    zoomPanel.zoomChanged(e);
   }
 }

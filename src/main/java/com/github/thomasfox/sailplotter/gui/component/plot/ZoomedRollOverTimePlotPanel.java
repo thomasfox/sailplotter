@@ -32,6 +32,11 @@ public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
+  {
     dataset.removeAllSeries();
     dataset.addSeries(getAccelerationRollTimeSeries());
   }
@@ -48,5 +53,6 @@ public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

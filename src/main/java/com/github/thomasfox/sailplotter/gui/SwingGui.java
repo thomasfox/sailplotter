@@ -12,7 +12,7 @@ import com.github.thomasfox.sailplotter.analyze.Analyzer;
 import com.github.thomasfox.sailplotter.exporter.Exporter;
 import com.github.thomasfox.sailplotter.gui.component.Menubar;
 import com.github.thomasfox.sailplotter.gui.component.SailplotterFrame;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.gui.component.progress.ProgressDialog;
 import com.github.thomasfox.sailplotter.gui.component.view.DirectionsView;
@@ -146,31 +146,13 @@ public class SwingGui
     System.out.println("Usage: ${startcommand} [${file}]");
   }
 
-  public void redisplay(boolean updateTableContent)
+  public void zoomChanged(ZoomChangeEvent e)
   {
-    try
-    {
-      inUpdate = true;
-      overview.redisplay(updateTableContent);
-      directionsView.redisplay();
-      commentsView.redisplay();
-      magneticFieldAccelerationView.redisplay();
-      relativeToWindView.redisplay(updateTableContent);
-    }
-    finally
-    {
-      inUpdate = false;
-    }
-  }
-
-  public void zoomPanelStateChanged(ZoomPanelChangeEvent e)
-  {
-    overview.processZoomPanelChangeEvent(e);
-    directionsView.processZoomPanelChangeEvent(e);
-    commentsView.processZoomPanelChangeEvent(e);
-    magneticFieldAccelerationView.processZoomPanelChangeEvent(e);
-    relativeToWindView.processZoomPanelChangeEvent(e);
-    redisplay(false);
+    overview.zoomChanged(e);
+    directionsView.zoomChanged(e);
+    commentsView.zoomChanged(e);
+    magneticFieldAccelerationView.zoomChanged(e);
+    relativeToWindView.zoomChanged(e);
   }
 
   public void windDirectionChanged(ActionEvent event)
@@ -182,7 +164,6 @@ public class SwingGui
       data.setAverageWindBearing(newWindDirection * Math.PI / 180d);
       Analyzer.analyze(data, new LoadProgress(null));
       dataChanged();
-      redisplay(true);
     }
     catch (Exception e)
     {
@@ -217,17 +198,24 @@ public class SwingGui
   {
     this.data = data;
     dataChanged();
-    redisplay(true);
     frame.setTitleFromData(data);
   }
 
   public void dataChanged()
   {
-    overview.dataChanged(data);
-    directionsView.dataChanged(data);
-    commentsView.dataChanged(data);
-    magneticFieldAccelerationView.dataChanged(data);
-    relativeToWindView.dataChanged(data);
+    try
+    {
+      inUpdate = true;
+      overview.dataChanged(data);
+      directionsView.dataChanged(data);
+      commentsView.dataChanged(data);
+      magneticFieldAccelerationView.dataChanged(data);
+      relativeToWindView.dataChanged(data);
+    }
+    finally
+    {
+      inUpdate = false;
+    }
   }
 
   public void saveFile(File file)

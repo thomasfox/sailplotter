@@ -29,6 +29,11 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
   @Override
   protected void onZoomChanged()
   {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
+  {
     dataset.removeAllSeries();
     if (zoomedData.getData() == null)
     {
@@ -98,5 +103,6 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
   @Override
   protected void onDataChanged()
   {
+    resetDataSeries();
   }
 }

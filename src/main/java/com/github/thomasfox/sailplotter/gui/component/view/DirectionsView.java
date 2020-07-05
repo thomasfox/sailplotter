@@ -1,8 +1,8 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
 import com.github.thomasfox.sailplotter.gui.SwingGui;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanel;
-import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedHeelOverTimePlotPanel;
@@ -24,7 +24,7 @@ public class DirectionsView extends AbstractView
   public DirectionsView(SwingGui gui)
   {
     zoomPanel = new ZoomPanel();
-    zoomPanel.addListener(gui::zoomPanelStateChanged);
+    zoomPanel.addListener(gui::zoomChanged);
 
     zoomedBearingOverTimePlotPanel = new ZoomedBearingOverTimePlotPanel();
     createLayout()
@@ -50,7 +50,7 @@ public class DirectionsView extends AbstractView
 
   public void redisplay()
   {
-    ZoomPanelChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
+    ZoomChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
     zoomedBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
     zoomedHeelOverTimePlotPanel.zoomChanged(zoomChangeEvent);
     zoomedRollOverTimePlotPanel.zoomChanged(zoomChangeEvent);
@@ -59,16 +59,20 @@ public class DirectionsView extends AbstractView
   @Override
   public void dataChanged(Data data)
   {
-    zoomPanel.setDataSize(data.getPointsWithLocation().size());
-    zoomedBearingOverTimePlotPanel.dataChanged(data);
-    zoomedHeelOverTimePlotPanel.dataChanged(data);
-    zoomedRollOverTimePlotPanel.dataChanged(data);
+    zoomPanel.dataChanged(data);
+    ZoomChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
+    zoomedBearingOverTimePlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedHeelOverTimePlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
+    zoomedRollOverTimePlotPanel.dataAndZoomChanged(data, zoomChangeEvent);
   }
 
   @Override
-  public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent zoomChangeEvent)
   {
-    zoomPanel.processZoomPanelChangeEvent(e);
+    zoomPanel.zoomChanged(zoomChangeEvent);
+    zoomedBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedHeelOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedRollOverTimePlotPanel.zoomChanged(zoomChangeEvent);
   }
 
 }

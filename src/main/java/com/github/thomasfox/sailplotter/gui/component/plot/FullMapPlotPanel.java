@@ -27,12 +27,17 @@ public class FullMapPlotPanel extends AbstractPlotPanel
     JFreeChart chart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", dataset, PlotOrientation.VERTICAL, false, false, false);
     plot = (XYPlot) chart.getPlot();
 
-    onZoomChanged();
+    resetDataSeries();
     addPanelFor(chart);
   }
 
   @Override
   protected void onZoomChanged()
+  {
+    resetDataSeries();
+  }
+
+  private void resetDataSeries()
   {
     dataset.removeAllSeries();
     if (zoomedData.getData() == null)
@@ -63,5 +68,6 @@ public class FullMapPlotPanel extends AbstractPlotPanel
     plot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     plot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
     plot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));
+    resetDataSeries();
   }
 }
