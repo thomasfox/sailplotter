@@ -1,5 +1,7 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 
 import com.github.thomasfox.sailplotter.Constants;
@@ -67,11 +69,15 @@ public class Overview extends AbstractView
         .add(zoomedVelocityBearingOverTimePlotPanel);
 
     zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel();
+    JPanel topRightPanel = new JPanel();
+    topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
+    topRightPanel.add(zoomedBearingHistogramPlotPanel);
+    topRightPanel.add(controlPanel);
     createLayout()
         .withGridxy(2, 0)
         .withWeightx(0.333).withWeighty(0.25)
         .withColumnSpan(2)
-        .add(controlPanel);
+        .add(topRightPanel);
 
     fullMapPlotPanel = new FullMapPlotPanel();
     createLayout()
