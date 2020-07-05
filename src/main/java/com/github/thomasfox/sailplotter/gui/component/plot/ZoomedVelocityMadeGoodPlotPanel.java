@@ -14,10 +14,8 @@ public class ZoomedVelocityMadeGoodPlotPanel extends AbstractPlotPanel
 
   private final TimeSeriesCollection velocityDataset = new TimeSeriesCollection();
 
-  public ZoomedVelocityMadeGoodPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedVelocityMadeGoodPlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
-
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Velocity Made Good",
         "Time",

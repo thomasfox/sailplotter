@@ -22,9 +22,8 @@ public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
 
   List<SimpleHistogramBin> bearingHistogramBins = new ArrayList<>();
 
-  public ZoomedBearingHistogramPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedBearingHistogramPlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     dataset.setAdjustForBinSize(false);
     for (int i = 0; i < Constants.NUMBER_OF_BEARING_BINS; ++i)
     {

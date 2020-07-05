@@ -10,8 +10,8 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.xy.XYSeries;
 
-import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.component.panel.TimeWindowPosition;
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomPanelChangeEvent;
 import com.github.thomasfox.sailplotter.listener.ZoomChangeListener;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
@@ -21,14 +21,13 @@ public class ZoomedData implements ZoomChangeListener
 
   private int zoomWindowLocationStartIndex;
 
-  private int zoomWindowLocationSize;
+  private int zoomWindowLocationEndIndex;
 
-  public ZoomedData(Data data, int zoomWindowLocationStartIndex,
-      int zoomWindowLocationSize)
+  public ZoomedData(Data data, int zoomWindowLocationStartIndex, int zoomWindowLocationEndIndex)
   {
     this.data = data;
     this.zoomWindowLocationStartIndex = zoomWindowLocationStartIndex;
-    this.zoomWindowLocationSize = zoomWindowLocationSize;
+    this.zoomWindowLocationEndIndex = zoomWindowLocationEndIndex;
   }
 
   public Data getData()
@@ -41,16 +40,6 @@ public class ZoomedData implements ZoomChangeListener
     this.data = data;
   }
 
-  public int getZoomWindowLocationStartIndex()
-  {
-    return zoomWindowLocationStartIndex;
-  }
-
-  public int getZoomWindowLocationSize()
-  {
-    return zoomWindowLocationSize;
-  }
-
   public int getLocationDataStartIndex()
   {
     return zoomWindowLocationStartIndex;
@@ -58,19 +47,15 @@ public class ZoomedData implements ZoomChangeListener
 
   public int getLocationDataEndIndex()
   {
-    int startIndex = getLocationDataStartIndex();
-    int result = startIndex
-        + zoomWindowLocationSize * (data.getPointsWithLocation().size() - 1) / Constants.NUMBER_OF_ZOOM_TICKS;
-    result = Math.min(result, (data.getPointsWithLocation().size() - 1));
-    return result;
+    return zoomWindowLocationEndIndex;
   }
 
 
   @Override
-  public void zoomChanged(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public void zoomChanged(ZoomPanelChangeEvent e)
   {
-    this.zoomWindowLocationStartIndex = zoomWindowLocationStartIndex;
-    this.zoomWindowLocationSize = zoomWindowLocationSize;
+    this.zoomWindowLocationStartIndex = e.getStartIndex();
+    this.zoomWindowLocationEndIndex = e.getEndIndex();
   }
 
   public LocalDateTime getLocationDataStartTime()

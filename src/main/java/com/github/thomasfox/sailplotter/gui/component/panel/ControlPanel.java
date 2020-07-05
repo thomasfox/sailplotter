@@ -70,6 +70,11 @@ public class ControlPanel extends JPanel implements DataChangeListener
     }
   }
 
+  public ZoomPanelChangeEvent getChangeEventFromCurrentData()
+  {
+    return zoomPanel.getChangeEventFromCurrentData();
+  }
+
   public void processZoomPanelChangeEvent(ZoomPanelChangeEvent e)
   {
     zoomPanel.processZoomPanelChangeEvent(e);

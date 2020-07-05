@@ -12,10 +12,8 @@ public class ZoomedVelocityPlotPanel extends AbstractPlotPanel
 
   private final TimeSeriesCollection velocityDataset = new TimeSeriesCollection();
 
-  public ZoomedVelocityPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedVelocityPlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
-
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Velocity",
         "Time",

@@ -26,19 +26,19 @@ public class DirectionsView extends AbstractView
     zoomPanel = new ZoomPanel();
     zoomPanel.addListener(gui::zoomPanelStateChanged);
 
-    zoomedBearingOverTimePlotPanel = new ZoomedBearingOverTimePlotPanel(zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedBearingOverTimePlotPanel = new ZoomedBearingOverTimePlotPanel();
     createLayout()
         .withGridx(0).withGridy(0)
         .withWeightx(0.5).withWeighty(0.5)
         .add(zoomedBearingOverTimePlotPanel);
 
-    zoomedHeelOverTimePlotPanel = new ZoomedHeelOverTimePlotPanel(zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedHeelOverTimePlotPanel = new ZoomedHeelOverTimePlotPanel();
     createLayout()
         .withGridx(1).withGridy(0)
         .withWeightx(0.5).withWeighty(0.5)
         .add(zoomedHeelOverTimePlotPanel);
 
-    zoomedRollOverTimePlotPanel = new ZoomedRollOverTimePlotPanel(zoomPanel.getStartIndex(), zoomPanel.getZoomIndex());
+    zoomedRollOverTimePlotPanel = new ZoomedRollOverTimePlotPanel();
     createLayout()
         .withGridx(0).withGridy(1)
         .withWeightx(0.5).withWeighty(0.5)
@@ -50,11 +50,10 @@ public class DirectionsView extends AbstractView
 
   public void redisplay()
   {
-    int zoomWindowStartIndex = zoomPanel.getStartIndex();
-    int zoomWindowZoomIndex = zoomPanel.getZoomIndex();
-    zoomedBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedHeelOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedRollOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+    ZoomPanelChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
+    zoomedBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedHeelOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedRollOverTimePlotPanel.zoomChanged(zoomChangeEvent);
   }
 
   @Override

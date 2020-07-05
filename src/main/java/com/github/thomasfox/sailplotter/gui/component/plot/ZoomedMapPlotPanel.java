@@ -23,9 +23,8 @@ public class ZoomedMapPlotPanel extends AbstractPlotPanel
 
   private final XYPlot plot;
 
-  public ZoomedMapPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedMapPlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", dataset, PlotOrientation.VERTICAL, false, true, false);
     plot = (XYPlot) chart.getPlot();
     plot.setRenderer(new XYZoomRenderer());

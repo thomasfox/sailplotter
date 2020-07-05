@@ -49,42 +49,32 @@ public class RelativeToWindView extends AbstractView
         .withWeightx(0.25).withWeighty(0.25)
         .add(controlPanel);
 
-    zoomedVelocityMadeGoodPlotPanel = new ZoomedVelocityMadeGoodPlotPanel(
-        controlPanel.getZoomStartIndex(),
-        controlPanel.getZoomIndex());
+    zoomedVelocityMadeGoodPlotPanel = new ZoomedVelocityMadeGoodPlotPanel();
     createLayout()
         .withGridxy(0, 0)
         .withWeightx(0.375).withWeighty(0.25)
         .add(zoomedVelocityMadeGoodPlotPanel);
 
-    zoomedVelocityPlotPanel = new ZoomedVelocityPlotPanel(
-        controlPanel.getZoomStartIndex(),
-        controlPanel.getZoomIndex());
+    zoomedVelocityPlotPanel = new ZoomedVelocityPlotPanel();
 
     createLayout()
         .withGridxy(1, 0)
         .withWeightx(0.375).withWeighty(0.25)
         .add(zoomedVelocityPlotPanel);
 
-    fullMapPlotPanel = new FullMapPlotPanel(
-        controlPanel.getZoomStartIndex(),
-        controlPanel.getZoomIndex());
+    fullMapPlotPanel = new FullMapPlotPanel();
     createLayout()
         .withGridxy(0, 1)
         .withWeightx(0.375).withWeighty(0.5)
         .add(fullMapPlotPanel);
 
-    zoomedWindwardMapPlotPanel = new ZoomedWindwardMapPlotPanel(
-        controlPanel.getZoomStartIndex(),
-        controlPanel.getZoomIndex());
+    zoomedWindwardMapPlotPanel = new ZoomedWindwardMapPlotPanel();
     createLayout()
         .withGridxy(1, 1)
         .withWeightx(0.375).withWeighty(0.5)
         .add(zoomedWindwardMapPlotPanel);
 
-    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel(
-        controlPanel.getZoomStartIndex(),
-        controlPanel.getZoomIndex());
+    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel();
     createLayout()
         .withGridxy(2, 1)
         .withWeightx(0.25).withWeighty(0.5)
@@ -100,13 +90,12 @@ public class RelativeToWindView extends AbstractView
 
   public void redisplay(boolean updateTableContent)
   {
-    int zoomWindowStartIndex = controlPanel.getZoomStartIndex();
-    int zoomWindowZoomIndex = controlPanel.getZoomIndex();
-    zoomedVelocityMadeGoodPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedVelocityPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    fullMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedWindwardMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+    ZoomPanelChangeEvent zoomChangeEvent = controlPanel.getChangeEventFromCurrentData();
+    zoomedVelocityMadeGoodPlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedVelocityPlotPanel.zoomChanged(zoomChangeEvent);
+    fullMapPlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedWindwardMapPlotPanel.zoomChanged(zoomChangeEvent);
+    velocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
     if (data != null)
     {
       if (updateTableContent)

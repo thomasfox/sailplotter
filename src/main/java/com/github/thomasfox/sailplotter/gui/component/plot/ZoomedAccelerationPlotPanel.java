@@ -17,12 +17,8 @@ public class ZoomedAccelerationPlotPanel extends AbstractPlotPanel
 
   private final int coordinateIndex ;
 
-  public ZoomedAccelerationPlotPanel(
-      int zoomWindowLocationStartIndex,
-      int zoomWindowLocationSize,
-      int coordinateIndex)
+  public ZoomedAccelerationPlotPanel(int coordinateIndex)
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     this.coordinateIndex = coordinateIndex;
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Acceleration " + ThreeDimVector.getCoordinateNameByIndex(coordinateIndex),

@@ -14,9 +14,8 @@ public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
 
   private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-  public ZoomedHeelOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedHeelOverTimePlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Heel",
         "Time",

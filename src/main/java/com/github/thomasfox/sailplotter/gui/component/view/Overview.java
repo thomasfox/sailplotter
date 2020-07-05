@@ -54,44 +54,44 @@ public class Overview extends AbstractView
 
     controlPanel = new ControlPanel(gui);
 
-    fullVelocityBearingOverTimePlotPanel = new FullVelocityBearingOverTimePlotPanel(controlPanel.getZoomStartIndex(), controlPanel.getZoomIndex());
+    fullVelocityBearingOverTimePlotPanel = new FullVelocityBearingOverTimePlotPanel();
     createLayout()
         .withGridx(0).withGridy(0)
         .withWeightx(0.333).withWeighty(0.25)
         .add(fullVelocityBearingOverTimePlotPanel);
 
-    zoomedVelocityBearingOverTimePlotPanel = new ZoomedVelocityBearingOverTimePlotPanel(controlPanel.getZoomStartIndex(), controlPanel.getZoomIndex());
+    zoomedVelocityBearingOverTimePlotPanel = new ZoomedVelocityBearingOverTimePlotPanel();
     createLayout()
         .withGridx(1).withGridy(0)
         .withWeightx(0.333).withWeighty(0.25)
         .add(zoomedVelocityBearingOverTimePlotPanel);
 
-    zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel(controlPanel.getZoomStartIndex(), controlPanel.getZoomIndex());
+    zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel();
     createLayout()
         .withGridxy(2, 0)
         .withWeightx(0.333).withWeighty(0.25)
         .withColumnSpan(2)
         .add(controlPanel);
 
-    fullMapPlotPanel = new FullMapPlotPanel(controlPanel.getZoomStartIndex(), controlPanel.getZoomIndex());
+    fullMapPlotPanel = new FullMapPlotPanel();
     createLayout()
         .withGridxy(0, 1)
         .withWeightx(0.333).withWeighty(0.5)
         .add(fullMapPlotPanel);
 
-    zoomedMapPlotPanel = new ZoomedMapPlotPanel(controlPanel.getZoomStartIndex(), controlPanel.getZoomIndex());
+    zoomedMapPlotPanel = new ZoomedMapPlotPanel();
     createLayout()
         .withGridxy(1, 1)
         .withWeightx(0.333).withWeighty(0.5)
         .add(zoomedMapPlotPanel);
 
-    tackVelocityBearingPolarPlotPanel = new TackVelocityBearingPolarPlotPanel(controlPanel.getZoomStartIndex(), controlPanel.getZoomIndex());
+    tackVelocityBearingPolarPlotPanel = new TackVelocityBearingPolarPlotPanel();
     createLayout()
         .withGridxy(2, 1)
         .withWeightx(0.166).withWeighty(0.5)
         .add(tackVelocityBearingPolarPlotPanel);
 
-    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel(controlPanel.getZoomStartIndex(), controlPanel.getZoomIndex());
+    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel();
     createLayout()
         .withGridxy(3, 1)
         .withWeightx(0.166).withWeighty(0.5)
@@ -115,15 +115,14 @@ public class Overview extends AbstractView
 
   public void redisplay(boolean updateTableContent)
   {
-    int zoomWindowStartIndex = controlPanel.getZoomStartIndex();
-    int zoomWindowZoomIndex = controlPanel.getZoomIndex();
-    fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedVelocityBearingOverTimePlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedBearingHistogramPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    fullMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedMapPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    velocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    tackVelocityBearingPolarPlotPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+    ZoomPanelChangeEvent zoomChangeEvent = controlPanel.getChangeEventFromCurrentData();
+    fullVelocityBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedVelocityBearingOverTimePlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedBearingHistogramPlotPanel.zoomChanged(zoomChangeEvent);
+    fullMapPlotPanel.zoomChanged(zoomChangeEvent);
+    zoomedMapPlotPanel.zoomChanged(zoomChangeEvent);
+    velocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
+    tackVelocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
     if (data != null)
     {
       if (updateTableContent)

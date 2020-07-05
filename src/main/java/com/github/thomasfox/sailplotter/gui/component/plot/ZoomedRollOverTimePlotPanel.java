@@ -14,9 +14,8 @@ public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
 
   private final TimeSeriesCollection dataset = new TimeSeriesCollection();
 
-  public ZoomedRollOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedRollOverTimePlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Roll",
         "Time",

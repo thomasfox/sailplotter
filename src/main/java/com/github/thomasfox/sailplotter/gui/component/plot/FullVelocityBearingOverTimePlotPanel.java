@@ -28,10 +28,8 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
 
   private final XYPlot plot;
 
-  public FullVelocityBearingOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public FullVelocityBearingOverTimePlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
-
     plot = new XYPlot();
     plot.setDataset(0, velocityDataset);
     plot.setDataset(1, bearingDataset);

@@ -18,9 +18,8 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
 
   private final XYSeriesCollection dataset = new XYSeriesCollection();
 
-  public VelocityBearingPolarPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public VelocityBearingPolarPlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createPolarChart("Velocity over rel. Bearing", dataset, false, false, false);
 
     onDataChanged();

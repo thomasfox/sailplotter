@@ -14,9 +14,8 @@ public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
 
   private final XYSeriesCollection dataset = new XYSeriesCollection();
 
-  public TackVelocityBearingPolarPlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public TackVelocityBearingPolarPlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createPolarChart("Tack Velocity over rel. Bearing", dataset, false, true, false);
     PolarPlot plot = (PolarPlot) chart.getPlot();
     PolarScatterRenderer renderer = new PolarScatterRenderer();

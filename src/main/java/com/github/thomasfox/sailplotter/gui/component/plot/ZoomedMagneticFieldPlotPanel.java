@@ -17,12 +17,8 @@ public class ZoomedMagneticFieldPlotPanel extends AbstractPlotPanel
 
   private final int coordinateIndex ;
 
-  public ZoomedMagneticFieldPlotPanel(
-      int zoomWindowLocationStartIndex,
-      int zoomWindowLocationSize,
-      int coordinateIndex)
+  public ZoomedMagneticFieldPlotPanel(int coordinateIndex)
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     this.coordinateIndex = coordinateIndex;
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Magnetic Field " + ThreeDimVector.getCoordinateNameByIndex(coordinateIndex),

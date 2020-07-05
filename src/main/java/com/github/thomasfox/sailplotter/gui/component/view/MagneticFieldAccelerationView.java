@@ -33,37 +33,25 @@ public class MagneticFieldAccelerationView extends AbstractView
     zoomPanel = new ZoomPanel();
     zoomPanel.addListener(gui::zoomPanelStateChanged);
 
-    zoomedMagneticFieldAbsValuePanel = new ZoomedMagneticFieldPlotPanel(
-        zoomPanel.getStartIndex(),
-        zoomPanel.getZoomIndex(),
-        0);
+    zoomedMagneticFieldAbsValuePanel = new ZoomedMagneticFieldPlotPanel(0);
     createLayout()
         .withGridx(0).withGridy(0)
         .withWeightx(0.5).withWeighty(0.25)
         .add(zoomedMagneticFieldAbsValuePanel);
 
-    zoomedMagneticFieldXPanel = new ZoomedMagneticFieldPlotPanel(
-        zoomPanel.getStartIndex(),
-        zoomPanel.getZoomIndex(),
-        1);
+    zoomedMagneticFieldXPanel = new ZoomedMagneticFieldPlotPanel(1);
     createLayout()
         .withGridx(0).withGridy(1)
         .withWeightx(0.5).withWeighty(0.25)
         .add(zoomedMagneticFieldXPanel);
 
-    zoomedMagneticFieldYPanel = new ZoomedMagneticFieldPlotPanel(
-        zoomPanel.getStartIndex(),
-        zoomPanel.getZoomIndex(),
-        2);
+    zoomedMagneticFieldYPanel = new ZoomedMagneticFieldPlotPanel(2);
     createLayout()
         .withGridx(0).withGridy(2)
         .withWeightx(0.5).withWeighty(0.25)
         .add(zoomedMagneticFieldYPanel);
 
-    zoomedMagneticFieldZPanel = new ZoomedMagneticFieldPlotPanel(
-        zoomPanel.getStartIndex(),
-        zoomPanel.getZoomIndex(),
-        3);
+    zoomedMagneticFieldZPanel = new ZoomedMagneticFieldPlotPanel(3);
     createLayout()
         .withGridx(0).withGridy(3)
         .withWeightx(0.5).withWeighty(0.25)
@@ -75,28 +63,19 @@ public class MagneticFieldAccelerationView extends AbstractView
         .withNoFillY()
         .add(zoomPanel);
 
-    zoomedAccelerationXPanel = new ZoomedAccelerationPlotPanel(
-        zoomPanel.getStartIndex(),
-        zoomPanel.getZoomIndex(),
-        1);
+    zoomedAccelerationXPanel = new ZoomedAccelerationPlotPanel(1);
     createLayout()
         .withGridx(1).withGridy(1)
         .withWeightx(0.5).withWeighty(0.25)
         .add(zoomedAccelerationXPanel);
 
-    zoomedAccelerationYPanel = new ZoomedAccelerationPlotPanel(
-        zoomPanel.getStartIndex(),
-        zoomPanel.getZoomIndex(),
-        2);
+    zoomedAccelerationYPanel = new ZoomedAccelerationPlotPanel(2);
     createLayout()
         .withGridx(1).withGridy(2)
         .withWeightx(0.5).withWeighty(0.25)
         .add(zoomedAccelerationYPanel);
 
-    zoomedAccelerationZPanel = new ZoomedAccelerationPlotPanel(
-        zoomPanel.getStartIndex(),
-        zoomPanel.getZoomIndex(),
-        3);
+    zoomedAccelerationZPanel = new ZoomedAccelerationPlotPanel(3);
     createLayout()
         .withGridx(1).withGridy(3)
         .withWeightx(0.5).withWeighty(0.25)
@@ -105,15 +84,14 @@ public class MagneticFieldAccelerationView extends AbstractView
 
   public void redisplay()
   {
-    int zoomWindowStartIndex = zoomPanel.getStartIndex();
-    int zoomWindowZoomIndex = zoomPanel.getZoomIndex();
-    zoomedMagneticFieldAbsValuePanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedMagneticFieldXPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedMagneticFieldYPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedMagneticFieldZPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedAccelerationXPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedAccelerationYPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
-    zoomedAccelerationZPanel.zoomChanged(zoomWindowStartIndex, zoomWindowZoomIndex);
+    ZoomPanelChangeEvent zoomChangeEvent = zoomPanel.getChangeEventFromCurrentData();
+    zoomedMagneticFieldAbsValuePanel.zoomChanged(zoomChangeEvent);
+    zoomedMagneticFieldXPanel.zoomChanged(zoomChangeEvent);
+    zoomedMagneticFieldYPanel.zoomChanged(zoomChangeEvent);
+    zoomedMagneticFieldZPanel.zoomChanged(zoomChangeEvent);
+    zoomedAccelerationXPanel.zoomChanged(zoomChangeEvent);
+    zoomedAccelerationYPanel.zoomChanged(zoomChangeEvent);
+    zoomedAccelerationZPanel.zoomChanged(zoomChangeEvent);
   }
 
   @Override

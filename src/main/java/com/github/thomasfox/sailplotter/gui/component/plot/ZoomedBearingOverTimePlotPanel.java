@@ -20,9 +20,8 @@ public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
 
   private final XYPlot plot;
 
-  public ZoomedBearingOverTimePlotPanel(int zoomWindowLocationStartIndex, int zoomWindowLocationSize)
+  public ZoomedBearingOverTimePlotPanel()
   {
-    super(zoomWindowLocationStartIndex, zoomWindowLocationSize);
     JFreeChart chart = ChartFactory.createTimeSeriesChart(
         "Bearing (Zoom)",
         "Time",
