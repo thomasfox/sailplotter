@@ -1,6 +1,7 @@
 package com.github.thomasfox.sailplotter.gui;
 
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Optional;
@@ -71,6 +72,7 @@ public class SwingGui
     views.add(commentsView, INFO_VIEW_NAME);
     views.add(magneticFieldAccelerationView, RAW_DATA_VIEW_NAME);
     views.add(relativeToWindView, RELATIVE_TO_WIND_VIEW_NAME);
+    views.setPreferredSize(new Dimension(1400, 700));
 
     frame = new SailplotterFrame();
 
