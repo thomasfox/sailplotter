@@ -14,7 +14,7 @@ import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.FullVelocityBearingOverTimePlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.TackVelocityBearingPolarPlotPanel;
-import com.github.thomasfox.sailplotter.gui.component.plot.VelocityBearingPolarPlotPanel;
+import com.github.thomasfox.sailplotter.gui.component.plot.VelocityBearingScatteredPolarPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedBearingHistogramPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedMapPlotPanel;
 import com.github.thomasfox.sailplotter.gui.component.plot.ZoomedVelocityBearingOverTimePlotPanel;
@@ -105,7 +105,7 @@ public class Overview extends AbstractView
         .withWeightx(0.166).withWeighty(0.45)
         .add(tackVelocityBearingPolarPlotPanel);
 
-    velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel();
+    velocityBearingPolarPlotPanel = new VelocityBearingScatteredPolarPlotPanel();
     createLayout()
         .withGridxy(3, 1)
         .withWeightx(0.166).withWeighty(0.45)
