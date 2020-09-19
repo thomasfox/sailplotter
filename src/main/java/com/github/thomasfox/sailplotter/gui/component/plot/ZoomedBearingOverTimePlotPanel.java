@@ -40,7 +40,7 @@ public class ZoomedBearingOverTimePlotPanel extends AbstractPlotPanel
     ((XYLineAndShapeRenderer) plot.getRenderer()).setSeriesShapesVisible(2, true);
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

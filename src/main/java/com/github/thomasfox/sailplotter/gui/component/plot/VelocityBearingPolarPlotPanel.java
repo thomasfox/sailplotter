@@ -23,7 +23,7 @@ public class VelocityBearingPolarPlotPanel extends AbstractPlotPanel
     JFreeChart chart = ChartFactory.createPolarChart("Velocity over rel. Bearing", dataset, false, false, false);
 
     onDataChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

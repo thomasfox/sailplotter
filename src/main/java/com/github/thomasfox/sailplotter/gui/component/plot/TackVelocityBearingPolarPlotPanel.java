@@ -23,7 +23,7 @@ public class TackVelocityBearingPolarPlotPanel extends AbstractPlotPanel
     plot.setRenderer(renderer);
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

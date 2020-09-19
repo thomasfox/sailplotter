@@ -24,7 +24,7 @@ public class VelocityBearingScatteredPolarPlotPanel extends AbstractPlotPanel
     plot.setRenderer(renderer);
 
     onDataChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

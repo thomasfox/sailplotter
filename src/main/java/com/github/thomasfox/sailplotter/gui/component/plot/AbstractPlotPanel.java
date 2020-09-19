@@ -31,14 +31,16 @@ public abstract class AbstractPlotPanel extends JPanel implements ZoomChangeList
 
   protected ZoomedData zoomedData;
 
+  protected ChartPanel chartPanel;
+
   protected AbstractPlotPanel()
   {
     zoomedData = new ZoomedData();
   }
 
-  protected void addPanelFor(JFreeChart chart)
+  protected void setChart(JFreeChart chart)
   {
-    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel = new ChartPanel(chart);
     setLayout(new GridLayout(1, 1));
     GridBagConstraints gridBagConstraints = new GridBagConstraints();
     gridBagConstraints.fill = GridBagConstraints.BOTH;

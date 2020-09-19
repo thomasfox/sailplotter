@@ -26,7 +26,7 @@ public class ZoomedHeelOverTimePlotPanel extends AbstractPlotPanel
         false);
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

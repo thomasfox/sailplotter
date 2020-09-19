@@ -47,7 +47,7 @@ public class ZoomedBearingHistogramPlotPanel extends AbstractPlotPanel
         false);
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

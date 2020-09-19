@@ -1,9 +1,11 @@
 package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -28,7 +30,7 @@ public class FullMapPlotPanel extends AbstractPlotPanel
     plot = (XYPlot) chart.getPlot();
 
     resetDataSeries();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override
@@ -64,7 +66,16 @@ public class FullMapPlotPanel extends AbstractPlotPanel
     MapArea mapArea = MapArea.calculateFrom(zoomedData, null);
     plot.getDomainAxis().setRange(mapArea.getXRangeWithMargin(0.05));
     plot.getRangeAxis().setRange(mapArea.getYRangeWithMargin(0.05));
-    expandRangesToAspectRatio(plot, Constants.MAP_ASPECT_RATIO);
+    ChartRenderingInfo renderingInfo = chartPanel.getChartRenderingInfo();
+    if (renderingInfo != null)
+    {
+      Rectangle2D dataArea = renderingInfo.getPlotInfo().getDataArea();
+      expandRangesToAspectRatio(plot, dataArea.getWidth() / dataArea.getHeight());
+    }
+    else
+    {
+      expandRangesToAspectRatio(plot, Constants.MAP_ASPECT_RATIO);
+    }
     plot.getRenderer().setSeriesPaint(0, new Color(0x00, 0x00, 0x00));
     plot.getRenderer().setSeriesPaint(1, new Color(0xFF, 0x00, 0x00));
     plot.getRenderer().setSeriesPaint(2, new Color(0x00, 0x00, 0x00));

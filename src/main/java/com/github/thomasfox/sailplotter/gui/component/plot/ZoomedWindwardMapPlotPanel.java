@@ -34,7 +34,7 @@ public class ZoomedWindwardMapPlotPanel extends AbstractPlotPanel
     ((XYLineAndShapeRenderer) plot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

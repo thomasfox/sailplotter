@@ -24,7 +24,7 @@ public class ZoomedRelativeBearingPlotPanel extends AbstractPlotPanel
         false);
 
     resetDataSeries();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

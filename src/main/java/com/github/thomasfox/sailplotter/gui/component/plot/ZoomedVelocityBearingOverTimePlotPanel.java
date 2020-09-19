@@ -68,7 +68,7 @@ public class ZoomedVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
     bearingRenderer.setSeriesShapesVisible(0, true);
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

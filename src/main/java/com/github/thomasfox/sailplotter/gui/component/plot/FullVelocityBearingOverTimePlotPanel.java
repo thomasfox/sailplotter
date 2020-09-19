@@ -59,7 +59,7 @@ public class FullVelocityBearingOverTimePlotPanel extends AbstractPlotPanel
     ChartFactory.getChartTheme().apply(chart);
 
     resetDataSeries();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

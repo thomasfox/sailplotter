@@ -26,7 +26,7 @@ public class ZoomedRollOverTimePlotPanel extends AbstractPlotPanel
         false);
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override

@@ -1,9 +1,11 @@
 package com.github.thomasfox.sailplotter.gui.component.plot;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -33,7 +35,7 @@ public class ZoomedMapPlotPanel extends AbstractPlotPanel
     ((XYLineAndShapeRenderer) plot.getRenderer()).setBaseToolTipGenerator(new XYTooltipFromLabelGenerator());
 
     onZoomChanged();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override
@@ -70,7 +72,16 @@ public class ZoomedMapPlotPanel extends AbstractPlotPanel
     MapArea mapArea = MapArea.calculateFrom(zoomedData, TimeWindowPosition.IN);
     plot.getDomainAxis().setRange(mapArea.getXRangeWithMargin(0.05));
     plot.getRangeAxis().setRange(mapArea.getYRangeWithMargin(0.05));
-    expandRangesToAspectRatio(plot, Constants.MAP_ASPECT_RATIO);
+    ChartRenderingInfo renderingInfo = chartPanel.getChartRenderingInfo();
+    if (renderingInfo != null)
+    {
+      Rectangle2D dataArea = renderingInfo.getPlotInfo().getDataArea();
+      expandRangesToAspectRatio(plot, dataArea.getWidth() / dataArea.getHeight());
+    }
+    else
+    {
+      expandRangesToAspectRatio(plot, Constants.MAP_ASPECT_RATIO);
+    }
   }
 
   @Override

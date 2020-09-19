@@ -24,7 +24,7 @@ public class ZoomedVelocityPlotPanel extends AbstractPlotPanel
         false);
 
     resetDataSeries();
-    addPanelFor(chart);
+    setChart(chart);
   }
 
   @Override
