@@ -81,9 +81,9 @@ public abstract class AbstractView extends JPanel implements DataChangeListener,
       return this;
     }
 
-    public void add(Component cmponent)
+    public void add(Component component)
     {
-      panel.add(cmponent, gridBagConstraints);
+      panel.add(component, gridBagConstraints);
     }
   }
 }
