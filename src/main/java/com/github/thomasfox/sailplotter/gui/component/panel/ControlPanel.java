@@ -1,13 +1,14 @@
 package com.github.thomasfox.sailplotter.gui.component.panel;
 
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.github.thomasfox.sailplotter.gui.SwingGui;
+import com.github.thomasfox.sailplotter.gui.component.Layout;
 import com.github.thomasfox.sailplotter.listener.DataChangeListener;
 import com.github.thomasfox.sailplotter.model.Data;
 
@@ -22,10 +23,13 @@ public class ControlPanel extends JPanel implements DataChangeListener, ZoomChan
 
   public ControlPanel(SwingGui gui)
   {
+    setLayout(new GridBagLayout());
     zoomPanel = new ZoomPanel();
     zoomPanel.addListener(gui::zoomChanged);
-    add(zoomPanel);
-
+    new Layout(this)
+        .withGridy(0)
+        .withWeighty(0.75)
+        .add(zoomPanel);
     JPanel windDirectionPanel = new JPanel();
     JLabel windDirectionLabel = new JLabel("Wind direction");
     windDirectionPanel.add(windDirectionLabel);
@@ -36,8 +40,10 @@ public class ControlPanel extends JPanel implements DataChangeListener, ZoomChan
     windDirectionTextField.setText("0");
     windDirectionTextField.addActionListener(gui::windDirectionChanged);
     windDirectionPanel.add(windDirectionTextField);
-    add(windDirectionPanel);
-    setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+    new Layout(this)
+        .withGridy(1)
+        .withWeighty(0.25)
+        .add(windDirectionPanel);
   }
 
   public int getZoomStartIndex()

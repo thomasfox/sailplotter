@@ -1,17 +1,18 @@
 package com.github.thomasfox.sailplotter.gui.component.panel;
 
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.Label;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.github.thomasfox.sailplotter.gui.component.Layout;
 import com.github.thomasfox.sailplotter.listener.DataChangeListener;
 import com.github.thomasfox.sailplotter.model.Data;
 
@@ -33,34 +34,52 @@ public class ZoomPanel extends JPanel implements ChangeListener, DataChangeListe
 
   public ZoomPanel()
   {
-    this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+    this.setLayout(new GridBagLayout());
     setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
     Label label = new Label("Start time");
     label.setAlignment(Label.CENTER);
     label.setPreferredSize(new Dimension(0, 15));
-    this.add(label);
+    new Layout(this)
+        .withGridy(0)
+        .withWeighty(0.16666)
+        .add(label);
 
     startSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 0);
     startSlider.addChangeListener(this);
-    this.add(startSlider);
+    new Layout(this)
+        .withGridy(1)
+        .withWeighty(0.16666)
+        .add(startSlider);
 
     label = new Label("End time");
     label.setAlignment(Label.CENTER);
     label.setPreferredSize(new Dimension(0, 15));
-    this.add(label);
+    new Layout(this)
+        .withGridy(2)
+        .withWeighty(0.16666)
+        .add(label);
 
     endSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 1);
     endSlider.addChangeListener(this);
-    this.add(endSlider);
+    new Layout(this)
+        .withGridy(3)
+        .withWeighty(0.16666)
+        .add(endSlider);
 
     label = new Label("Zoom");
     label.setAlignment(Label.CENTER);
-    this.add(label);
+    new Layout(this)
+        .withGridy(4)
+        .withWeighty(0.16666)
+        .add(label);
 
     zoomSlider = new JSlider(JSlider.HORIZONTAL, 0, 1, 1);
     zoomSlider.addChangeListener(this);
-    this.add(zoomSlider);
+    new Layout(this)
+        .withGridy(5)
+        .withWeighty(0.16666)
+        .add(zoomSlider);
   }
 
   @Override
