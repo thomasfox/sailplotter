@@ -1,11 +1,13 @@
 package com.github.thomasfox.sailplotter.gui.component.view;
 
-import javax.swing.BoxLayout;
+import java.awt.GridBagLayout;
+
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.gui.SwingGui;
+import com.github.thomasfox.sailplotter.gui.component.Layout;
 import com.github.thomasfox.sailplotter.gui.component.panel.ControlPanel;
 import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.gui.component.plot.AbstractPlotPanel;
@@ -70,9 +72,15 @@ public class Overview extends AbstractView
 
     zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel();
     JPanel topRightPanel = new JPanel();
-    topRightPanel.setLayout(new BoxLayout(topRightPanel, BoxLayout.PAGE_AXIS));
-    topRightPanel.add(zoomedBearingHistogramPlotPanel);
-    topRightPanel.add(controlPanel);
+    topRightPanel.setLayout(new GridBagLayout());
+    new Layout(topRightPanel)
+        .withGridxy(0, 0)
+        .withWeighty(0.5)
+        .add(zoomedBearingHistogramPlotPanel);
+    new Layout(topRightPanel)
+        .withGridxy(0, 1)
+        .withWeighty(0.5)
+        .add(controlPanel);
     createLayout()
         .withGridxy(2, 0)
         .withWeightx(0.333).withWeighty(0.35)
