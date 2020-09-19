@@ -1,5 +1,6 @@
 package com.github.thomasfox.sailplotter.gui.component.plot;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.util.List;
@@ -56,9 +57,9 @@ public abstract class AbstractPlotPanel extends JPanel implements ZoomChangeList
   protected abstract void onDataChanged();
 
   @Override
-  public void zoomChanged(ZoomChangeEvent e)
+  public void zoomChanged(ZoomChangeEvent zoomChangeEvent)
   {
-    this.zoomedData.zoomChanged(e);
+    this.zoomedData.zoomChanged(zoomChangeEvent);
     onZoomChanged();
   }
 
@@ -144,5 +145,11 @@ public abstract class AbstractPlotPanel extends JPanel implements ZoomChangeList
           xRange.getCentralValue() + 0.5d * yRange.getLength() * aspectRatio);
       plot.getDomainAxis().setRange(xRange);
     }
+  }
+
+  @Override
+  public Dimension getPreferredSize()
+  {
+    return new Dimension();
   }
 }

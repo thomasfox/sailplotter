@@ -1,5 +1,6 @@
 package com.github.thomasfox.sailplotter.gui.component.table;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -96,5 +97,11 @@ public class TackTablePanel extends JScrollPane
     Rectangle lastRectangleToSelect = tacksTable.getCellRect(endIndex, 0, true);
     tacksTable.scrollRectToVisible(lastRectangleToSelect);
     tacksTable.scrollRectToVisible(firstRectangleToSelect);
+  }
+
+  @Override
+  public Dimension getPreferredSize()
+  {
+    return new Dimension();
   }
 }

@@ -80,4 +80,10 @@ public class ControlPanel extends JPanel implements DataChangeListener, ZoomChan
   {
     zoomPanel.zoomChanged(e);
   }
+
+  @Override
+  public Dimension getPreferredSize()
+  {
+    return new Dimension();
+  }
 }

@@ -155,6 +155,15 @@ public class ZoomedData implements ZoomChangeListener
         point -> point.location.getBearingFromLatLongAs360Degrees());
   }
 
+
+  public TimeSeries getRelativeBearingInDegreesTimeSeries(TimeWindowPosition position)
+  {
+    return getLocationTimeSeries(
+        "bearing from pos",
+        position,
+        point -> point.getRelativeBearingAs360Degrees());
+  }
+
   public XYSeries getTackIntersectionSeries(
       TimeWindowPosition position,
       Function<Location, TwoDimVector> xyProvider)

@@ -59,13 +59,13 @@ public class Overview extends AbstractView
     fullVelocityBearingOverTimePlotPanel = new FullVelocityBearingOverTimePlotPanel();
     createLayout()
         .withGridx(0).withGridy(0)
-        .withWeightx(0.333).withWeighty(0.25)
+        .withWeightx(0.333).withWeighty(0.35)
         .add(fullVelocityBearingOverTimePlotPanel);
 
     zoomedVelocityBearingOverTimePlotPanel = new ZoomedVelocityBearingOverTimePlotPanel();
     createLayout()
         .withGridx(1).withGridy(0)
-        .withWeightx(0.333).withWeighty(0.25)
+        .withWeightx(0.333).withWeighty(0.35)
         .add(zoomedVelocityBearingOverTimePlotPanel);
 
     zoomedBearingHistogramPlotPanel = new ZoomedBearingHistogramPlotPanel();
@@ -75,38 +75,38 @@ public class Overview extends AbstractView
     topRightPanel.add(controlPanel);
     createLayout()
         .withGridxy(2, 0)
-        .withWeightx(0.333).withWeighty(0.25)
+        .withWeightx(0.333).withWeighty(0.35)
         .withColumnSpan(2)
         .add(topRightPanel);
 
     fullMapPlotPanel = new FullMapPlotPanel();
     createLayout()
         .withGridxy(0, 1)
-        .withWeightx(0.333).withWeighty(0.5)
+        .withWeightx(0.333).withWeighty(0.45)
         .add(fullMapPlotPanel);
 
     zoomedMapPlotPanel = new ZoomedMapPlotPanel();
     createLayout()
         .withGridxy(1, 1)
-        .withWeightx(0.333).withWeighty(0.5)
+        .withWeightx(0.333).withWeighty(0.45)
         .add(zoomedMapPlotPanel);
 
     tackVelocityBearingPolarPlotPanel = new TackVelocityBearingPolarPlotPanel();
     createLayout()
         .withGridxy(2, 1)
-        .withWeightx(0.166).withWeighty(0.5)
+        .withWeightx(0.166).withWeighty(0.45)
         .add(tackVelocityBearingPolarPlotPanel);
 
     velocityBearingPolarPlotPanel = new VelocityBearingPolarPlotPanel();
     createLayout()
         .withGridxy(3, 1)
-        .withWeightx(0.166).withWeighty(0.5)
+        .withWeightx(0.166).withWeighty(0.45)
         .add(velocityBearingPolarPlotPanel);
 
     tackTablePanel = new TackTablePanel(this::tackSelected);
     createLayout()
         .withGridxy(0, 2)
-        .withWeightx(0.666).withWeighty(0.25)
+        .withWeightx(0.666).withWeighty(0.2)
         .withColumnSpan(2)
         .add(tackTablePanel);
 
@@ -114,7 +114,7 @@ public class Overview extends AbstractView
     tackSeriesTablePanel = new TackSeriesTablePanel(this::tackSeriesSelected);
     createLayout()
         .withGridxy(2, 2)
-        .withWeightx(0.666).withWeighty(0.25)
+        .withWeightx(0.666).withWeighty(0.2)
         .withColumnSpan(2)
         .add(tackSeriesTablePanel);
   }

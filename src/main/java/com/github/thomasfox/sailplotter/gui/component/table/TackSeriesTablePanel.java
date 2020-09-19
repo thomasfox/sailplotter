@@ -1,5 +1,6 @@
 package com.github.thomasfox.sailplotter.gui.component.table;
 
+import java.awt.Dimension;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -65,5 +66,11 @@ public class TackSeriesTablePanel extends JScrollPane
     ListSelectionModel model = tackSeriesTable.getSelectionModel();
     int index = model.getAnchorSelectionIndex();
     return index;
+  }
+
+  @Override
+  public Dimension getPreferredSize()
+  {
+    return new Dimension();
   }
 }
