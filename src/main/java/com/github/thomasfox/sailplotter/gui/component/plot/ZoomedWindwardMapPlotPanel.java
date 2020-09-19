@@ -26,7 +26,7 @@ public class ZoomedWindwardMapPlotPanel extends AbstractPlotPanel
 
   public ZoomedWindwardMapPlotPanel()
   {
-    JFreeChart chart = ChartFactory.createXYLineChart("Sail Map Zoom", "X", "Y", dataset, PlotOrientation.VERTICAL, false, true, false);
+    JFreeChart chart = ChartFactory.createXYLineChart("Relative Map Zoom", "windward [m]", "sideward [m]", dataset, PlotOrientation.VERTICAL, false, true, false);
     plot = (XYPlot) chart.getPlot();
     plot.setRenderer(new XYZoomRenderer());
     plot.getRenderer().setSeriesPaint(0, new Color(0xFF, 0x00, 0x00));

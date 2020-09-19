@@ -24,7 +24,7 @@ public class FullMapPlotPanel extends AbstractPlotPanel
 
   public FullMapPlotPanel()
   {
-    JFreeChart chart = ChartFactory.createXYLineChart("Sail Map", "X", "Y", dataset, PlotOrientation.VERTICAL, false, false, false);
+    JFreeChart chart = ChartFactory.createXYLineChart("Map", "north [m]", "east [m]", dataset, PlotOrientation.VERTICAL, false, false, false);
     plot = (XYPlot) chart.getPlot();
 
     resetDataSeries();
