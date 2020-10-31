@@ -35,7 +35,7 @@ public class Data
 
   private transient List<DataPoint> accelerationPoints;
 
-  private transient List<Tack> tackList = new ArrayList<Tack>();
+  private transient TackList tackList = new TackList();
 
   private transient List<TackSeries> tackSeriesList = new ArrayList<TackSeries>();
 
@@ -192,7 +192,7 @@ public class Data
     this.comment = comment;
   }
 
-  public List<Tack> getTackList()
+  public TackList getTackList()
   {
     return tackList;
   }

@@ -14,12 +14,16 @@ public class Tack
 
   public PointOfSail pointOfSail;
 
+  /** The the data point which starts the tack (can be shared with previous tack). */
   public DataPoint start;
 
+  /** The index of the data point which starts the tack. */
   public int startOfTackDataPointIndex;
 
+  /** The the data point which ends the tack (can be shared with next tack). */
   public DataPoint end;
 
+  /** The index of the data point which ends the tack. */
   public int endOfTackDataPointIndex;
 
   public List<DataPoint> pointsWithinTack;

@@ -193,5 +193,6 @@ public class Overview extends AbstractView
     zoomedMapPlotPanel.zoomChanged(zoomChangeEvent);
     tackVelocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
     velocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
+    tackTablePanel.zoomChanged(zoomChangeEvent);
   }
 }

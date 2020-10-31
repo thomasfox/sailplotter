@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.thomasfox.sailplotter.Constants;
 import com.github.thomasfox.sailplotter.model.Tack;
+import com.github.thomasfox.sailplotter.model.TackList;
 import com.github.thomasfox.sailplotter.model.TackSeries;
 import com.github.thomasfox.sailplotter.model.TackSeriesType;
 
@@ -20,7 +21,7 @@ public class TackSeriesAnalyzer
 
   List<Tack> tacks;
 
-  public List<TackSeries> analyze(List<Tack> tacks)
+  public List<TackSeries> analyze(TackList tacks)
   {
     this.tacks = tacks;
     result = new ArrayList<>();

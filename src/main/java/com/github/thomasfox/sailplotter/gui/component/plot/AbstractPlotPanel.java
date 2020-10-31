@@ -22,6 +22,7 @@ import com.github.thomasfox.sailplotter.listener.ZoomChangeListener;
 import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Tack;
+import com.github.thomasfox.sailplotter.model.TackList;
 import com.github.thomasfox.sailplotter.model.ZoomedData;
 import com.github.thomasfox.sailplotter.model.vector.TwoDimVector;
 
@@ -90,7 +91,7 @@ public abstract class AbstractPlotPanel extends JPanel implements ZoomChangeList
     {
       return series;
     }
-    List<Tack> tackList = zoomedData.getData().getTackList();
+    TackList tackList = zoomedData.getData().getTackList();
     if (tackList == null || tackList.size() == 0)
     {
       return series;

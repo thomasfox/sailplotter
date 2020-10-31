@@ -151,5 +151,6 @@ public class RelativeToWindView extends AbstractView
     zoomedWindwardMapPlotPanel.zoomChanged(zoomChangeEvent);
     velocityBearingScatteredPolarPlotPanel.zoomChanged(zoomChangeEvent);
     velocityBearingPolarPlotPanel.zoomChanged(zoomChangeEvent);
+    tackTablePanel.zoomChanged(zoomChangeEvent);
   }
 }

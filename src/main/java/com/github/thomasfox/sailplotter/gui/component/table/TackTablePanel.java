@@ -3,15 +3,17 @@ package com.github.thomasfox.sailplotter.gui.component.table;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.text.DecimalFormat;
-import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import com.github.thomasfox.sailplotter.gui.component.panel.ZoomChangeEvent;
 import com.github.thomasfox.sailplotter.model.Tack;
+import com.github.thomasfox.sailplotter.model.TackList;
 
 public class TackTablePanel extends JScrollPane
 {
@@ -21,6 +23,10 @@ public class TackTablePanel extends JScrollPane
   private final DefaultTableModel tackTableModel;
 
   private final JTable tacksTable;
+
+  private TackList tackList;
+
+  private boolean notifyListeners = true;
 
   public TackTablePanel(ListSelectionListener listener)
   {
@@ -41,12 +47,13 @@ public class TackTablePanel extends JScrollPane
         0);
     tacksTable = new JTable(tackTableModel);
     tacksTable.setFillsViewportHeight(true);
-    tacksTable.getSelectionModel().addListSelectionListener(listener);
+    tacksTable.getSelectionModel().addListSelectionListener(new DelegatingListSelectionListener(listener));
     setViewportView(tacksTable);
   }
 
-  public void updateContent(List<Tack> tackList)
+  public void updateContent(TackList tackList)
   {
+    this.tackList = tackList;
     while (tackTableModel.getRowCount() > 0)
     {
       tackTableModel.removeRow(0);
@@ -104,4 +111,56 @@ public class TackTablePanel extends JScrollPane
   {
     return new Dimension();
   }
+
+  public void zoomChanged(ZoomChangeEvent zoomChangeEvent)
+  {
+    if (tackList == null || tackList.isEmpty())
+    {
+      return;
+    }
+    Integer startIndex = tackList.getTackIndex(zoomChangeEvent.getStartIndex());
+    if (startIndex == null
+        && zoomChangeEvent.getStartIndex() < tackList.get(0).startOfTackDataPointIndex)
+    {
+      startIndex = 0;
+    }
+    Integer endIndex = tackList.getTackIndex(zoomChangeEvent.getEndIndex());
+    if (endIndex == null
+        && zoomChangeEvent.getEndIndex() > tackList.get(tackList.size() - 1).endOfTackDataPointIndex)
+    {
+      endIndex = tackList.size() - 1;
+    }
+    if (startIndex != null && endIndex != null)
+    {
+      try
+      {
+        notifyListeners = false;
+        tacksTable.getSelectionModel().setSelectionInterval(startIndex, endIndex);
+      }
+      finally
+      {
+        notifyListeners = true;
+      }
+    }
+  }
+
+  private class DelegatingListSelectionListener implements ListSelectionListener
+  {
+    private final ListSelectionListener delegate;
+
+    public DelegatingListSelectionListener(ListSelectionListener delegate)
+    {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e)
+    {
+      if (notifyListeners)
+      {
+        delegate.valueChanged(e);
+      }
+    }
+  }
 }
+

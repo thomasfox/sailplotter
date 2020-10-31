@@ -1,8 +1,6 @@
 package com.github.thomasfox.sailplotter.model;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TackSeries
 {
@@ -32,7 +30,7 @@ public class TackSeries
 
   public TackSeriesType type;
 
-  public final List<Tack> tacks = new ArrayList<>();
+  public final TackList tacks = new TackList();
 
   public TackSeries(int startAndEndTackIndex, TackSeriesType type)
   {

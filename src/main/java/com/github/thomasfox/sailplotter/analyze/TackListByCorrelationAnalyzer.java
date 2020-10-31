@@ -1,6 +1,5 @@
 package com.github.thomasfox.sailplotter.analyze;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.github.thomasfox.sailplotter.model.Data;
@@ -9,6 +8,7 @@ import com.github.thomasfox.sailplotter.model.Location;
 import com.github.thomasfox.sailplotter.model.ManeuverType;
 import com.github.thomasfox.sailplotter.model.PointOfSail;
 import com.github.thomasfox.sailplotter.model.Tack;
+import com.github.thomasfox.sailplotter.model.TackList;
 
 public class TackListByCorrelationAnalyzer
 {
@@ -18,10 +18,10 @@ public class TackListByCorrelationAnalyzer
 
   private static final int ADJUSTMENT_RADIUS = 10;
 
-  public List<Tack> analyze(Data data)
+  public TackList analyze(Data data)
   {
     List<DataPoint> points = data.getPointsWithLocation();
-    List<Tack> tackList = calculateTacksByMaxOffBearing(points);
+    TackList tackList = calculateTacksByMaxOffBearing(points);
     tackList = adjustTackStartAndEndPoint(tackList, points);
 
     for (int i = 1; i < tackList.size(); ++i)
@@ -55,7 +55,7 @@ public class TackListByCorrelationAnalyzer
     return tackList;
   }
 
-  private List<Tack> adjustTackStartAndEndPoint(List<Tack> tacks, List<DataPoint> points)
+  private TackList adjustTackStartAndEndPoint(TackList tacks, List<DataPoint> points)
   {
     for (int tackIndex = 1; tackIndex < tacks.size(); ++tackIndex)
     {
@@ -153,10 +153,10 @@ public class TackListByCorrelationAnalyzer
    * @param points the measured data points
    * @return the list of tacks determined from the points.
    */
-  private List<Tack> calculateTacksByMaxOffBearing(List<DataPoint> points)
+  private TackList calculateTacksByMaxOffBearing(List<DataPoint> points)
   {
     int tackIndex = 0;
-    List<Tack> firstPass = new ArrayList<>();
+    TackList firstPass = new TackList();
     Tack currentTack = null;
     int offTackCounter = 0;
     for (int dataPointIndex = 0; dataPointIndex < points.size(); ++dataPointIndex)
