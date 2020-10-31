@@ -87,7 +87,7 @@ public class RelativeToWindView extends AbstractView
         .withWeightx(0.25).withWeighty(0.4)
         .add(velocityBearingPolarPlotPanel);
 
-    tackTablePanel = new TackTablePanel(this::tackSelected);
+    tackTablePanel = new TackTablePanel(this::tacksSelected);
     createLayout()
         .withGridxy(1, 2)
         .withWeightx(0.625).withWeighty(0.2)
@@ -113,16 +113,17 @@ public class RelativeToWindView extends AbstractView
     }
   }
 
-  public void tackSelected(ListSelectionEvent e)
+  public void tacksSelected(ListSelectionEvent e)
   {
     if (e.getValueIsAdjusting() || gui.inUpdate)
     {
       return;
     }
-    int index = tackTablePanel.getSelectedTackIndex();
-    Tack tack = data.getTackList().get(index);
-    controlPanel.setZoomStartIndex(Math.max(tack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
-    controlPanel.setZoomEndIndex(tack.endOfTackDataPointIndex + Constants.NUM_DATAPOINTS_TACK_EXTENSION);
+    int[] selectedIndices = tackTablePanel.getSelectedTackIndices();
+    Tack firstTack = data.getTackList().get(selectedIndices[0]);
+    controlPanel.setZoomStartIndex(Math.max(firstTack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+    Tack lastTack = data.getTackList().get(selectedIndices[selectedIndices.length - 1]);
+    controlPanel.setZoomEndIndex(lastTack.endOfTackDataPointIndex + Constants.NUM_DATAPOINTS_TACK_EXTENSION);
   }
 
   @Override

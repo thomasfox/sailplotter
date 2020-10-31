@@ -83,11 +83,11 @@ public class TackTablePanel extends JScrollPane
     }
   }
 
-  public int getSelectedTackIndex()
+  public int[] getSelectedTackIndices()
   {
     ListSelectionModel model = tacksTable.getSelectionModel();
-    int index = model.getAnchorSelectionIndex();
-    return index;
+    int[] indices = model.getSelectedIndices();
+    return indices;
   }
 
   public void selectInterval(int startIndex, int endIndex)

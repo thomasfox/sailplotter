@@ -133,10 +133,15 @@ public class Overview extends AbstractView
     {
       return;
     }
-    int index = tackTablePanel.getSelectedTackIndex();
-    Tack tack = data.getTackList().get(index);
-    controlPanel.setZoomStartIndex(Math.max(tack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
-    controlPanel.setZoomEndIndex(tack.endOfTackDataPointIndex + Constants.NUM_DATAPOINTS_TACK_EXTENSION);
+    int[] selectedIndices = tackTablePanel.getSelectedTackIndices();
+    if (selectedIndices == null || selectedIndices.length == 0)
+    {
+      return;
+    }
+    Tack firstTack = data.getTackList().get(selectedIndices[0]);
+    controlPanel.setZoomStartIndex(Math.max(firstTack.startOfTackDataPointIndex - Constants.NUM_DATAPOINTS_TACK_EXTENSION, 0));
+    Tack lastTack = data.getTackList().get(selectedIndices[selectedIndices.length - 1]);
+    controlPanel.setZoomEndIndex(lastTack.endOfTackDataPointIndex + Constants.NUM_DATAPOINTS_TACK_EXTENSION);
   }
 
   public void tackSeriesSelected(ListSelectionEvent e)
