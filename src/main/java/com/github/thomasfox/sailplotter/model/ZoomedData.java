@@ -137,7 +137,11 @@ public class ZoomedData implements ZoomChangeListener
     TimeSeries series = new TimeSeries("velocity");
     for (DataPoint point : getLocationSubset(position))
     {
-      series.addOrUpdate(point.getMillisecond(), mapper.apply(point));
+      Double mapResult = mapper.apply(point);
+      if (mapResult != null)
+      {
+        series.addOrUpdate(point.getMillisecond(), mapper.apply(point));
+      }
     }
     return series;
   }

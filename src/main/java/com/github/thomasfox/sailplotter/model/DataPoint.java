@@ -92,7 +92,10 @@ public class DataPoint
 
   public boolean hasLocation()
   {
-    return location != null && location.latitude != null && location.longitude != null && !location.interpolated;
+    return location != null
+        && location.latitude != null
+        && location.longitude != null
+        && !location.interpolated;
   }
 
   public boolean hasAcceleration()

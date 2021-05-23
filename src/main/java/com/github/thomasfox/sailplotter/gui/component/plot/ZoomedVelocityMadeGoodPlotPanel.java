@@ -49,8 +49,12 @@ public class ZoomedVelocityMadeGoodPlotPanel extends AbstractPlotPanel
         this::getVelocityMadeGood);
   }
 
-  private double getVelocityMadeGood(DataPoint point)
+  private Double getVelocityMadeGood(DataPoint point)
   {
+    if (point.location.bearingFromLatLong == null)
+    {
+      return null;
+    }
     return point.location.velocityFromLatLong
         * Math.cos(point.location.bearingFromLatLong - zoomedData.getData().getAverageWindBearing());
   }
