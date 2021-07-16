@@ -56,9 +56,18 @@ public class TackSeriesTablePanel extends JScrollPane
           tackSeries.type,
           tackSeries.getAverageWindDirectionInDegrees(),
           tackSeries.getAverageAngleToWindInDegrees(),
-          new DecimalFormat("0.0").format(tackSeries.getAverageMainPartVelocityStarboard()),
-          new DecimalFormat("0.0").format(tackSeries.getAverageMainPartVelocityPort())});
+          formatSingleDecimalPlaceDecimal(tackSeries.getAverageMainPartVelocityStarboard()),
+          formatSingleDecimalPlaceDecimal(tackSeries.getAverageMainPartVelocityPort())});
     }
+  }
+
+  private String formatSingleDecimalPlaceDecimal(Double toFormat)
+  {
+    if (toFormat == null)
+    {
+      return "";
+    }
+    return new DecimalFormat("0.0").format(toFormat);
   }
 
   public int getSelectedTackSeriesIndex()
