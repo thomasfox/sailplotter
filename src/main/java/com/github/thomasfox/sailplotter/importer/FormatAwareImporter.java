@@ -31,6 +31,10 @@ public class FormatAwareImporter implements Importer
     {
       data = new ViewRangerImporter(loadProgress).read(file);
     }
+    else if (file.getPath().endsWith(".gpx"))
+    {
+      data = new GpxImporter(loadProgress).read(file);
+    }
     else
     {
       throw new RuntimeException("unknown extenson of file " + file.getName()
