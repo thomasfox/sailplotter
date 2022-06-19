@@ -38,7 +38,7 @@ public class FormatAwareImporter implements Importer
     else
     {
       throw new RuntimeException("unknown extenson of file " + file.getName()
-          + ", known extensions are .log, .saillog and .vrtp");
+          + ", known extensions are .gpx, .log, .saillog and .vrtp");
     }
     if (data.getPointsWithLocation().size() < 2) {
       throw new RuntimeException("Track contains lesss than 2 locations");
