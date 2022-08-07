@@ -55,7 +55,7 @@ public class Data
   {
     if (size() > 0 && point.time != null && getLast().time != null && getLast().time > point.time)
     {
-      throw new IllegalArgumentException(" points must be ordered in time. "
+      throw new IllegalArgumentException("Points must be ordered in time. "
           + "Newly added point has time " + point.time
           + " while last point in list has time " + getLast().time);
     }

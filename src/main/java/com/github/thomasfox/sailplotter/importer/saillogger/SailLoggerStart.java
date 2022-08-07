@@ -8,8 +8,13 @@ public final class SailLoggerStart
   public String loggedBy;
   /** Contains the version of the program which logged the data. */
   public String loggedByVersion;
-  /** The manufacturer of the device used to record the data */
+  /**
+   * The manufacturer of the device used to record the data.
+   * (with typo for backwards compatibility)
+   */
   public String recordedByManufactorer;
+  /** The manufacturer of the device used to record the data. */
+  public String recordedByManufacturer;
   /** The model name of the device used to record the data */
   public String recordedByModel;
   /** The time when recording started (typically using the hardware time of the recording device) */

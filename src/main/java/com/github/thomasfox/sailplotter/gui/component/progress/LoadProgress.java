@@ -1,5 +1,7 @@
 package com.github.thomasfox.sailplotter.gui.component.progress;
 
+import java.util.List;
+
 /**
  * Advertises the progress of loading a file through a ProgressChanged instance.
  */
@@ -99,5 +101,10 @@ public class LoadProgress
   public void startAnalyzeOrientationSetHeelAndRoll()
   {
     progressChanged.setToDisplay("analyzing orientation: set heel and roll...");
+  }
+
+  public void warningsChanged(List<String> allWarnings)
+  {
+    progressChanged.setWarnings(allWarnings);
   }
 }

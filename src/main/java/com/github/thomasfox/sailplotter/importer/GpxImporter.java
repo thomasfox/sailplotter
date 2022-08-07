@@ -18,20 +18,24 @@ import com.github.thomasfox.sailplotter.model.Data;
 import com.github.thomasfox.sailplotter.model.DataPoint;
 import com.github.thomasfox.sailplotter.model.Location;
 
+/**
+ * Imports data from a GPX file.
+ */
 public class GpxImporter implements Importer
 {
   private final LoadProgress loadProgress;
+
 
   public GpxImporter(LoadProgress loadProgress)
   {
     this.loadProgress = loadProgress;
   }
 
-
   @Override
-  public Data read(File file)
+  public ImporterResult read(File file)
   {
-    Data result = new Data();
+    List<String> warnMessages = new ArrayList<>();
+    Data data = new Data();
     List<GpxPoint> rawData = readFileInternal(file);
     int index = 0;
     for (GpxPoint rawPoint : rawData)
@@ -40,11 +44,19 @@ public class GpxImporter implements Importer
       dataPoint.location = new Location();
       dataPoint.location.latitude = rawPoint.lat / 180d * Math.PI;
       dataPoint.location.longitude = rawPoint.lon / 180d * Math.PI;
-      dataPoint.time = rawPoint.time.getTime();
-      result.add(dataPoint);
+      try
+      {
+        dataPoint.time = rawPoint.time.getTime();
+      }
+      catch (Exception e)
+      {
+        warnMessages.add("bad timestamp in data point with index " + index);
+        continue;
+      }
+      data.add(dataPoint);
       index++;
     }
-    return result;
+    return new ImporterResult(data, warnMessages);
   }
 
   public List<GpxPoint> readFileInternal(File file)
@@ -72,7 +84,6 @@ public class GpxImporter implements Importer
     public GpxTrack trk;
   }
 
-
   public static class GpxTrack
   {
     public GpxTrackSegment trkseg;
@@ -93,6 +104,5 @@ public class GpxImporter implements Importer
 
     @JacksonXmlProperty(isAttribute = true)
     public double lon;
-
   }
 }

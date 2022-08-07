@@ -3,6 +3,7 @@ package com.github.thomasfox.sailplotter.importer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -26,9 +27,9 @@ public class ViewRangerImporter implements Importer
   }
 
   @Override
-  public Data read(File file)
+  public ImporterResult read(File file)
   {
-    Data result = new Data();
+    Data data = new Data();
     ViewRangerData rawData = readFileInternal(file);
     int index = 0;
     for (ViewRangerPoint rawPoint : rawData.points)
@@ -38,10 +39,10 @@ public class ViewRangerImporter implements Importer
       dataPoint.location.latitude = rawPoint.lat / 180d * Math.PI;
       dataPoint.location.longitude = rawPoint.lon / 180d * Math.PI;
       dataPoint.time = rawPoint.time;
-      result.add(dataPoint);
+      data.add(dataPoint);
       index++;
     }
-    return result;
+    return new ImporterResult(data, new ArrayList<>());
   }
 
   public ViewRangerData readFileInternal(File file)

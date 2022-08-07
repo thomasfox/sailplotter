@@ -55,9 +55,9 @@ public class SailRacerImporter implements Importer
 
 
   @Override
-  public Data read(File file)
+  public ImporterResult read(File file)
   {
-    Data result = new Data();
+    Data data = new Data();
     List<SailRacerPoint> rawData = readFileInternal(file);
     int index = 0;
     for (SailRacerPoint rawPoint : rawData)
@@ -67,10 +67,10 @@ public class SailRacerImporter implements Importer
       dataPoint.location.latitude = rawPoint.lat / 180d * Math.PI;
       dataPoint.location.longitude = rawPoint.lon / 180d * Math.PI;
       dataPoint.time = rawPoint.datetime.toInstant(ZoneOffset.UTC).toEpochMilli();
-      result.add(dataPoint);
+      data.add(dataPoint);
       index++;
     }
-    return result;
+    return new ImporterResult(data, new ArrayList<>());
   }
 
   public List<SailRacerPoint> readFileInternal(File file)

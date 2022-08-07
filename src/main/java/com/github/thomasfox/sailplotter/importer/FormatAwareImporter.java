@@ -3,8 +3,7 @@ package com.github.thomasfox.sailplotter.importer;
 import java.io.File;
 
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
-import com.github.thomasfox.sailplotter.importer.saillogger.SailLoggerImporter;
-import com.github.thomasfox.sailplotter.model.Data;
+import com.github.thomasfox.sailplotter.importer.saillogger.SailDataImporter;
 
 public class FormatAwareImporter implements Importer
 {
@@ -16,34 +15,36 @@ public class FormatAwareImporter implements Importer
   }
 
   @Override
-  public Data read(File file)
+  public ImporterResult read(File file)
   {
-    Data data;
+    ImporterResult result;
     if (file.getPath().endsWith(".log"))
     {
-      data = new SailRacerImporter(loadProgress).read(file);
+      result = new SailRacerImporter(loadProgress).read(file);
     }
-    if (file.getPath().endsWith(".saillog"))
+    if (file.getPath().endsWith(".saillog") || file.getPath().endsWith(".saildata"))
     {
-      data = new SailLoggerImporter(loadProgress).read(file);
+      result = new SailDataImporter(loadProgress).read(file);
     }
     else if (file.getPath().endsWith(".vrtp"))
     {
-      data = new ViewRangerImporter(loadProgress).read(file);
+      result = new ViewRangerImporter(loadProgress).read(file);
     }
     else if (file.getPath().endsWith(".gpx"))
     {
-      data = new GpxImporter(loadProgress).read(file);
+      result = new GpxImporter(loadProgress).read(file);
     }
     else
     {
       throw new RuntimeException("unknown extenson of file " + file.getName()
-          + ", known extensions are .gpx, .log, .saillog and .vrtp");
+          + ", known extensions are .gpx, .log, .saillog, .saildata and .vrtp");
     }
-    if (data.getPointsWithLocation().size() < 2) {
+    if (result.getData() == null
+        || result.getData().getPointsWithLocation().size() < 2)
+    {
       throw new RuntimeException("Track contains lesss than 2 locations");
     }
-    data.setFile(file);
-    return data;
+    result.getData().setFile(file);
+    return result;
   }
 }

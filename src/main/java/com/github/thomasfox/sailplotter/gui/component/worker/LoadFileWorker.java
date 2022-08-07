@@ -11,6 +11,7 @@ import javax.swing.SwingWorker;
 import com.github.thomasfox.sailplotter.analyze.Analyzer;
 import com.github.thomasfox.sailplotter.gui.component.progress.LoadProgress;
 import com.github.thomasfox.sailplotter.importer.FormatAwareImporter;
+import com.github.thomasfox.sailplotter.importer.ImporterResult;
 import com.github.thomasfox.sailplotter.model.Data;
 
 public class LoadFileWorker extends SwingWorker<Data, Void>
@@ -35,10 +36,14 @@ public class LoadFileWorker extends SwingWorker<Data, Void>
   protected Data doInBackground() throws Exception
   {
     loadProgress.start();
-    Data data = new FormatAwareImporter(loadProgress).read(file);
+    ImporterResult result = new FormatAwareImporter(loadProgress).read(file);
+    if (result.hasWarnMessages())
+    {
+      loadProgress.warningsChanged(result.getWarnings());
+    }
     loadProgress.analyzingStarted();
-    Analyzer.analyze(data, loadProgress);
-    return data;
+    Analyzer.analyze(result.getData(), loadProgress);
+    return result.getData();
   }
 
   @Override
